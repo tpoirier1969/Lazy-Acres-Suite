@@ -1,9 +1,10 @@
-import { authService } from './auth.js?v=0.1.1';
-import { entitlementService } from './entitlements.js?v=0.1.1';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.1';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.1';
+import { authService } from './auth.js?v=0.1.2';
+import { entitlementService } from './entitlements.js?v=0.1.2';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.2';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.2';
 
-const APP_VERSION = 'v0.1.1';
+const APP_VERSION = 'v0.1.2';
+const APP_ICON_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Home/apple-touch-icon.png?v=0.1.2';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
 function escapeHtml(value) {
@@ -20,7 +21,7 @@ function renderShell(content) {
     <div class="app-shell">
       <header class="suite-header">
         <a class="brand" href="${routeToHash('dashboard')}" aria-label="Lazy Acres Suite dashboard">
-          <span class="brand-mark" aria-hidden="true">LA</span>
+          <img class="brand-icon" src="${APP_ICON_URL}" alt="" aria-hidden="true" />
           <span>
             <strong>Lazy Acres Suite</strong>
             <small>Home base</small>
