@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4 - Theme prototype
+
+- Reworked the dashboard into a fuller Field Lab-style page prototype with header, command bar, side rail, hero, module grid, and quick panels.
+- Added an automatic theme system: Field Lab during the day and Aurora Utility at night.
+- Added manual theme controls for Auto, Field, and Aurora.
+- Added theme-aware CSS variables, per-app accent colors, and Aurora dark-mode styling.
+- Added a first real-page pass at soft membrane-style controls and raised module surfaces.
+- Bumped cache-buster query strings to `0.1.4`.
+
 ## 0.1.3 - Copy module links
 
 - Added a Copy link button to dashboard app cards and module detail pages.
