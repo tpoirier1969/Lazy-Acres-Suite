@@ -1,8 +1,9 @@
-import { authService } from './auth.js';
-import { entitlementService } from './entitlements.js';
-import { getModuleBySlug, moduleRegistry } from './modules.js';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js';
+import { authService } from './auth.js?v=0.1.1';
+import { entitlementService } from './entitlements.js?v=0.1.1';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.1';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.1';
 
+const APP_VERSION = 'v0.1.1';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
 function escapeHtml(value) {
@@ -25,6 +26,7 @@ function renderShell(content) {
             <small>Home base</small>
           </span>
         </a>
+        <span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span>
       </header>
 
       ${content}
