@@ -1,12 +1,12 @@
-import { authService } from './auth.js?v=0.1.6';
-import { entitlementService } from './entitlements.js?v=0.1.6';
-import { getDashboardSnapshot } from './dashboard-data.js?v=0.1.6';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.6';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.6';
+import { authService } from './auth.js?v=0.1.7';
+import { entitlementService } from './entitlements.js?v=0.1.7';
+import { getDashboardSnapshot } from './dashboard-data.js?v=0.1.7';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.7';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.7';
 
-const APP_VERSION = 'v0.1.6';
+const APP_VERSION = 'v0.1.7';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.6';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.7';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
@@ -16,16 +16,83 @@ let activeResolvedTheme = null;
 let dashboardSnapshot = null;
 
 const MODULE_ICONS = {
-  shopping: '<path d="M6.5 8.8h11l-1.2 8.2a2.6 2.6 0 0 1-2.6 2.2H10.3A2.6 2.6 0 0 1 7.7 17L6.5 8.8Z" fill="currentColor" opacity=".16"/><path d="M8.5 9.1c.6-3 2-4.4 3.5-4.4s2.9 1.4 3.5 4.4" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M16.7 11.2c2-.7 3.2 0 3.8 1.2-1.8.5-3 .2-3.8-1.2ZM7.3 11.5c-2-.4-3.2.5-3.5 1.8 1.9.2 3-.3 3.5-1.8Z" fill="currentColor" opacity=".34"/><path d="M8.2 13h7.6M8.7 15.4h6.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity=".45"/>',
-  scheduler: '<rect x="4.3" y="5.2" width="15.4" height="14.8" rx="3.2" fill="currentColor" opacity=".14"/><path d="M7.8 3.8v3.3M16.2 3.8v3.3M5 9.6h14" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><rect x="7.1" y="12" width="3.1" height="3.1" rx="1" fill="currentColor" opacity=".46"/><rect x="11" y="12" width="3.1" height="3.1" rx="1" fill="currentColor" opacity=".28"/><rect x="14.9" y="12" width="3.1" height="3.1" rx="1" fill="currentColor" opacity=".2"/><path d="M7.3 17h8.9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity=".35"/>',
-  recipes: '<path d="M5 13.2h14l-1.2 4.8a3.1 3.1 0 0 1-3 2.4H9.2a3.1 3.1 0 0 1-3-2.4L5 13.2Z" fill="currentColor" opacity=".15"/><path d="M8.3 13c.4-2.1 1.8-3.4 3.7-3.4s3.3 1.3 3.7 3.4M9.8 8.2c-.8-1.4-.5-2.6.4-3.5M14.3 8.2c.8-1.2.7-2.5-.1-3.5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.7" fill="currentColor" opacity=".34"/><path d="M8.4 18.5h7.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" opacity=".35"/>',
-  tv: '<rect x="4" y="7" width="16" height="11.2" rx="3.2" fill="currentColor" opacity=".15"/><rect x="7.2" y="10.1" width="9.6" height="4.6" rx="1.2" fill="currentColor" opacity=".22"/><path d="M9 4.7 12 7l3-2.3M9.5 20.5h5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M18 9.6c.5.8.5 4.5 0 5.3" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/>',
-  ski: '<path d="M4 18.3 10 8l3.1 5 2.6-3.4 4.3 8.7H4Z" fill="currentColor" opacity=".14"/><path d="M8.5 9.6 11 6.7l2.8 3.2M7 20.1c3.9-1.2 6.2-1.2 10 0" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M16.2 9.3v5.8M14.3 11h3.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>',
-  'church-music': '<path d="M10 18.3A2.3 2.3 0 1 1 7.7 16H10V6.3l8-1.8v10.7" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 17.3A2.3 2.3 0 1 1 15.7 15H18M10 8.5l8-1.8" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M5.5 8.6c1.4-1.1 2.8-1.1 4.2 0M15.3 4.3c1.5-.8 3-.8 4.3 0" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".42"/>',
-  foraging: '<path d="M12 20c0-6.2 2.5-10.2 7.1-13-6 .7-10.8 4.7-12 10 1.9-.8 4.2-.4 4.9 3Z" fill="currentColor" opacity=".16"/><path d="M5.1 12.8c2.6-1.1 5.7-.9 8.1 1M12 20c-.9-3.8-3-6.6-6.8-8.7M16.2 9.4c1.2-1.4 2.6-2.5 4.2-3.2" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><circle cx="7" cy="17" r="1.1" fill="currentColor" opacity=".28"/>',
-  camping: '<path d="M4.5 18.7 12 5l7.5 13.7H4.5Z" fill="currentColor" opacity=".15"/><path d="M12 5v13.7M8.9 18.7l3.1-4.9 3.1 4.9M4.2 18.7h15.6" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 15.2c-1.3-.7-2.2-.7-3.4 0M17.5 15.2c1.3-.7 2.2-.7 3.4 0" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".4"/>',
-  fishing: '<path d="M3.7 12s3.8-4.8 8.3-4.8 8.3 4.8 8.3 4.8-3.8 4.8-8.3 4.8S3.7 12 3.7 12Z" fill="currentColor" opacity=".15"/><path d="M17.2 12 21 8.6v6.8L17.2 12Z" fill="currentColor" opacity=".22"/><circle cx="9.3" cy="10.9" r=".8" fill="currentColor"/><path d="M6 18.9c2.4-1.2 5.6-1.2 8 0M13 8.2c1.3 1.5 1.3 6.1 0 7.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>',
-  genealogy: '<path d="M12 20V8M8.2 20h7.6" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M12 8c-2.1-3-5.6-3.3-7.8-.7 3 .2 5.4 1 7.8.7ZM12 8c2.1-3 5.6-3.3 7.8-.7-3 .2-5.4 1-7.8.7ZM7.6 13.2c-1.7-1.7-4-1.7-5.6 0 1.9.2 3.8.8 5.6 0ZM16.4 13.2c1.7-1.7 4-1.7 5.6 0-1.9.2-3.8.8-5.6 0Z" fill="currentColor" opacity=".16"/><path d="M12 8c2.6 4.1 2.6 8.1 0 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".45"/>',
+  shopping: `
+    <ellipse cx="60" cy="92" rx="32" ry="7" fill="currentColor" opacity=".13"/>
+    <path d="M29 43c3-5 11-8 22-8h18c11 0 19 3 22 8l-7 37c-2 9-9 14-18 14H54c-9 0-16-5-18-14L29 43Z" fill="currentColor" opacity=".2"/>
+    <path d="M37 45h46l-6 35c-1.3 6.6-6 10-13 10h-8c-7 0-11.7-3.4-13-10l-6-35Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" opacity=".75"/>
+    <path d="M44 45c3-16 9-24 16-24s13 8 16 24" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/>
+    <path d="M80 58c11-5 20-1 23 7-10 3-18 1-23-7ZM40 61c-11-2-19 3-21 12 10 1 17-3 21-12Z" fill="currentColor" opacity=".36"/>
+    <path d="M45 61h30M48 71h24M51 81h18" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".45"/>`,
+  scheduler: `
+    <ellipse cx="60" cy="92" rx="30" ry="7" fill="currentColor" opacity=".12"/>
+    <rect x="29" y="28" width="62" height="62" rx="13" fill="currentColor" opacity=".18"/>
+    <path d="M37 28h46c6 0 10 4 10 10v41c0 7-4 11-11 11H38c-7 0-11-4-11-11V38c0-6 4-10 10-10Z" fill="none" stroke="currentColor" stroke-width="4" opacity=".72"/>
+    <path d="M44 18v20M76 18v20M29 46h62" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+    <rect x="41" y="56" width="12" height="12" rx="3" fill="currentColor" opacity=".58"/>
+    <rect x="58" y="56" width="12" height="12" rx="3" fill="currentColor" opacity=".35"/>
+    <rect x="75" y="56" width="12" height="12" rx="3" fill="currentColor" opacity=".22"/>
+    <rect x="41" y="73" width="12" height="12" rx="3" fill="currentColor" opacity=".28"/>
+    <path d="M57 81h28" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".35"/>`,
+  recipes: `
+    <ellipse cx="60" cy="92" rx="34" ry="7" fill="currentColor" opacity=".13"/>
+    <path d="M28 61h64l-6 21c-2.7 9-10 14-21 14H55c-11 0-18-5-21-14l-6-21Z" fill="currentColor" opacity=".2"/>
+    <path d="M30 61h60l-5 20c-2 8-8 12-18 12H53c-10 0-16-4-18-12l-5-20Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" opacity=".75"/>
+    <path d="M42 60c3-12 10-19 20-19 9 0 16 7 18 19" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
+    <path d="M51 38c-7-10-5-21 4-28M69 38c8-9 8-19 1-28" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+    <circle cx="60" cy="75" r="7" fill="currentColor" opacity=".35"/>
+    <path d="M38 87c13 5 31 5 44 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".3"/>`,
+  tv: `
+    <ellipse cx="60" cy="93" rx="32" ry="7" fill="currentColor" opacity=".13"/>
+    <rect x="25" y="39" width="70" height="45" rx="13" fill="currentColor" opacity=".2"/>
+    <path d="M33 39h54c7 0 11 4 11 11v24c0 7-4 11-11 11H33c-7 0-11-4-11-11V50c0-7 4-11 11-11Z" fill="none" stroke="currentColor" stroke-width="4" opacity=".72"/>
+    <rect x="38" y="52" width="38" height="20" rx="5" fill="currentColor" opacity=".23"/>
+    <path d="M47 27 60 39l13-12M47 95h26" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
+    <circle cx="85" cy="55" r="3" fill="currentColor" opacity=".6"/>
+    <circle cx="85" cy="68" r="3" fill="currentColor" opacity=".36"/>
+    <path d="M41 77c10 3 28 3 38 0" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".3"/>`,
+  ski: `
+    <ellipse cx="60" cy="94" rx="35" ry="7" fill="currentColor" opacity=".12"/>
+    <path d="M18 83 45 36l15 24 12-17 30 40H18Z" fill="currentColor" opacity=".17"/>
+    <path d="M18 83 45 36l15 24 12-17 30 40H18Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" opacity=".72"/>
+    <path d="M37 48 49 27l16 27M70 47l9-14 9 14" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M78 39v30M68 49h22" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity=".75"/>
+    <rect x="72" y="66" width="13" height="12" rx="4" fill="currentColor" opacity=".33"/>
+    <path d="M29 93c18-6 44-6 62 0" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".45"/>`,
+  'church-music': `
+    <ellipse cx="60" cy="94" rx="32" ry="7" fill="currentColor" opacity=".12"/>
+    <path d="M48 30c0 22-7 34-16 46 8 15 48 15 56 0-9-12-16-24-16-46" fill="currentColor" opacity=".17"/>
+    <path d="M48 30v46c0 11-7 18-17 18M72 30v46c0 11 7 18 17 18M48 30h24" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M40 76h40M44 64h32M48 52h24" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" opacity=".46"/>
+    <path d="M40 28c5-7 12-10 20-10s15 3 20 10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+    <path d="M31 78c4 5 13 8 29 8s25-3 29-8" fill="none" stroke="currentColor" stroke-width="3" opacity=".45"/>`,
+  foraging: `
+    <ellipse cx="60" cy="94" rx="34" ry="7" fill="currentColor" opacity=".12"/>
+    <path d="M58 91c1-29 14-52 41-69-34 3-61 25-69 57 11-6 24-4 28 12Z" fill="currentColor" opacity=".22"/>
+    <path d="M58 91c1-29 14-52 41-69-34 3-61 25-69 57 11-6 24-4 28 12Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" opacity=".7"/>
+    <path d="M33 63c17-7 36-5 52 7M58 91C52 69 39 51 18 42M75 42c7-8 15-14 25-18" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="M31 42c-13-14-10-28 6-33 7 15 4 27-6 33ZM78 66c17-9 31-4 36 9-16 4-28 1-36-9Z" fill="currentColor" opacity=".2"/>
+    <circle cx="36" cy="80" r="6" fill="currentColor" opacity=".24"/>`,
+  camping: `
+    <ellipse cx="60" cy="94" rx="36" ry="7" fill="currentColor" opacity=".12"/>
+    <path d="M19 87 60 20l41 67H19Z" fill="currentColor" opacity=".18"/>
+    <path d="M19 87 60 20l41 67H19Z" fill="none" stroke="currentColor" stroke-width="4.3" stroke-linejoin="round" opacity=".75"/>
+    <path d="M60 20v67M43 87l17-27 17 27" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M18 87h84" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".48"/>
+    <path d="M24 71c-10-5-17-4-24 2M96 71c10-5 17-4 24 2M86 38c7 6 11 14 12 24M34 41c-8 5-12 12-13 21" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".32"/>`,
+  fishing: `
+    <ellipse cx="60" cy="94" rx="36" ry="7" fill="currentColor" opacity=".13"/>
+    <path d="M18 58s19-24 43-24 43 24 43 24-19 24-43 24-43-24-43-24Z" fill="currentColor" opacity=".19"/>
+    <path d="M18 58s19-24 43-24 43 24 43 24-19 24-43 24-43-24-43-24Z" fill="none" stroke="currentColor" stroke-width="4" opacity=".72"/>
+    <path d="M90 58 111 40v36L90 58Z" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle cx="47" cy="52" r="4" fill="currentColor"/>
+    <path d="M61 36c7 8 7 36 0 44M25 89c14-6 31-6 48 0" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" opacity=".52"/>
+    <path d="M35 69c14 5 34 5 49 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".3"/>`,
+  genealogy: `
+    <ellipse cx="60" cy="94" rx="35" ry="7" fill="currentColor" opacity=".12"/>
+    <path d="M60 92V31" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    <path d="M60 31c-13-19-35-21-49-5 18 2 34 7 49 5ZM60 31c13-19 35-21 49-5-18 2-34 7-49 5Z" fill="currentColor" opacity=".22" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M38 58c-12-12-29-12-40 0 14 2 28 6 40 0ZM82 58c12-12 29-12 40 0-14 2-28 6-40 0Z" fill="currentColor" opacity=".18" stroke="currentColor" stroke-width="3"/>
+    <path d="M35 92h50M60 31c10 23 10 43 0 61M60 56c-11 10-18 19-22 31M60 56c11 10 18 19 22 31" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" opacity=".48"/>`,
 };
 
 function escapeHtml(value) {
@@ -75,8 +142,8 @@ function getModuleAccent(appModule) {
 }
 
 function renderModuleIcon(slug) {
-  const icon = MODULE_ICONS[slug] || '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>';
-  return `<span class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="img">${icon}</svg></span>`;
+  const icon = MODULE_ICONS[slug] || '<circle cx="60" cy="60" r="32" fill="currentColor" opacity=".2"/><path d="M60 42v36M42 60h36" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>';
+  return `<span class="module-icon" aria-hidden="true"><svg viewBox="0 0 120 120" role="img">${icon}</svg></span>`;
 }
 
 function renderThemeControl() {
@@ -130,10 +197,10 @@ function renderAppCard(appModule) {
 function renderTodayTiles(snapshot = dashboardSnapshot) {
   const sections = snapshot?.sections || [];
   return sections.map((section) => `
-    <article class="today-tile today-tile-${escapeHtml(section.state)}">
+    <article class="today-tile today-tile-${escapeHtml(section.state)} today-tile-${escapeHtml(section.id)}">
       <div class="today-tile-heading">
         <h3>${escapeHtml(section.title)}</h3>
-        ${section.state === 'connected' ? '<span>Live</span>' : ''}
+        ${section.state === 'connected' ? '<span>Live</span>' : '<span class="quiet-state">Pending</span>'}
       </div>
       <p>${escapeHtml(section.message)}</p>
       ${section.items?.length ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
@@ -143,7 +210,7 @@ function renderTodayTiles(snapshot = dashboardSnapshot) {
 function renderHeroStats(snapshot = dashboardSnapshot) {
   const summary = snapshot?.summary || { connected: 0, unavailable: 4 };
   return `
-    <span><strong>${escapeHtml(summary.connected)}</strong> connected</span>
+    <span><strong>${escapeHtml(summary.connected)}</strong> live sources</span>
     <span><strong>${escapeHtml(summary.unavailable)}</strong> waiting</span>
   `;
 }
@@ -151,11 +218,12 @@ function renderHeroStats(snapshot = dashboardSnapshot) {
 function renderHero({ expanded = false } = {}) {
   const unavailable = dashboardSnapshot?.summary?.unavailable ?? 4;
   const heroLine = unavailable > 0
-    ? 'Today is ready for live data, but some sources are not connected yet.'
-    : 'Today is pulling live information into one place.';
+    ? 'Today pulls in what is safely connected and keeps the rest quiet until ready.'
+    : 'Today is pulling live calendar, weather, activity, and shopping into one place.';
 
   return `
     <section class="hero ${activeResolvedTheme === 'aurora' ? 'hero-aurora' : 'hero-field'} ${expanded ? 'hero-expanded' : ''}">
+      <div class="hero-art" aria-hidden="true"></div>
       <div class="hero-intro">
         <p class="eyebrow">${activeResolvedTheme === 'aurora' ? 'Aurora Utility' : 'Field Lab'}</p>
         <h1>${expanded ? 'Today' : 'Good morning, Tod.'}</h1>
