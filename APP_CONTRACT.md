@@ -10,7 +10,7 @@ This document defines the current framework-only contract for Lazy Acres Suite.
 - Provide direct module routes.
 - Keep household, commercial-candidate, and work modules clearly separated.
 - Keep Tod and Donna testing access open without login.
-- Preserve seams for future auth, entitlement, and billing work.
+- Preserve seams for future auth, entitlement, billing, and dashboard data work.
 
 ## Non-goals for this phase
 
@@ -20,6 +20,7 @@ This document defines the current framework-only contract for Lazy Acres Suite.
 - No Stripe implementation.
 - No Supabase Auth implementation.
 - No real entitlement enforcement.
+- No live Scheduler, Shopping, Weather, or Recent Activity data connection.
 
 ## Module registry contract
 
@@ -27,6 +28,7 @@ Modules are registered in `assets/app-shell/modules.js` with:
 
 - `slug`: hash route segment, for example `foraging` for `/#/foraging`.
 - `title`: display title.
+- `shortTitle`: compact dashboard title.
 - `description`: dashboard and placeholder description.
 - `status`: framework status label.
 - `group`: one of `household`, `commercial-candidate`, or `work`.
@@ -35,8 +37,9 @@ Modules are registered in `assets/app-shell/modules.js` with:
 
 ## Placeholder service contract
 
+- `dashboard-data.js` exposes dashboard adapter seams and returns unavailable states unless browser-safe adapters are provided at runtime.
 - `authService` returns an unauthenticated testing household session.
 - `entitlementService` returns `canView: true` and `canOpen: true` for every module.
 - `billingService` reports billing as disabled and not implemented.
 
-Future real services should keep these public method names where practical so the app shell does not need to be rewritten.
+Future real services should keep these public method names where practical so the app shell does not need to be rewritten. Browser code must not require Supabase `service_role` keys or any other committed secret.
