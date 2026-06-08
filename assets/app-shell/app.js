@@ -1,10 +1,11 @@
-import { authService } from './auth.js?v=0.1.2';
-import { entitlementService } from './entitlements.js?v=0.1.2';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.2';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.2';
+import { authService } from './auth.js?v=0.1.3';
+import { entitlementService } from './entitlements.js?v=0.1.3';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.3';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.3';
 
-const APP_VERSION = 'v0.1.2';
-const APP_ICON_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Home/apple-touch-icon.png?v=0.1.2';
+const APP_VERSION = 'v0.1.3';
+const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
+const APP_ICON_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Home/apple-touch-icon.png?v=0.1.3';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
 function escapeHtml(value) {
@@ -14,6 +15,10 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function getLiveModuleUrl(slug) {
+  return `${LIVE_BASE_URL}#/${slug}`;
 }
 
 function renderShell(content) {
@@ -35,6 +40,10 @@ function renderShell(content) {
   `;
 }
 
+function renderCopyButton(appModule, className = 'button button-secondary') {
+  return `<button class="${className}" type="button" data-copy-url="${escapeHtml(getLiveModuleUrl(appModule.slug))}">Copy link</button>`;
+}
+
 function renderAppCard(appModule) {
   return `
     <article class="module-card">
@@ -45,6 +54,7 @@ function renderAppCard(appModule) {
       <div class="module-card__actions">
         ${renderLegacyLink(appModule, 'button button-primary')}
         <a class="button button-secondary" href="${routeToHash(appModule.slug)}">Details</a>
+        ${renderCopyButton(appModule)}
       </div>
     </article>
   `;
@@ -83,6 +93,7 @@ function renderModule(appModule) {
 
         <div class="detail-actions">
           ${renderLegacyLink(appModule, 'button button-primary')}
+          ${renderCopyButton(appModule)}
           <button class="button button-secondary" type="button" data-route="dashboard">Back to dashboard</button>
         </div>
       </article>
@@ -102,6 +113,55 @@ function renderNotFound(route) {
       </article>
     </main>
   `;
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  const copied = document.execCommand('copy');
+  textarea.remove();
+
+  if (!copied) {
+    throw new Error('Copy command failed.');
+  }
+}
+
+function showCopyFeedback(button, message) {
+  const originalText = button.dataset.originalText || button.textContent;
+  button.dataset.originalText = originalText;
+  button.textContent = message;
+  button.disabled = true;
+
+  window.clearTimeout(button._copyTimer);
+  button._copyTimer = window.setTimeout(() => {
+    button.textContent = button.dataset.originalText;
+    button.disabled = false;
+  }, 1600);
+}
+
+function bindCopyButtons() {
+  appRoot.querySelectorAll('[data-copy-url]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      try {
+        await copyTextToClipboard(button.dataset.copyUrl);
+        showCopyFeedback(button, 'Copied');
+      } catch (error) {
+        console.error(error);
+        showCopyFeedback(button, 'Copy failed');
+      }
+    });
+  });
 }
 
 function bindRouteButtons() {
@@ -126,6 +186,7 @@ async function renderRoute(route) {
 
   renderShell(content);
   bindRouteButtons();
+  bindCopyButtons();
 }
 
 if (!appRoot) {
