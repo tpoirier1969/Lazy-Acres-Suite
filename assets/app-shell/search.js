@@ -1,4 +1,4 @@
-import { moduleRegistry } from './modules.js?v=0.1.7';
+import { moduleRegistry } from './modules.js?v=0.1.8';
 
 const index = [
   { route: 'dashboard', title: 'Home', description: 'Suite dashboard and module launcher.', terms: 'home dashboard modules apps launcher lazy acres suite' },
