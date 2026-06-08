@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#faf4e8"/>
+      <stop offset=".46" stop-color="#dce1d9"/>
+      <stop offset="1" stop-color="#2f4642"/>
+    </linearGradient>
+    <linearGradient id="mist" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff8ea" stop-opacity=".78"/>
+      <stop offset=".48" stop-color="#eef0ea" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#dfe7e3" stop-opacity=".08"/>
+    </linearGradient>
+    <linearGradient id="mountain" x1="0" y1=".2" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1e8"/>
+      <stop offset=".42" stop-color="#b9c2bb"/>
+      <stop offset="1" stop-color="#526a62"/>
+    </linearGradient>
+    <linearGradient id="darkRidge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#708078"/>
+      <stop offset="1" stop-color="#243a35"/>
+    </linearGradient>
+    <filter id="softBlur">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <pattern id="topo" width="160" height="120" patternUnits="userSpaceOnUse">
+      <path d="M4 68c40-42 92-42 132 0M18 84c31-27 75-27 106 0M32 98c22-15 58-15 80 0M12 24c30-21 68-20 98 0M28 40c22-10 48-10 70 0" fill="none" stroke="#f8f5e7" stroke-width="2" opacity=".16"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="520" fill="url(#sky)"/>
+  <circle cx="1320" cy="150" r="140" fill="none" stroke="#f6f4e8" stroke-width="2" opacity=".32"/>
+  <circle cx="1320" cy="150" r="95" fill="none" stroke="#f6f4e8" stroke-width="2" opacity=".28"/>
+  <circle cx="1320" cy="150" r="52" fill="none" stroke="#f6f4e8" stroke-width="2" opacity=".26"/>
+  <path d="M1180 150h280M1320 10v280" stroke="#f6f4e8" stroke-width="2" opacity=".28"/>
+  <circle cx="1320" cy="150" r="12" fill="#f8f5e7" opacity=".9"/>
+  <path d="M210 340 430 84l120 145 86-90 210 201H210Z" fill="url(#mountain)" opacity=".88"/>
+  <path d="M514 337 760 40l140 182 106-126 262 241H514Z" fill="url(#mountain)" opacity=".72"/>
+  <path d="M780 340 980 112l112 134 80-82 210 176H780Z" fill="#9eaca6" opacity=".52"/>
+  <path d="M392 142 434 97l32 43-21-11-14 37-13-34-26 10ZM741 72l26-32 39 52-26-15-18 43-18-41-22 18Z" fill="#fbf9f0" opacity=".74"/>
+  <path d="M0 318c120-44 246-64 378-60 148 5 266 48 392 50 172 3 332-60 492-46 132 12 236 58 338 42v216H0Z" fill="url(#mist)"/>
+  <g opacity=".82">
+    <path d="M0 400c84-74 174-102 270-84 92 17 154 78 256 80 126 2 188-86 326-72 110 11 166 80 302 76 128-4 238-72 446-54v174H0Z" fill="url(#darkRidge)"/>
+    <path d="M0 438c82-52 168-70 258-54 92 16 142 62 242 62 110 0 174-62 296-50 128 13 184 76 314 74 140-2 256-56 490-44v94H0Z" fill="#1f332f" opacity=".8"/>
+  </g>
+  <g opacity=".66" fill="#233b34">
+    <path d="M92 476h20l-10-78-10 78ZM82 426h40l-20-24-20 24ZM76 448h52l-26-32-26 32Z"/>
+    <path d="M160 484h24l-12-94-12 94ZM148 432h48l-24-30-24 30ZM140 456h64l-32-40-32 40Z"/>
+    <path d="M1330 482h28l-14-104-14 104ZM1314 428h60l-30-38-30 38ZM1304 458h80l-40-50-40 50Z"/>
+    <path d="M1440 488h34l-17-124-17 124ZM1422 426h70l-35-44-35 44ZM1412 462h90l-45-56-45 56Z"/>
+    <path d="M1198 482h22l-11-86-11 86ZM1184 430h50l-25-31-25 31ZM1178 456h62l-31-38-31 38Z"/>
+  </g>
+  <rect width="1600" height="520" fill="url(#topo)" opacity=".85"/>
+  <g filter="url(#softBlur)" opacity=".52">
+    <ellipse cx="280" cy="252" rx="280" ry="56" fill="#fffaf0"/>
+    <ellipse cx="660" cy="290" rx="420" ry="68" fill="#f8f5e9"/>
+    <ellipse cx="1110" cy="260" rx="360" ry="62" fill="#e6eee8"/>
+  </g>
+</svg>
