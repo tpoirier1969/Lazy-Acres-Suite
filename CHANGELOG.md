@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.7 - Field Lab art pass and Today data connection
+
+- Replaced the CSS-only hero approximation with Field Lab and Aurora SVG scenic backgrounds.
+- Reworked module icons into larger, more polished illustrated object-style SVG elements.
+- Connected Today summaries for Scheduler, Shopping, and Weather using browser-safe sources already present in the public apps or a public no-key weather feed.
+- Kept Recent Activity as an honest unavailable adapter seam because no shared activity source exists yet.
+- Bumped cache-buster query strings to `0.1.7`.
+
 ## 0.1.6 - Compact Today dashboard and adapter seams
 
 - Moved Today content into the welcome surface and removed the redundant Open Today button from the hero.
