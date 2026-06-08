@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 - Shared landing icon
+
+- Reused the existing Lazy Acres Home icon assets for browser favicons, Apple touch icon, and the suite header mark.
+- Bumped cache-buster query strings to `0.1.2`.
+
 ## 0.1.1 - Version flag and cache busting
 
 - Added a visible version flag to the app shell header.
