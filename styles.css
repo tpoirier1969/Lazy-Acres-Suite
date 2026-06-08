@@ -68,6 +68,7 @@ body::before {
 :root[data-theme='aurora'] body::before { opacity: 0.4; mix-blend-mode: screen; }
 a { color: inherit; }
 button, input { font: inherit; }
+[hidden], .command-results[hidden] { display: none !important; }
 
 .app-shell {
   width: min(1280px, calc(100% - 28px));
@@ -136,12 +137,12 @@ button, input { font: inherit; }
   isolation: isolate;
 }
 
-.hero-art { position: absolute; inset: 0; z-index: -2; background-size: cover; background-position: center; filter: saturate(1.05); }
+.hero-art { position: absolute; inset: 0; z-index: -2; background-size: cover; background-position: center; filter: saturate(1.12) contrast(1.04); }
 .hero::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
 .hero-field .hero-art { background-image: url('./assets/app-shell/field-lab-hero.svg?v=0.1.8'); }
-.hero-field::after { background: linear-gradient(90deg, rgb(252 246 234 / 0.88) 0%, rgb(252 246 234 / 0.66) 28%, rgb(252 246 234 / 0.18) 58%, rgb(38 53 48 / 0.20) 100%), linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(17 28 25 / 0.14)); }
+.hero-field::after { background: linear-gradient(90deg, rgb(252 246 234 / 0.78) 0%, rgb(252 246 234 / 0.48) 30%, rgb(252 246 234 / 0.08) 60%, rgb(38 53 48 / 0.16) 100%), linear-gradient(180deg, rgb(255 255 255 / 0.03), rgb(17 28 25 / 0.12)); }
 .hero-aurora .hero-art { background-image: url('./assets/app-shell/aurora-hero.svg?v=0.1.8'); }
-.hero-aurora::after { background: linear-gradient(90deg, rgb(6 14 18 / 0.82) 0%, rgb(8 16 20 / 0.52) 36%, rgb(9 23 28 / 0.12) 65%, rgb(0 0 0 / 0.22) 100%), linear-gradient(180deg, rgb(92 255 221 / 0.05), rgb(0 0 0 / 0.26)); }
+.hero-aurora::after { background: linear-gradient(90deg, rgb(6 14 18 / 0.72) 0%, rgb(8 16 20 / 0.42) 36%, rgb(9 23 28 / 0.10) 65%, rgb(0 0 0 / 0.18) 100%), linear-gradient(180deg, rgb(92 255 221 / 0.05), rgb(0 0 0 / 0.24)); }
 
 .hero-intro, .today-surface { position: relative; z-index: 1; }
 .hero-intro { display: grid; align-content: center; gap: 14px; min-width: 0; max-width: 520px; }
@@ -149,11 +150,12 @@ button, input { font: inherit; }
 .hero-intro p:not(.eyebrow), .placeholder-card p { color: color-mix(in srgb, var(--muted) 82%, var(--ink)); max-width: 560px; line-height: 1.6; margin: 0; }
 .eyebrow { color: var(--brand); margin: 0; font-size: 0.76rem; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
 .hero-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-.hero-stats span { display: inline-flex; align-items: center; gap: 8px; border-radius: 18px; background: color-mix(in srgb, var(--surface) 68%, transparent); box-shadow: var(--inner-light), var(--inner-shade); padding: 11px 14px; }
+.hero-stats span { display: inline-flex; align-items: center; gap: 8px; border-radius: 18px; background: color-mix(in srgb, var(--surface) 56%, transparent); box-shadow: var(--inner-light), var(--inner-shade); padding: 11px 14px; backdrop-filter: blur(13px); }
 .hero-stats strong { font-size: 1.35rem; }
 
 .today-surface { align-self: center; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
-.today-tile { min-height: 132px; border-radius: 24px; background: radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 62%), color-mix(in srgb, var(--surface-raised) 77%, transparent); box-shadow: inset 10px 10px 20px rgb(255 255 255 / 0.34), inset -10px -12px 20px color-mix(in srgb, var(--surface-dim) 15%, transparent), 12px 16px 34px rgb(40 44 32 / 0.10); display: grid; align-content: start; gap: 9px; padding: 16px; backdrop-filter: blur(16px); }
+.today-tile { min-height: 132px; border-radius: 24px; background: radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 62%), color-mix(in srgb, var(--surface-raised) 54%, transparent); box-shadow: inset 10px 10px 20px rgb(255 255 255 / 0.23), inset -10px -12px 20px color-mix(in srgb, var(--surface-dim) 10%, transparent), 12px 16px 34px rgb(40 44 32 / 0.08); display: grid; align-content: start; gap: 9px; padding: 16px; backdrop-filter: blur(10px) saturate(1.1); }
+:root[data-theme='aurora'] .today-tile { background: radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 62%), color-mix(in srgb, var(--surface-raised) 46%, transparent); }
 .today-tile-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .today-tile h3, .today-tile p, .today-tile ul { margin: 0; }
 .today-tile h3 { font-size: 0.92rem; letter-spacing: 0.02em; }
@@ -171,7 +173,7 @@ button, input { font: inherit; }
 .module-card:hover { transform: translateY(-2px); }
 .module-card p { line-height: 1.5; margin: 10px 0 0; }
 .module-icon { display: block; width: 132px; height: 114px; margin: 0 0 6px; filter: drop-shadow(0 15px 18px rgb(46 39 22 / 0.14)) drop-shadow(0 2px 0 rgb(255 255 255 / 0.26)); }
-.module-icon svg { width: 132px; height: 114px; overflow: visible; }
+.module-icon img, .module-icon svg { display: block; width: 132px; height: 114px; object-fit: contain; overflow: visible; }
 .module-card__actions, .detail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .button, .icon-action { align-items: center; border: 0; cursor: pointer; display: inline-flex; font-weight: 900; justify-content: center; text-decoration: none; position: relative; isolation: isolate; }
 .button { min-height: 44px; border-radius: 999px; padding: 10px 17px; background: transparent; color: var(--ink); }
@@ -185,7 +187,7 @@ button, input { font: inherit; }
 .module-detail { display: grid; min-height: 58vh; place-items: center; }
 .placeholder-card { width: min(850px, 100%); }
 .placeholder-card .module-icon { width: 150px; height: 130px; }
-.placeholder-card .module-icon svg { width: 150px; height: 130px; }
+.placeholder-card .module-icon img, .placeholder-card .module-icon svg { width: 150px; height: 130px; }
 .no-script { width: min(720px, calc(100% - 32px)); margin: 48px auto; }
 
 @media (max-width: 1100px) { .hero { grid-template-columns: 1fr; } .today-surface { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
