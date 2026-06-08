@@ -8,9 +8,10 @@ This document defines the current framework-only contract for Lazy Acres Suite.
 - Provide a central module registry.
 - Provide hash-based routing for static hosting.
 - Provide direct module routes.
-- Keep household, commercial-candidate, and work modules clearly separated.
+- Keep household, commercial-candidate, and work module metadata available internally.
 - Keep Tod and Donna testing access open without login.
 - Preserve seams for future auth, entitlement, billing, and dashboard data work.
+- Use only browser-safe public configuration or public feeds for any live dashboard summaries.
 
 ## Non-goals for this phase
 
@@ -18,9 +19,10 @@ This document defines the current framework-only contract for Lazy Acres Suite.
 - No copied legacy pages.
 - No `legacy/marquette-xc-ski.html` or other legacy HTML files.
 - No Stripe implementation.
-- No Supabase Auth implementation.
+- No Supabase Auth implementation for the suite shell.
 - No real entitlement enforcement.
-- No live Scheduler, Shopping, Weather, or Recent Activity data connection.
+- No Supabase `service_role` keys or committed private secrets.
+- No Recent Activity connection until a real shared activity source exists.
 
 ## Module registry contract
 
@@ -35,11 +37,21 @@ Modules are registered in `assets/app-shell/modules.js` with:
 - `legacyUrl`: optional external link to the current legacy app.
 - `legacyLabel`: label for the legacy app button.
 
+## Dashboard data contract
+
+`dashboard-data.js` returns normalized Today sections for:
+
+- Calendar
+- Weather
+- Recent
+- Shopping
+
+Built-in browser-safe readers currently exist for Scheduler, Weather, and Shopping. Runtime adapters can still be provided through `window.LAZY_ACRES_DASHBOARD_ADAPTERS` to override or extend those sources.
+
 ## Placeholder service contract
 
-- `dashboard-data.js` exposes dashboard adapter seams and returns unavailable states unless browser-safe adapters are provided at runtime.
 - `authService` returns an unauthenticated testing household session.
 - `entitlementService` returns `canView: true` and `canOpen: true` for every module.
 - `billingService` reports billing as disabled and not implemented.
 
-Future real services should keep these public method names where practical so the app shell does not need to be rewritten. Browser code must not require Supabase `service_role` keys or any other committed secret.
+Future real services should keep these public method names where practical so the app shell does not need to be rewritten.
