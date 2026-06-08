@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Lazy Acres Suite icon">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#355244"/>
+      <stop offset="100%" stop-color="#1a2a32"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#84f0cb" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#dff7ed" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="108" height="108" rx="32" fill="url(#bg)"/>
+  <path d="M20 88c16-8 22-26 34-26 11 0 17 14 31 14 10 0 15-7 23-12v32H20Z" fill="#20352f" opacity="0.95"/>
+  <path d="M26 86c12-17 23-39 38-39 11 0 18 11 24 21 6 11 12 17 18 18H26Z" fill="#2b473c"/>
+  <path d="M34 44c8 5 11 12 11 22-9-2-16-9-18-18 2-2 4-3 7-4Z" fill="url(#glow)" opacity="0.9"/>
+  <path d="M64 40c11 5 22 17 29 33-12 1-24-5-31-16-4 9-12 16-22 18 2-17 11-29 24-35Z" fill="none" stroke="#effbf6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 92h48" stroke="#ccebdd" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  <path d="M53 92V70M75 92V63" stroke="#ccebdd" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+</svg>
