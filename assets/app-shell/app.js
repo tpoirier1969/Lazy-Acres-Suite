@@ -1,14 +1,14 @@
-import { authService } from './auth.js?v=0.1.9';
-import { entitlementService } from './entitlements.js?v=0.1.9';
-import { getDashboardSnapshot } from './dashboard-data.js?v=0.1.9';
-import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.9';
-import { MODULE_ICON_SHEET } from './icon-sheet.js?v=0.1.9';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.9';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.9';
+import { authService } from './auth.js?v=0.1.13';
+import { entitlementService } from './entitlements.js?v=0.1.13';
+import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.13';
+import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.13';
+import { MODULE_ICON_SHEET } from './icon-sheet.js?v=0.1.13';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.13';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.13';
 
-const APP_VERSION = 'v0.1.9';
+const APP_VERSION = 'v0.1.13';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.9';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.13';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
