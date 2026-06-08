@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 - Version flag and cache busting
+
+- Added a visible version flag to the app shell header.
+- Added version query strings to the root stylesheet and app-shell entry script.
+- Added versioned imports for app-shell JavaScript modules so browser cache refreshes on release bumps.
+
 ## 0.1.0 - Framework package
 
 - Added clean static app structure for Lazy Acres Suite.
