@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071116"/><stop offset=".55" stop-color="#0e2430"/><stop offset="1" stop-color="#05090d"/>
+    </linearGradient>
+    <linearGradient id="skyglow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5af2c7" stop-opacity=".06"/><stop offset=".33" stop-color="#5af2c7" stop-opacity=".52"/><stop offset=".63" stop-color="#7cc7ff" stop-opacity=".34"/><stop offset="1" stop-color="#8effd2" stop-opacity=".08"/>
+    </linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+    <pattern id="topo" width="170" height="130" patternUnits="userSpaceOnUse"><path d="M8 72c42-42 96-42 138 0M22 88c32-27 78-27 110 0M36 102c24-15 60-15 84 0" fill="none" stroke="#83ffe0" stroke-width="2" opacity=".12"/></pattern>
+  </defs>
+  <rect width="1600" height="520" fill="url(#night)"/>
+  <path d="M-40 86C170 22 340 92 512 54c192-42 360-58 542 5 178 61 346 30 594-22v166C1350 130 1136 172 936 112 774 64 640 112 498 126 308 144 160 84-40 170Z" fill="url(#skyglow)" filter="url(#soft)" opacity=".82"/>
+  <path d="M220 342 440 110l112 143 94-93 216 182H220Z" fill="#274b50" opacity=".78"/>
+  <path d="M556 344 784 72l144 184 106-118 268 206H556Z" fill="#2b5559" opacity=".62"/>
+  <path d="M0 404c92-70 190-94 294-72 92 20 160 72 260 72 124 0 190-84 320-72 118 10 186 86 328 78 138-8 244-80 398-58v168H0Z" fill="#10272c"/>
+  <path d="M0 444c120-52 240-58 360-18 94 32 172 54 276 26 116-30 210-58 332-8 124 52 260 46 632-16v92H0Z" fill="#061014" opacity=".82"/>
+  <circle cx="1320" cy="150" r="140" fill="none" stroke="#a9ffea" stroke-width="2" opacity=".22"/>
+  <circle cx="1320" cy="150" r="94" fill="none" stroke="#a9ffea" stroke-width="2" opacity=".2"/>
+  <circle cx="1320" cy="150" r="50" fill="none" stroke="#a9ffea" stroke-width="2" opacity=".18"/>
+  <path d="M1180 150h280M1320 10v280" stroke="#a9ffea" stroke-width="2" opacity=".18"/>
+  <circle cx="1320" cy="150" r="11" fill="#cafff1" opacity=".86"/>
+  <rect width="1600" height="520" fill="url(#topo)" opacity=".75"/>
+</svg>
