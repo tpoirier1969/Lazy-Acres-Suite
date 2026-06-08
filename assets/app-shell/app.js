@@ -1,26 +1,28 @@
-import { authService } from './auth.js?v=0.1.8';
-import { entitlementService } from './entitlements.js?v=0.1.8';
-import { getDashboardSnapshot } from './dashboard-data.js?v=0.1.8';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.8';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.8';
+import { authService } from './auth.js?v=0.1.9';
+import { entitlementService } from './entitlements.js?v=0.1.9';
+import { getDashboardSnapshot } from './dashboard-data.js?v=0.1.9';
+import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.9';
+import { MODULE_ICON_SHEET } from './icon-sheet.js?v=0.1.9';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.9';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.9';
 
-const APP_VERSION = 'v0.1.8';
+const APP_VERSION = 'v0.1.9';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.8';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.9';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
-const MODULE_ICON_FILES = {
-  shopping: 'shopping.svg',
-  scheduler: 'scheduler.svg',
-  recipes: 'recipes.svg',
-  foraging: 'foraging.svg',
-  camping: 'camping.svg',
-  fishing: 'fishing.svg',
-  tv: 'tv-tracker.svg',
-  ski: 'ski.svg',
-  genealogy: 'genealogy.svg',
-  'church-music': 'church-music.svg',
+const MODULE_ICON_POSITIONS = {
+  shopping: '0% 0%',
+  scheduler: '25% 0%',
+  recipes: '50% 0%',
+  foraging: '75% 0%',
+  camping: '100% 0%',
+  fishing: '0% 100%',
+  tv: '25% 100%',
+  ski: '50% 100%',
+  genealogy: '75% 100%',
+  'church-music': '100% 100%',
 };
 
 let activeRoute = 'dashboard';
@@ -30,6 +32,10 @@ let dashboardSnapshot = null;
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+function getLiveModuleUrl(slug) {
+  return `${LIVE_BASE_URL}#/${slug}`;
 }
 
 function getStoredThemeMode() {
@@ -56,6 +62,8 @@ function applyTheme() {
   activeResolvedTheme = resolvedTheme;
   document.documentElement.dataset.theme = resolvedTheme;
   document.documentElement.dataset.themeMode = themeMode;
+  document.documentElement.style.setProperty('--field-lab-hero-image', `url("${FIELD_LAB_HERO_IMAGE}")`);
+  document.documentElement.style.setProperty('--module-icon-sheet', `url("${MODULE_ICON_SHEET}")`);
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolvedTheme === 'aurora' ? '#081116' : '#315f48');
 }
 
@@ -70,13 +78,9 @@ function getModuleAccent(appModule) {
   return activeResolvedTheme === 'aurora' ? appModule.accentDark : appModule.accentLight;
 }
 
-function getLiveModuleUrl(slug) {
-  return `${LIVE_BASE_URL}#/${slug}`;
-}
-
 function renderModuleIcon(slug) {
-  const iconFile = MODULE_ICON_FILES[slug] || 'shopping.svg';
-  return `<span class="module-icon" aria-hidden="true"><img src="./assets/app-shell/icons/${iconFile}?v=0.1.8" alt="" /></span>`;
+  const position = MODULE_ICON_POSITIONS[slug] || '0% 0%';
+  return `<span class="module-icon" aria-hidden="true"><span class="module-icon-sprite" style="--icon-position:${position}"></span></span>`;
 }
 
 function renderThemeControl() {
@@ -120,16 +124,8 @@ function renderAppCard(appModule) {
   const accent = getModuleAccent(appModule);
   return `
     <article class="module-card module-${escapeHtml(appModule.slug)}" style="--module-accent: ${escapeHtml(accent)};">
-      <div class="module-card__body">
-        ${renderModuleIcon(appModule.slug)}
-        <h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3>
-        <p>${escapeHtml(appModule.description)}</p>
-      </div>
-      <div class="module-card__actions">
-        ${renderLegacyLink(appModule, 'button button-primary')}
-        ${renderCopyButton(appModule)}
-        <a class="icon-action" href="${routeToHash(appModule.slug)}" aria-label="Details for ${escapeHtml(appModule.title)}">→</a>
-      </div>
+      <div class="module-card__body">${renderModuleIcon(appModule.slug)}<h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3><p>${escapeHtml(appModule.description)}</p></div>
+      <div class="module-card__actions">${renderLegacyLink(appModule, 'button button-primary')}${renderCopyButton(appModule)}<a class="icon-action" href="${routeToHash(appModule.slug)}" aria-label="Details for ${escapeHtml(appModule.title)}">→</a></div>
     </article>`;
 }
 
@@ -137,10 +133,7 @@ function renderTodayTiles(snapshot = dashboardSnapshot) {
   const sections = snapshot?.sections || [];
   return sections.map((section) => `
     <article class="today-tile today-tile-${escapeHtml(section.state)} today-tile-${escapeHtml(section.id)}">
-      <div class="today-tile-heading">
-        <h3>${escapeHtml(section.title)}</h3>
-        ${section.state === 'connected' ? '<span>Live</span>' : '<span class="quiet-state">Pending</span>'}
-      </div>
+      <div class="today-tile-heading"><h3>${escapeHtml(section.title)}</h3>${section.state === 'connected' ? '<span>Live</span>' : '<span class="quiet-state">Pending</span>'}</div>
       <p>${escapeHtml(section.message)}</p>
       ${section.items?.length ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
     </article>`).join('');
@@ -156,29 +149,16 @@ function renderHero({ expanded = false } = {}) {
   const heroLine = unavailable > 0
     ? 'Today pulls in what is safely connected and keeps the rest quiet until ready.'
     : 'Today is pulling live calendar, weather, activity, and shopping into one place.';
-
   return `
     <section class="hero ${activeResolvedTheme === 'aurora' ? 'hero-aurora' : 'hero-field'} ${expanded ? 'hero-expanded' : ''}">
       <div class="hero-art" aria-hidden="true"></div>
-      <div class="hero-intro">
-        <p class="eyebrow">${activeResolvedTheme === 'aurora' ? 'Aurora Utility' : 'Field Lab'}</p>
-        <h1>${expanded ? 'Today' : 'Good morning, Tod.'}</h1>
-        <p>${escapeHtml(heroLine)}</p>
-        <div class="hero-stats" aria-label="Today data status">${renderHeroStats()}</div>
-      </div>
+      <div class="hero-intro"><p class="eyebrow">${activeResolvedTheme === 'aurora' ? 'Aurora Utility' : 'Field Lab'}</p><h1>${expanded ? 'Today' : 'Good morning, Tod.'}</h1><p>${escapeHtml(heroLine)}</p><div class="hero-stats" aria-label="Today data status">${renderHeroStats()}</div></div>
       <div class="today-surface" aria-label="Today overview">${renderTodayTiles()}</div>
     </section>`;
 }
 
 function renderDashboard() {
-  return `
-    <main class="dashboard">
-      ${renderHero()}
-      <section class="module-group" aria-label="Apps">
-        <div class="module-group__header"><h2>Your Modules</h2><p>${getThemeLabel()} theme active</p></div>
-        <div class="module-grid">${moduleRegistry.map(renderAppCard).join('')}</div>
-      </section>
-    </main>`;
+  return `<main class="dashboard">${renderHero()}<section class="module-group" aria-label="Apps"><div class="module-group__header"><h2>Your Modules</h2><p>${getThemeLabel()} theme active</p></div><div class="module-grid">${moduleRegistry.map(renderAppCard).join('')}</div></section></main>`;
 }
 
 function renderTodayPage() {
@@ -187,19 +167,7 @@ function renderTodayPage() {
 
 function renderModule(appModule) {
   const accent = getModuleAccent(appModule);
-  return `
-    <main class="module-detail">
-      <article class="placeholder-card" style="--module-accent: ${escapeHtml(accent)};">
-        ${renderModuleIcon(appModule.slug)}
-        <h1>${escapeHtml(appModule.title)}</h1>
-        <p>${escapeHtml(appModule.description)}</p>
-        <div class="detail-actions">
-          ${renderLegacyLink(appModule, 'button button-primary')}
-          ${renderCopyButton(appModule)}
-          <button class="button button-secondary" type="button" data-route="dashboard">Back to dashboard</button>
-        </div>
-      </article>
-    </main>`;
+  return `<main class="module-detail"><article class="placeholder-card" style="--module-accent: ${escapeHtml(accent)};">${renderModuleIcon(appModule.slug)}<h1>${escapeHtml(appModule.title)}</h1><p>${escapeHtml(appModule.description)}</p><div class="detail-actions">${renderLegacyLink(appModule, 'button button-primary')}${renderCopyButton(appModule)}<button class="button button-secondary" type="button" data-route="dashboard">Back to dashboard</button></div></article></main>`;
 }
 
 function renderNotFound(route) {
@@ -207,8 +175,8 @@ function renderNotFound(route) {
 }
 
 async function copyTextToClipboard(text) {
-  if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable.');
-  return navigator.clipboard.writeText(text);
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+  throw new Error('Clipboard unavailable.');
 }
 
 function showCopyFeedback(button, message) {
@@ -268,7 +236,6 @@ if (!appRoot) throw new Error('Missing app shell root element.');
 
 applyTheme();
 bindHashRouter((route) => renderRoute(route).catch(showRenderError));
-
 window.setInterval(() => {
   if (themeMode !== 'auto') return;
   const nextTheme = resolveTheme('auto');
