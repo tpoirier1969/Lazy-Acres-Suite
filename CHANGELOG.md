@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.8 - Reference-aligned icon assets and hero layout
+
+- Moved the hero Today cards into a right-side 2-by-2 grid beside the welcome text to avoid the poster/bulletin-board feel.
+- Added separate illustrated SVG icon assets for the module cards instead of relying on monochrome inline line icons.
+- Retuned the hero sizing and Field Lab background placement so the welcome surface is more compact and more useful.
+- Bumped cache-buster query strings to `0.1.8`.
+
 ## 0.1.7 - Field Lab art pass and Today data connection
 
 - Replaced the CSS-only hero approximation with Field Lab and Aurora SVG scenic backgrounds.
