@@ -18,7 +18,7 @@ a { color: inherit; }
 .suite-header, .testing-banner, .hero, .module-group, .placeholder-card, .no-script { border: 1px solid var(--line); background: rgb(255 250 240 / 88%); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
 .suite-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 28px; padding: 14px 16px; }
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
-.brand-mark { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 16px; background: var(--brand); color: white; font-weight: 800; letter-spacing: 0.04em; }
+.brand-icon { display: block; width: 48px; height: 48px; border-radius: 16px; box-shadow: 0 10px 24px rgb(47 79 37 / 20%); flex: 0 0 auto; }
 .brand strong, .brand small { display: block; }
 .brand small, .eyebrow, .module-group__header p, .module-card p, .placeholder-card p, .detail-list dt, .testing-banner p { color: var(--muted); }
 .version-flag { border: 1px solid var(--line); border-radius: 999px; background: var(--panel-strong); color: var(--muted); font-size: 0.86rem; font-weight: 800; padding: 8px 12px; white-space: nowrap; }
