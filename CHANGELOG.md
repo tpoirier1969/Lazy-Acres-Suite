@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5 - Basic suite search
+
+- Added a basic command/search enhancer for the suite header.
+- Search now covers Home, Today, and the current module registry.
+- Pressing Enter opens the best match; clicking a result opens that route.
+- Added a new suite SVG icon asset and bumped cache-buster query strings to `0.1.5`.
+
 ## 0.1.4 - Theme prototype
 
 - Reworked the dashboard into a fuller Field Lab-style page prototype with header, command bar, side rail, hero, module grid, and quick panels.
