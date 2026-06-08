@@ -1,4 +1,4 @@
-import { moduleRegistry } from './modules.js?v=0.1.5';
+import { moduleRegistry } from './modules.js?v=0.1.6';
 
 const SEARCH_INDEX = [
   {
@@ -10,7 +10,7 @@ const SEARCH_INDEX = [
   {
     route: 'today',
     title: 'Today',
-    description: 'Calendar, weather, observations, recent activity, and shopping snapshot.',
+    description: 'Calendar, weather, recent activity, and shopping status.',
     terms: 'today active calendar weather observations recent activity shopping list events schedule',
   },
   ...moduleRegistry.map((appModule) => ({
@@ -22,7 +22,6 @@ const SEARCH_INDEX = [
       appModule.title,
       appModule.shortTitle,
       appModule.description,
-      appModule.metric,
       appModule.group,
     ].filter(Boolean).join(' '),
   })),
