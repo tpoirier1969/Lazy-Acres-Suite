@@ -2,7 +2,7 @@
 
 Clean modular app suite framework for `tpoirier1969/Lazy-Acres-Suite`.
 
-This repository is currently framework-only. It does **not** migrate existing app logic, copy legacy app pages, implement Stripe, implement Supabase Auth, connect live Scheduler/Shopping/Weather/Recent Activity data, or implement real entitlement enforcement.
+This repository is currently a modular shell. It does **not** migrate existing app logic, copy legacy app pages, implement Stripe, implement Supabase Auth for the suite, or implement real entitlement enforcement. It can read limited browser-safe Today summaries from existing public/client-side sources.
 
 ## Included files
 
@@ -21,6 +21,8 @@ assets/app-shell/billing.js
 assets/app-shell/search.js
 assets/app-shell/dashboard-data.js
 assets/app-shell/lazy-acres-suite-icon.svg
+assets/app-shell/field-lab-hero.svg
+assets/app-shell/aurora-hero.svg
 ```
 
 ## Routes
@@ -45,19 +47,17 @@ During testing, Tod and Donna can see and open every module without logging in. 
 
 Legacy app pages are not copied into this repo. Current apps are linked externally from `assets/app-shell/modules.js`.
 
-## Dashboard data adapters
+## Today dashboard data
 
-Version `0.1.6` adds browser-side adapter seams for dashboard data without connecting real data in this repository. If `window.LAZY_ACRES_DASHBOARD_ADAPTERS` is not provided at runtime, the Today panels show short unavailable states instead of sample real-world data.
+Version `0.1.7` connects limited Today summaries where browser-safe sources already exist:
 
-Missing live data/configuration in this environment:
-
-- A readable Scheduler adapter or exported calendar data source.
-- A browser-safe weather adapter or public forecast feed.
-- A readable recent-activity adapter or local module activity export.
-- A readable Shopping List adapter or exported list data source.
+- Scheduler reads today's shared calendar summary from the existing public Supabase anon configuration used by Our Scheduler.
+- Shopping reads active shopping-list items from the existing public Supabase anon configuration used by Shared Shopping List.
+- Weather reads a public no-key Open-Meteo forecast for the Marquette area.
+- Recent Activity still remains an adapter seam until a real activity source exists.
 
 Do not use Supabase `service_role` keys in this browser shell. Future data connections must use browser-safe public configuration, an authenticated edge/API layer, or static exports safe to commit.
 
 ## Future work
 
-Later phases can replace the testing auth, entitlement, billing, and dashboard data stubs with real services without rewriting the dashboard/router shell.
+Later phases can replace the testing auth, entitlement, billing, and dashboard data seams with real services without rewriting the dashboard/router shell.
