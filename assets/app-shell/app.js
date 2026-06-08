@@ -1,37 +1,32 @@
-import { authService } from './auth.js?v=0.1.5';
-import { entitlementService } from './entitlements.js?v=0.1.5';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.5';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.5';
+import { authService } from './auth.js?v=0.1.6';
+import { entitlementService } from './entitlements.js?v=0.1.6';
+import { getDashboardSnapshot } from './dashboard-data.js?v=0.1.6';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.6';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.6';
 
-const APP_VERSION = 'v0.1.5';
+const APP_VERSION = 'v0.1.6';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.5';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.6';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
 let activeRoute = 'dashboard';
 let themeMode = getStoredThemeMode();
 let activeResolvedTheme = null;
+let dashboardSnapshot = null;
 
 const MODULE_ICONS = {
-  shopping: '<rect x="4" y="7" width="16" height="13" rx="4" fill="currentColor" opacity=".13"/><path d="M7 10h10l-1 5.5a2 2 0 0 1-2 1.6h-4a2 2 0 0 1-2-1.6L7 10Z" fill="currentColor" opacity=".18" stroke="currentColor" stroke-width="1.2"/><path d="M9 10a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M17 11.4c1.7-.7 2.8-.1 3.4 1-1.6.5-2.8.2-3.4-1ZM7 11.5c-1.8-.3-2.8.5-3.1 1.7 1.6.2 2.7-.3 3.1-1.7Z" fill="currentColor" opacity=".32"/>',
-  scheduler: '<rect x="4" y="5" width="16" height="15" rx="3.5" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="1.2"/><path d="M8 3.7v3.4M16 3.7v3.4M4 9.5h16" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="7" y="12" width="3" height="3" rx="1" fill="currentColor" opacity=".42"/><rect x="11" y="12" width="3" height="3" rx="1" fill="currentColor" opacity=".26"/><rect x="15" y="12" width="3" height="3" rx="1" fill="currentColor" opacity=".18"/>',
-  recipes: '<path d="M5 13h14l-1.1 4.7a2.8 2.8 0 0 1-2.8 2.3H8.9a2.8 2.8 0 0 1-2.8-2.3L5 13Z" fill="currentColor" opacity=".14" stroke="currentColor" stroke-width="1.2"/><path d="M8.4 13c.4-2.2 1.8-3.5 3.6-3.5s3.2 1.3 3.6 3.5M9.6 8.4c-.7-1.3-.5-2.6.4-3.5M14.4 8.4c.8-1.2.8-2.5 0-3.6" fill="none" stroke="currentColor" stroke-width="1.35"/><circle cx="12" cy="16" r="1.6" fill="currentColor" opacity=".32"/>',
-  tv: '<rect x="4" y="7" width="16" height="11" rx="3" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="1.2"/><rect x="7.2" y="10.2" width="9.6" height="4.6" rx="1.2" fill="currentColor" opacity=".2"/><path d="M9 4.5 12 7l3-2.5M9.5 20.5h5" fill="none" stroke="currentColor" stroke-width="1.4"/>',
-  ski: '<path d="M4 18 10 8l3.2 5 2.4-3.2L20 18H4Z" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="1.2"/><path d="M8.6 9.5 11 6.8 13.7 9.8M7.4 20c3.7-1.1 5.8-1.1 9.2 0M16.2 9.3v5.7M14.3 10.9h3.8" fill="none" stroke="currentColor" stroke-width="1.3"/>',
-  'church-music': '<path d="M10 18.3A2.3 2.3 0 1 1 7.7 16H10V6.2l8-1.7v10.7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M18 17.3A2.3 2.3 0 1 1 15.7 15H18M10 8.5 18 6.8" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="18" cy="7" r="1" fill="currentColor" opacity=".35"/>',
-  foraging: '<path d="M12 20c0-6.1 2.5-10.1 7.1-13-6 .7-10.8 4.7-12 10 1.9-.8 4.2-.4 4.9 3Z" fill="currentColor" opacity=".14" stroke="currentColor" stroke-width="1.2"/><path d="M5.2 12.8c2.5-1.1 5.6-.9 8 1M12 20c-.9-3.8-3-6.6-6.8-8.7M16.2 9.4c1.2-1.4 2.6-2.5 4.2-3.2" fill="none" stroke="currentColor" stroke-width="1.3"/>',
-  camping: '<path d="M4.5 18.7 12 5l7.5 13.7H4.5Z" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="1.2"/><path d="M12 5v13.7M8.9 18.7l3.1-4.9 3.1 4.9M4.2 18.7h15.6" fill="none" stroke="currentColor" stroke-width="1.35"/>',
-  fishing: '<path d="M3.7 12s3.8-4.8 8.3-4.8 8.3 4.8 8.3 4.8-3.8 4.8-8.3 4.8S3.7 12 3.7 12Z" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="1.2"/><path d="M17.3 12 21 8.5v7L17.3 12Z" fill="currentColor" opacity=".2"/><circle cx="9.3" cy="10.8" r=".8" fill="currentColor"/><path d="M6 18.9c2.4-1.2 5.6-1.2 8 0" fill="none" stroke="currentColor" stroke-width="1.3"/>',
-  genealogy: '<path d="M12 20V8M8.2 20h7.6" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M12 8c-2.1-3-5.6-3.3-7.8-.7 3 .2 5.4 1 7.8.7ZM12 8c2.1-3 5.6-3.3 7.8-.7-3 .2-5.4 1-7.8.7ZM7.6 13.2c-1.7-1.7-4-1.7-5.6 0 1.9.2 3.8.8 5.6 0ZM16.4 13.2c1.7-1.7 4-1.7 5.6 0-1.9.2-3.8.8-5.6 0Z" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.1"/>',
+  shopping: '<path d="M6.5 8.8h11l-1.2 8.2a2.6 2.6 0 0 1-2.6 2.2H10.3A2.6 2.6 0 0 1 7.7 17L6.5 8.8Z" fill="currentColor" opacity=".16"/><path d="M8.5 9.1c.6-3 2-4.4 3.5-4.4s2.9 1.4 3.5 4.4" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M16.7 11.2c2-.7 3.2 0 3.8 1.2-1.8.5-3 .2-3.8-1.2ZM7.3 11.5c-2-.4-3.2.5-3.5 1.8 1.9.2 3-.3 3.5-1.8Z" fill="currentColor" opacity=".34"/><path d="M8.2 13h7.6M8.7 15.4h6.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity=".45"/>',
+  scheduler: '<rect x="4.3" y="5.2" width="15.4" height="14.8" rx="3.2" fill="currentColor" opacity=".14"/><path d="M7.8 3.8v3.3M16.2 3.8v3.3M5 9.6h14" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><rect x="7.1" y="12" width="3.1" height="3.1" rx="1" fill="currentColor" opacity=".46"/><rect x="11" y="12" width="3.1" height="3.1" rx="1" fill="currentColor" opacity=".28"/><rect x="14.9" y="12" width="3.1" height="3.1" rx="1" fill="currentColor" opacity=".2"/><path d="M7.3 17h8.9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity=".35"/>',
+  recipes: '<path d="M5 13.2h14l-1.2 4.8a3.1 3.1 0 0 1-3 2.4H9.2a3.1 3.1 0 0 1-3-2.4L5 13.2Z" fill="currentColor" opacity=".15"/><path d="M8.3 13c.4-2.1 1.8-3.4 3.7-3.4s3.3 1.3 3.7 3.4M9.8 8.2c-.8-1.4-.5-2.6.4-3.5M14.3 8.2c.8-1.2.7-2.5-.1-3.5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.7" fill="currentColor" opacity=".34"/><path d="M8.4 18.5h7.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" opacity=".35"/>',
+  tv: '<rect x="4" y="7" width="16" height="11.2" rx="3.2" fill="currentColor" opacity=".15"/><rect x="7.2" y="10.1" width="9.6" height="4.6" rx="1.2" fill="currentColor" opacity=".22"/><path d="M9 4.7 12 7l3-2.3M9.5 20.5h5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M18 9.6c.5.8.5 4.5 0 5.3" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/>',
+  ski: '<path d="M4 18.3 10 8l3.1 5 2.6-3.4 4.3 8.7H4Z" fill="currentColor" opacity=".14"/><path d="M8.5 9.6 11 6.7l2.8 3.2M7 20.1c3.9-1.2 6.2-1.2 10 0" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M16.2 9.3v5.8M14.3 11h3.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>',
+  'church-music': '<path d="M10 18.3A2.3 2.3 0 1 1 7.7 16H10V6.3l8-1.8v10.7" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 17.3A2.3 2.3 0 1 1 15.7 15H18M10 8.5l8-1.8" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M5.5 8.6c1.4-1.1 2.8-1.1 4.2 0M15.3 4.3c1.5-.8 3-.8 4.3 0" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".42"/>',
+  foraging: '<path d="M12 20c0-6.2 2.5-10.2 7.1-13-6 .7-10.8 4.7-12 10 1.9-.8 4.2-.4 4.9 3Z" fill="currentColor" opacity=".16"/><path d="M5.1 12.8c2.6-1.1 5.7-.9 8.1 1M12 20c-.9-3.8-3-6.6-6.8-8.7M16.2 9.4c1.2-1.4 2.6-2.5 4.2-3.2" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><circle cx="7" cy="17" r="1.1" fill="currentColor" opacity=".28"/>',
+  camping: '<path d="M4.5 18.7 12 5l7.5 13.7H4.5Z" fill="currentColor" opacity=".15"/><path d="M12 5v13.7M8.9 18.7l3.1-4.9 3.1 4.9M4.2 18.7h15.6" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 15.2c-1.3-.7-2.2-.7-3.4 0M17.5 15.2c1.3-.7 2.2-.7 3.4 0" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".4"/>',
+  fishing: '<path d="M3.7 12s3.8-4.8 8.3-4.8 8.3 4.8 8.3 4.8-3.8 4.8-8.3 4.8S3.7 12 3.7 12Z" fill="currentColor" opacity=".15"/><path d="M17.2 12 21 8.6v6.8L17.2 12Z" fill="currentColor" opacity=".22"/><circle cx="9.3" cy="10.9" r=".8" fill="currentColor"/><path d="M6 18.9c2.4-1.2 5.6-1.2 8 0M13 8.2c1.3 1.5 1.3 6.1 0 7.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>',
+  genealogy: '<path d="M12 20V8M8.2 20h7.6" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/><path d="M12 8c-2.1-3-5.6-3.3-7.8-.7 3 .2 5.4 1 7.8.7ZM12 8c2.1-3 5.6-3.3 7.8-.7-3 .2-5.4 1-7.8.7ZM7.6 13.2c-1.7-1.7-4-1.7-5.6 0 1.9.2 3.8.8 5.6 0ZM16.4 13.2c1.7-1.7 4-1.7 5.6 0-1.9.2-3.8.8-5.6 0Z" fill="currentColor" opacity=".16"/><path d="M12 8c2.6 4.1 2.6 8.1 0 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".45"/>',
 };
-
-const TODAY_ITEMS = [
-  ['Calendar', '<strong>10:30</strong> Donna voice lesson<br><strong>1:00</strong> WNMU traffic review<br><strong>6:30</strong> Stake vendor fire'],
-  ['Weather', '<strong class="weather-temp">52°</strong><span>Fog & Calm</span><small>Clearing expected by midday. Good day for trail work and campfire prep.</small>'],
-  ['Recent', '<strong>8:12</strong> Logged Rainbow Trout<br><strong>New</strong> 2 TV episodes ready<br><strong>Today</strong> Dutch Oven Bread added'],
-  ['Shopping', '<strong>Need</strong> Eggs, coffee filters, bananas, RV paper towels'],
-];
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -93,22 +88,6 @@ function renderThemeControl() {
     </div>`;
 }
 
-function renderPageTabs() {
-  return `
-    <div class="page-tabs" role="navigation" aria-label="Primary view">
-      <button class="page-tab${activeRoute === 'dashboard' ? ' page-tab-active' : ''}" type="button" data-route="dashboard">Home</button>
-      <button class="page-tab${activeRoute === 'today' ? ' page-tab-active' : ''}" type="button" data-route="today">Today</button>
-    </div>`;
-}
-
-function renderTodayTiles() {
-  return TODAY_ITEMS.map(([title, body]) => `
-    <article class="today-tile">
-      <h3>${escapeHtml(title)}</h3>
-      <p>${body}</p>
-    </article>`).join('');
-}
-
 function renderShell(content) {
   applyTheme();
   appRoot.innerHTML = `
@@ -118,14 +97,13 @@ function renderShell(content) {
           <img class="brand-icon" src="${APP_ICON_URL}" alt="" aria-hidden="true" />
           <span><strong>Lazy Acres Suite</strong><small>Home base</small></span>
         </a>
-        <label class="command-bar" aria-label="Search or type a command">
+        <label class="command-bar" aria-label="Search apps or Today">
           <span aria-hidden="true">⌕</span>
-          <input type="search" placeholder="Search or type a command…" disabled />
+          <input type="search" placeholder="Search apps or Today…" disabled />
           <kbd>⌘ K</kbd>
         </label>
         <div class="header-actions">${renderThemeControl()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
       </header>
-      ${renderPageTabs()}
       ${content}
     </div>`;
 }
@@ -145,21 +123,46 @@ function renderAppCard(appModule) {
   return `
     <article class="module-card module-${escapeHtml(appModule.slug)}" style="--module-accent: ${escapeHtml(accent)};">
       <div class="module-card__body">${renderModuleIcon(appModule.slug)}<h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3><p>${escapeHtml(appModule.description)}</p></div>
-      <div class="module-card__footer"><span>${escapeHtml(appModule.metric || '')}</span><a class="icon-action" href="${routeToHash(appModule.slug)}" aria-label="Details for ${escapeHtml(appModule.title)}">→</a></div>
-      <div class="module-card__actions">${renderLegacyLink(appModule, 'button button-primary')}${renderCopyButton(appModule)}</div>
+      <div class="module-card__actions">${renderLegacyLink(appModule, 'button button-primary')}${renderCopyButton(appModule)}<a class="icon-action" href="${routeToHash(appModule.slug)}" aria-label="Details for ${escapeHtml(appModule.title)}">→</a></div>
     </article>`;
 }
 
+function renderTodayTiles(snapshot = dashboardSnapshot) {
+  const sections = snapshot?.sections || [];
+  return sections.map((section) => `
+    <article class="today-tile today-tile-${escapeHtml(section.state)}">
+      <div class="today-tile-heading">
+        <h3>${escapeHtml(section.title)}</h3>
+        ${section.state === 'connected' ? '<span>Live</span>' : ''}
+      </div>
+      <p>${escapeHtml(section.message)}</p>
+      ${section.items?.length ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
+    </article>`).join('');
+}
+
+function renderHeroStats(snapshot = dashboardSnapshot) {
+  const summary = snapshot?.summary || { connected: 0, unavailable: 4 };
+  return `
+    <span><strong>${escapeHtml(summary.connected)}</strong> connected</span>
+    <span><strong>${escapeHtml(summary.unavailable)}</strong> waiting</span>
+  `;
+}
+
 function renderHero({ expanded = false } = {}) {
+  const unavailable = dashboardSnapshot?.summary?.unavailable ?? 4;
+  const heroLine = unavailable > 0
+    ? 'Today is ready for live data, but some sources are not connected yet.'
+    : 'Today is pulling live information into one place.';
+
   return `
     <section class="hero ${activeResolvedTheme === 'aurora' ? 'hero-aurora' : 'hero-field'} ${expanded ? 'hero-expanded' : ''}">
-      <div class="hero-copy">
+      <div class="hero-intro">
         <p class="eyebrow">${activeResolvedTheme === 'aurora' ? 'Aurora Utility' : 'Field Lab'}</p>
-        <h1>${expanded ? 'Today & Active' : 'Good morning, Tod.'}</h1>
-        <p>${expanded ? 'Calendar, weather, recent activity, and shopping list in one place.' : 'One home base for the apps we use, test, and eventually grow.'}</p>
-        <div class="hero-stats" aria-label="Today at a glance"><span><strong>3</strong> active items</span><span><strong>2</strong> events today</span><span><strong>7</strong> tasks due</span></div>
+        <h1>${expanded ? 'Today' : 'Good morning, Tod.'}</h1>
+        <p>${escapeHtml(heroLine)}</p>
+        <div class="hero-stats" aria-label="Today data status">${renderHeroStats()}</div>
       </div>
-      <div class="today-surface" aria-label="Today overview">${renderTodayTiles()}<button class="button button-primary membrane-large" type="button" data-route="today">Open Today</button></div>
+      <div class="today-surface" aria-label="Today overview">${renderTodayTiles()}</div>
     </section>`;
 }
 
@@ -249,6 +252,7 @@ function showRenderError(error) {
 async function renderRoute(route) {
   activeRoute = route;
   applyTheme();
+  dashboardSnapshot = await getDashboardSnapshot();
   const user = await authService.getCurrentUser();
   await entitlementService.listVisibleModules(user, moduleRegistry);
   const appModule = getModuleBySlug(route);
