@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.6 - Compact Today dashboard and adapter seams
+
+- Moved Today content into the welcome surface and removed the redundant Open Today button from the hero.
+- Removed fabricated Scheduler, Weather, Recent Activity, and Shopping details.
+- Added `dashboard-data.js` adapter seams with short human unavailable states when live data is not connected.
+- Removed visible module metrics that looked like fake live counts.
+- Softened the visual system by removing thin card outlines, flattening the module icons into the card face, and retuning button surfaces.
+- Bumped cache-buster query strings to `0.1.6`.
+
 ## 0.1.5 - Basic suite search
 
 - Added a basic command/search enhancer for the suite header.
