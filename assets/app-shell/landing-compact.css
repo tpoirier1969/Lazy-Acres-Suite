@@ -2,12 +2,13 @@
 
 .command-bar,
 .hero-stats,
-.today-tile-recent {
+.today-tile-recent,
+.module-group__header p {
   display: none !important;
 }
 
 .dashboard {
-  gap: 16px;
+  gap: 14px;
 }
 
 .suite-header {
@@ -61,9 +62,25 @@
   max-width: 58rem;
 }
 
+.module-group {
+  margin-top: -6px;
+}
+
+.module-group__header {
+  margin-bottom: 8px !important;
+}
+
+.module-group__header h2 {
+  margin-bottom: 0;
+}
+
+.module-grid {
+  margin-top: 0;
+}
+
 @media (max-width: 760px) {
   .dashboard {
-    gap: 12px;
+    gap: 10px;
   }
 
   .suite-header {
@@ -100,6 +117,14 @@
 
   .today-tile-shopping p {
     margin-bottom: 4px;
+  }
+
+  .module-group {
+    margin-top: -8px;
+  }
+
+  .module-group__header {
+    margin-bottom: 6px !important;
   }
 }
 
