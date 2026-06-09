@@ -1,8 +1,9 @@
 /* Lazy Acres Suite dashboard polish overrides. Loaded after generated art. */
 
 .hero-art {
-  transform: scaleX(-1);
+  transform: scaleX(-1) scale(1.018);
   transform-origin: center;
+  filter: saturate(1.24) contrast(1.17) brightness(1.03) !important;
 }
 
 .today-tile {
@@ -120,7 +121,8 @@
   height: 130px;
 }
 
-.profile-change {
+.profile-change,
+.layout-change {
   border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface) 84%, transparent);
@@ -134,7 +136,10 @@
 }
 
 .profile-change:hover,
-.profile-change:focus-visible {
+.profile-change:focus-visible,
+.layout-change:hover,
+.layout-change:focus-visible,
+.layout-change-active {
   color: var(--ink);
   outline: none;
   filter: brightness(1.035);
@@ -151,6 +156,38 @@
   font-weight: 900;
   min-height: 38px;
   padding: 8px 13px;
+}
+
+.module-card-reorder {
+  cursor: grab;
+  outline: 2px dashed color-mix(in srgb, var(--module-accent) 42%, transparent);
+  outline-offset: -8px;
+}
+
+.module-card-reorder:active {
+  cursor: grabbing;
+}
+
+.module-reorder-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.module-move-button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--module-accent) 12%, var(--surface-raised));
+  box-shadow: var(--inner-light), var(--inner-shade);
+  color: color-mix(in srgb, var(--module-accent) 42%, var(--ink));
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.module-move-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .profile-prompt-overlay {
@@ -219,30 +256,67 @@
 
 @media (max-width: 760px) {
   .suite-header {
-    gap: 10px;
-    padding: 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    padding: 10px;
+  }
+
+  .brand {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .brand-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand strong {
+    font-size: 1.02rem;
+    line-height: 1.05;
+  }
+
+  .brand small {
+    font-size: 0.7rem;
+  }
+
+  .command-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .header-actions {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
     align-items: center;
-    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 6px;
+    width: auto;
   }
 
   .theme-control,
-  .profile-change {
+  .profile-change,
+  .layout-change {
     display: none;
   }
 
   .mobile-preferences {
     display: block;
+    width: min(144px, 36vw);
+    min-height: 30px;
     min-width: 0;
+    padding: 5px 8px;
+    font-size: 0.66rem;
   }
 
   .version-flag {
     width: auto;
-    padding: 8px 10px;
+    min-width: auto;
+    padding: 6px 7px;
+    font-size: 0.64rem;
+    line-height: 1;
   }
 
   .hero {
@@ -368,5 +442,9 @@
 
   .module-card__actions .icon-action {
     display: none;
+  }
+
+  .module-reorder-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
