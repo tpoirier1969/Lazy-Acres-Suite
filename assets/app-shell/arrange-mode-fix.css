@@ -1,0 +1,49 @@
+/* Clear arrange-mode exit affordance. Loaded after dashboard polish. */
+
+.layout-change-active {
+  background: color-mix(in srgb, var(--brand) 18%, var(--surface-raised));
+  color: var(--ink);
+}
+
+.module-card-reorder::after {
+  content: 'Order saves automatically';
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 760px) {
+  .layout-change.layout-change-active {
+    position: fixed;
+    z-index: 120;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    min-width: 136px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--brand) 22%, var(--panel-solid));
+    box-shadow: 0 18px 42px rgb(25 31 20 / 0.26), var(--inner-light), var(--inner-shade);
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-weight: 950;
+  }
+
+  .layout-change.layout-change-active::before {
+    content: '✓ ';
+  }
+
+  .module-grid:has(.module-card-reorder) {
+    padding-bottom: 76px;
+  }
+
+  .module-card-reorder::after {
+    font-size: 0.66rem;
+  }
+}
