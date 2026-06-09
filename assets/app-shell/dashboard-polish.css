@@ -1,5 +1,10 @@
 /* Lazy Acres Suite dashboard polish overrides. Loaded after generated art. */
 
+.hero-art {
+  transform: scaleX(-1);
+  transform-origin: center;
+}
+
 .today-tile {
   position: relative;
   color: var(--ink);
@@ -135,6 +140,19 @@
   filter: brightness(1.035);
 }
 
+.mobile-preferences {
+  display: none;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: var(--inner-light), var(--inner-shade);
+  color: var(--ink);
+  font-weight: 900;
+  min-height: 38px;
+  padding: 8px 13px;
+}
+
 .profile-prompt-overlay {
   position: fixed;
   inset: 0;
@@ -197,4 +215,158 @@
 .profile-option:focus-visible {
   filter: brightness(1.04);
   outline: none;
+}
+
+@media (max-width: 760px) {
+  .suite-header {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .header-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    width: 100%;
+  }
+
+  .theme-control,
+  .profile-change {
+    display: none;
+  }
+
+  .mobile-preferences {
+    display: block;
+    min-width: 0;
+  }
+
+  .version-flag {
+    width: auto;
+    padding: 8px 10px;
+  }
+
+  .hero {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .hero-intro {
+    gap: 9px;
+  }
+
+  .hero-intro h1,
+  .placeholder-card h1 {
+    font-size: clamp(1.9rem, 10vw, 2.55rem);
+    letter-spacing: -0.06em;
+  }
+
+  .hero-intro p:not(.eyebrow) {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .hero-stats {
+    gap: 7px;
+    margin-top: 2px;
+  }
+
+  .hero-stats span {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .hero-stats strong {
+    font-size: 1.08rem;
+  }
+
+  .today-surface {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  .today-tile {
+    min-height: 98px;
+    border-radius: 18px;
+    gap: 5px;
+    padding: 10px;
+  }
+
+  .today-tile-heading {
+    align-items: flex-start;
+  }
+
+  .today-tile h3 {
+    font-size: 0.76rem;
+    line-height: 1.05;
+  }
+
+  .today-tile-heading span {
+    font-size: 0.58rem;
+  }
+
+  .today-tile p,
+  .today-tile li,
+  .today-item-link {
+    font-size: 0.72rem;
+    line-height: 1.28;
+  }
+
+  .today-tile ul {
+    gap: 2px;
+    padding-left: 0.8rem;
+  }
+
+  .module-card {
+    min-height: auto;
+    border-radius: 22px;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .module-card__body {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    grid-template-areas:
+      'icon title'
+      'icon description';
+    column-gap: 12px;
+    align-items: center;
+  }
+
+  .module-card__body .module-icon {
+    grid-area: icon;
+    width: 76px;
+    height: 66px;
+    margin: 0;
+  }
+
+  .module-card__body h3 {
+    grid-area: title;
+    font-size: 1rem;
+    line-height: 1.1;
+  }
+
+  .module-card__body p {
+    grid-area: description;
+    font-size: 0.8rem;
+    line-height: 1.32;
+    margin: 4px 0 0;
+  }
+
+  .module-card__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    width: 100%;
+  }
+
+  .module-card__actions .button {
+    min-height: 38px;
+    padding: 8px 10px;
+    width: 100%;
+  }
+
+  .module-card__actions .icon-action {
+    display: none;
+  }
 }
