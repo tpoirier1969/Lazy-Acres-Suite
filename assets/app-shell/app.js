@@ -1,15 +1,16 @@
-import { authService } from './auth.js?v=0.1.17';
-import { entitlementService } from './entitlements.js?v=0.1.17';
-import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.17';
-import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.17';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.17';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.17';
+import { authService } from './auth.js?v=0.1.18';
+import { entitlementService } from './entitlements.js?v=0.1.18';
+import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.18';
+import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.18';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
-const APP_VERSION = 'v0.1.17';
+const APP_VERSION = 'v0.1.18';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.17';
+const APP_ICON_URL = './assets/app-shell/mountain-suite-icon.svg?v=0.1.18';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const USER_PROFILE_STORAGE_KEY = 'lazy-acres-suite-user-profile';
+const MODULE_ORDER_STORAGE_KEY = 'lazy-acres-suite-module-order';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
 const USER_PROFILE_LABELS = {
@@ -25,21 +26,23 @@ const USER_PROFILE_NAMES = {
 };
 
 const MODULE_ICON_URLS = {
-  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.17',
-  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.17',
-  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.17',
-  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.17',
-  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.17',
-  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.17',
-  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.17',
-  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.17',
-  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.17',
-  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.17',
+  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.18',
+  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.18',
+  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.18',
+  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.18',
+  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.18',
+  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.18',
+  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.18',
+  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.18',
+  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.18',
+  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.18',
 };
 
 let activeRoute = 'dashboard';
 let themeMode = getStoredThemeMode();
 let activeUserProfile = getStoredUserProfile();
+let activeModuleOrder = getStoredModuleOrder();
+let moduleReorderMode = false;
 let activeResolvedTheme = null;
 let dashboardSnapshot = null;
 
@@ -59,6 +62,61 @@ function getStoredThemeMode() {
 function getStoredUserProfile() {
   const stored = localStorage.getItem(USER_PROFILE_STORAGE_KEY);
   return Object.prototype.hasOwnProperty.call(USER_PROFILE_LABELS, stored) ? stored : '';
+}
+
+function getStoredModuleOrder() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(MODULE_ORDER_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeModuleOrder(order = activeModuleOrder) {
+  const allSlugs = moduleRegistry.map((appModule) => appModule.slug);
+  const seen = new Set();
+  const stored = (Array.isArray(order) ? order : []).filter((slug) => {
+    if (!allSlugs.includes(slug) || seen.has(slug)) return false;
+    seen.add(slug);
+    return true;
+  });
+  return [...stored, ...allSlugs.filter((slug) => !seen.has(slug))];
+}
+
+function saveModuleOrder(order) {
+  activeModuleOrder = normalizeModuleOrder(order);
+  localStorage.setItem(MODULE_ORDER_STORAGE_KEY, JSON.stringify(activeModuleOrder));
+}
+
+function getOrderedModules() {
+  return normalizeModuleOrder().map((slug) => getModuleBySlug(slug)).filter(Boolean);
+}
+
+function moveModule(slug, direction) {
+  const order = normalizeModuleOrder();
+  const index = order.indexOf(slug);
+  if (index < 0) return;
+  const nextIndex = direction === 'up' ? index - 1 : index + 1;
+  if (nextIndex < 0 || nextIndex >= order.length) return;
+  [order[index], order[nextIndex]] = [order[nextIndex], order[index]];
+  saveModuleOrder(order);
+  renderRoute(activeRoute).catch(showRenderError);
+}
+
+function moveModuleBefore(slug, beforeSlug) {
+  if (!slug || !beforeSlug || slug === beforeSlug) return;
+  const order = normalizeModuleOrder().filter((item) => item !== slug);
+  const targetIndex = order.indexOf(beforeSlug);
+  if (targetIndex < 0) return;
+  order.splice(targetIndex, 0, slug);
+  saveModuleOrder(order);
+  renderRoute(activeRoute).catch(showRenderError);
+}
+
+function setModuleReorderMode(nextMode) {
+  moduleReorderMode = Boolean(nextMode);
+  renderRoute(activeRoute).catch(showRenderError);
 }
 
 function getAutoTheme() {
@@ -121,6 +179,15 @@ function getModuleAccent(appModule) {
   return activeResolvedTheme === 'aurora' ? appModule.accentDark : appModule.accentLight;
 }
 
+function getModuleLaunchUrl(slug) {
+  const appModule = getModuleBySlug(slug);
+  return appModule?.legacyUrl || routeToHash(slug);
+}
+
+function getExternalLinkAttrs(url) {
+  return /^https?:\/\//i.test(url) ? ' rel="noopener noreferrer"' : '';
+}
+
 function renderModuleIcon(slug) {
   const src = MODULE_ICON_URLS[slug];
   return src
@@ -140,10 +207,14 @@ function renderProfileControl() {
   return `<button class="profile-change" type="button" data-profile-change aria-label="Change user profile">${escapeHtml(label)}</button>`;
 }
 
+function renderLayoutControl() {
+  return `<button class="layout-change${moduleReorderMode ? ' layout-change-active' : ''}" type="button" data-layout-toggle>${moduleReorderMode ? 'Done' : 'Arrange'}</button>`;
+}
+
 function renderMobilePreferences() {
   const profileLabel = activeUserProfile ? USER_PROFILE_LABELS[activeUserProfile] : 'Choose user';
   return `
-    <select class="mobile-preferences" data-mobile-preferences aria-label="Theme and user settings">
+    <select class="mobile-preferences" data-mobile-preferences aria-label="Theme, user, and layout settings">
       <option value="">${escapeHtml(getThemeLabel())} · ${escapeHtml(profileLabel)}</option>
       <optgroup label="Theme">
         <option value="theme:auto">Auto theme</option>
@@ -154,6 +225,9 @@ function renderMobilePreferences() {
         <option value="profile:tod">Tod</option>
         <option value="profile:donna">Donna</option>
         <option value="profile:guest">Guest</option>
+      </optgroup>
+      <optgroup label="Layout">
+        <option value="layout:toggle">${moduleReorderMode ? 'Finish arranging modules' : 'Arrange modules'}</option>
       </optgroup>
     </select>`;
 }
@@ -189,7 +263,7 @@ function renderShell(content) {
           <input type="search" placeholder="Search apps or Today…" disabled />
           <kbd>⌘ K</kbd>
         </label>
-        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderMobilePreferences()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
+        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderLayoutControl()}${renderMobilePreferences()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
       </header>
       ${content}
     </div>
@@ -206,16 +280,26 @@ function renderLegacyLink(appModule, className) {
     : `<button class="${className}" type="button" disabled>${escapeHtml(appModule.legacyLabel || 'Open')}</button>`;
 }
 
-function renderAppCard(appModule) {
+function renderReorderActions(appModule, index, total) {
+  if (!moduleReorderMode) return '';
+  return `<div class="module-reorder-actions" aria-label="Move ${escapeHtml(appModule.title)}">
+    <button class="module-move-button" type="button" data-module-move="up" data-module-slug="${escapeHtml(appModule.slug)}"${index === 0 ? ' disabled' : ''}>↑ Up</button>
+    <button class="module-move-button" type="button" data-module-move="down" data-module-slug="${escapeHtml(appModule.slug)}"${index === total - 1 ? ' disabled' : ''}>Down ↓</button>
+  </div>`;
+}
+
+function renderAppCard(appModule, index = 0, modules = moduleRegistry) {
   const accent = getModuleAccent(appModule);
+  const reorderClass = moduleReorderMode ? ' module-card-reorder' : '';
   return `
-    <article class="module-card module-${escapeHtml(appModule.slug)}" style="--module-accent: ${escapeHtml(accent)};">
+    <article class="module-card module-${escapeHtml(appModule.slug)}${reorderClass}" style="--module-accent: ${escapeHtml(accent)};" data-module-card data-module-slug="${escapeHtml(appModule.slug)}" draggable="${moduleReorderMode ? 'true' : 'false'}">
       <div class="module-card__body">${renderModuleIcon(appModule.slug)}<h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3><p>${escapeHtml(appModule.description)}</p></div>
       <div class="module-card__actions">${renderLegacyLink(appModule, 'button button-primary')}${renderCopyButton(appModule)}<a class="icon-action" href="${routeToHash(appModule.slug)}" aria-label="Details for ${escapeHtml(appModule.title)}">→</a></div>
+      ${renderReorderActions(appModule, index, modules.length)}
     </article>`;
 }
 
-function getTodaySectionRoute(sectionId) {
+function getTodaySectionSlug(sectionId) {
   if (sectionId === 'scheduler') return 'scheduler';
   if (sectionId === 'shopping') return 'shopping';
   return '';
@@ -239,10 +323,10 @@ function inferRecentItemRoute(item) {
 function renderTodayItem(section, item) {
   const text = typeof item === 'string' ? item : String(item?.text || item?.title || item?.label || '');
   if (!text) return '';
-  const route = section.id === 'recent' ? inferRecentItemRoute(text) : '';
-  return route
-    ? `<li><a class="today-item-link" href="${routeToHash(route)}">${escapeHtml(text)}</a></li>`
-    : `<li>${escapeHtml(text)}</li>`;
+  const slug = section.id === 'recent' ? inferRecentItemRoute(text) : '';
+  if (!slug) return `<li>${escapeHtml(text)}</li>`;
+  const url = getModuleLaunchUrl(slug);
+  return `<li><a class="today-item-link" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)}>${escapeHtml(text)}</a></li>`;
 }
 
 function renderTodayTileContent(section) {
@@ -255,12 +339,12 @@ function renderTodayTileContent(section) {
 function renderTodayTiles(snapshot = dashboardSnapshot) {
   const sections = snapshot?.sections || [];
   return sections.map((section) => {
-    const route = getTodaySectionRoute(section.id);
-    const classes = `today-tile today-tile-${escapeHtml(section.state)} today-tile-${escapeHtml(section.id)}${route ? ' today-tile-clickable' : ''}`;
+    const slug = getTodaySectionSlug(section.id);
+    const classes = `today-tile today-tile-${escapeHtml(section.state)} today-tile-${escapeHtml(section.id)}${slug ? ' today-tile-clickable' : ''}`;
     const content = renderTodayTileContent(section);
-    return route
-      ? `<a class="${classes}" href="${routeToHash(route)}" aria-label="Open ${escapeHtml(section.title)}">${content}</a>`
-      : `<article class="${classes}">${content}</article>`;
+    if (!slug) return `<article class="${classes}">${content}</article>`;
+    const url = getModuleLaunchUrl(slug);
+    return `<a class="${classes}" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)} aria-label="Open ${escapeHtml(section.title)}">${content}</a>`;
   }).join('');
 }
 
@@ -283,7 +367,8 @@ function renderHero({ expanded = false } = {}) {
 }
 
 function renderDashboard() {
-  return `<main class="dashboard">${renderHero()}<section class="module-group" aria-label="Apps"><div class="module-group__header"><h2>Your Modules</h2><p>${getThemeLabel()} theme active</p></div><div class="module-grid">${moduleRegistry.map(renderAppCard).join('')}</div></section></main>`;
+  const orderedModules = getOrderedModules();
+  return `<main class="dashboard">${renderHero()}<section class="module-group" aria-label="Apps"><div class="module-group__header"><h2>Your Modules</h2><p>${moduleReorderMode ? 'Drag modules or use the move buttons.' : `${getThemeLabel()} theme active`}</p></div><div class="module-grid">${orderedModules.map((appModule, index) => renderAppCard(appModule, index, orderedModules)).join('')}</div></section></main>`;
 }
 
 function renderTodayPage() {
@@ -335,12 +420,34 @@ function bindRouteButtons() {
 }
 
 function bindThemeButtons() {
-  appRoot.querySelectorAll('[data-theme-mode]').forEach((button) => button.addEventListener('click', () => setThemeMode(button.datasetThemeMode || button.dataset.themeMode)));
+  appRoot.querySelectorAll('[data-theme-mode]').forEach((button) => button.addEventListener('click', () => setThemeMode(button.dataset.themeMode)));
 }
 
 function bindProfileButtons() {
   appRoot.querySelectorAll('[data-profile-choice]').forEach((button) => button.addEventListener('click', () => setUserProfile(button.dataset.profileChoice)));
   appRoot.querySelector('[data-profile-change]')?.addEventListener('click', requestUserProfile);
+}
+
+function bindLayoutButtons() {
+  appRoot.querySelector('[data-layout-toggle]')?.addEventListener('click', () => setModuleReorderMode(!moduleReorderMode));
+  appRoot.querySelectorAll('[data-module-move]').forEach((button) => {
+    button.addEventListener('click', () => moveModule(button.dataset.moduleSlug, button.dataset.moduleMove));
+  });
+  appRoot.querySelectorAll('[data-module-card]').forEach((card) => {
+    if (!moduleReorderMode) return;
+    card.addEventListener('dragstart', (event) => {
+      event.dataTransfer?.setData('text/plain', card.dataset.moduleSlug || '');
+      event.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+    });
+    card.addEventListener('drop', (event) => {
+      event.preventDefault();
+      moveModuleBefore(event.dataTransfer?.getData('text/plain'), card.dataset.moduleSlug);
+    });
+  });
 }
 
 function bindPreferenceSelects() {
@@ -350,6 +457,7 @@ function bindPreferenceSelects() {
       select.value = '';
       if (kind === 'theme') setThemeMode(value);
       if (kind === 'profile') setUserProfile(value);
+      if (kind === 'layout') setModuleReorderMode(!moduleReorderMode);
     });
   });
 }
@@ -371,6 +479,7 @@ async function renderRoute(route) {
   bindRouteButtons();
   bindThemeButtons();
   bindProfileButtons();
+  bindLayoutButtons();
   bindPreferenceSelects();
   bindCopyButtons();
 }
