@@ -1,13 +1,13 @@
-import { authService } from './auth.js?v=0.1.16';
-import { entitlementService } from './entitlements.js?v=0.1.16';
-import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.16';
-import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.16';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.16';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.16';
+import { authService } from './auth.js?v=0.1.17';
+import { entitlementService } from './entitlements.js?v=0.1.17';
+import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.17';
+import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.17';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.17';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.17';
 
-const APP_VERSION = 'v0.1.16';
+const APP_VERSION = 'v0.1.17';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.16';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.17';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const USER_PROFILE_STORAGE_KEY = 'lazy-acres-suite-user-profile';
 const appRoot = document.querySelector('[data-app-shell-root]');
@@ -25,16 +25,16 @@ const USER_PROFILE_NAMES = {
 };
 
 const MODULE_ICON_URLS = {
-  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.16',
-  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.16',
-  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.16',
-  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.16',
-  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.16',
-  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.16',
-  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.16',
-  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.16',
-  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.16',
-  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.16',
+  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.17',
+  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.17',
+  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.17',
+  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.17',
+  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.17',
+  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.17',
+  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.17',
+  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.17',
+  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.17',
+  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.17',
 };
 
 let activeRoute = 'dashboard';
@@ -140,6 +140,24 @@ function renderProfileControl() {
   return `<button class="profile-change" type="button" data-profile-change aria-label="Change user profile">${escapeHtml(label)}</button>`;
 }
 
+function renderMobilePreferences() {
+  const profileLabel = activeUserProfile ? USER_PROFILE_LABELS[activeUserProfile] : 'Choose user';
+  return `
+    <select class="mobile-preferences" data-mobile-preferences aria-label="Theme and user settings">
+      <option value="">${escapeHtml(getThemeLabel())} · ${escapeHtml(profileLabel)}</option>
+      <optgroup label="Theme">
+        <option value="theme:auto">Auto theme</option>
+        <option value="theme:field">Field theme</option>
+        <option value="theme:aurora">Aurora theme</option>
+      </optgroup>
+      <optgroup label="User">
+        <option value="profile:tod">Tod</option>
+        <option value="profile:donna">Donna</option>
+        <option value="profile:guest">Guest</option>
+      </optgroup>
+    </select>`;
+}
+
 function renderProfilePrompt() {
   if (activeUserProfile) return '';
   return `
@@ -171,7 +189,7 @@ function renderShell(content) {
           <input type="search" placeholder="Search apps or Today…" disabled />
           <kbd>⌘ K</kbd>
         </label>
-        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
+        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderMobilePreferences()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
       </header>
       ${content}
     </div>
@@ -317,12 +335,23 @@ function bindRouteButtons() {
 }
 
 function bindThemeButtons() {
-  appRoot.querySelectorAll('[data-theme-mode]').forEach((button) => button.addEventListener('click', () => setThemeMode(button.dataset.themeMode)));
+  appRoot.querySelectorAll('[data-theme-mode]').forEach((button) => button.addEventListener('click', () => setThemeMode(button.datasetThemeMode || button.dataset.themeMode)));
 }
 
 function bindProfileButtons() {
   appRoot.querySelectorAll('[data-profile-choice]').forEach((button) => button.addEventListener('click', () => setUserProfile(button.dataset.profileChoice)));
   appRoot.querySelector('[data-profile-change]')?.addEventListener('click', requestUserProfile);
+}
+
+function bindPreferenceSelects() {
+  appRoot.querySelectorAll('[data-mobile-preferences]').forEach((select) => {
+    select.addEventListener('change', () => {
+      const [kind, value] = String(select.value || '').split(':');
+      select.value = '';
+      if (kind === 'theme') setThemeMode(value);
+      if (kind === 'profile') setUserProfile(value);
+    });
+  });
 }
 
 function showRenderError(error) {
@@ -342,6 +371,7 @@ async function renderRoute(route) {
   bindRouteButtons();
   bindThemeButtons();
   bindProfileButtons();
+  bindPreferenceSelects();
   bindCopyButtons();
 }
 
