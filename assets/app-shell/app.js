@@ -1,28 +1,27 @@
-import { authService } from './auth.js?v=0.1.13';
-import { entitlementService } from './entitlements.js?v=0.1.13';
-import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.13';
-import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.13';
-import { MODULE_ICON_SHEET } from './icon-sheet.js?v=0.1.13';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.13';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.13';
+import { authService } from './auth.js?v=0.1.15';
+import { entitlementService } from './entitlements.js?v=0.1.15';
+import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.15';
+import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.15';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.15';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.15';
 
-const APP_VERSION = 'v0.1.13';
+const APP_VERSION = 'v0.1.15';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.13';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.15';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
-const MODULE_ICON_POSITIONS = {
-  shopping: '0% 0%',
-  scheduler: '25% 0%',
-  recipes: '50% 0%',
-  foraging: '75% 0%',
-  camping: '100% 0%',
-  fishing: '0% 100%',
-  tv: '25% 100%',
-  ski: '50% 100%',
-  genealogy: '75% 100%',
-  'church-music': '100% 100%',
+const MODULE_ICON_URLS = {
+  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.15',
+  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.15',
+  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.15',
+  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.15',
+  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.15',
+  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.15',
+  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.15',
+  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.15',
+  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.15',
+  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.15',
 };
 
 let activeRoute = 'dashboard';
@@ -63,7 +62,6 @@ function applyTheme() {
   document.documentElement.dataset.theme = resolvedTheme;
   document.documentElement.dataset.themeMode = themeMode;
   document.documentElement.style.setProperty('--field-lab-hero-image', `url("${FIELD_LAB_HERO_IMAGE}")`);
-  document.documentElement.style.setProperty('--module-icon-sheet', `url("${MODULE_ICON_SHEET}")`);
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolvedTheme === 'aurora' ? '#081116' : '#315f48');
 }
 
@@ -79,8 +77,10 @@ function getModuleAccent(appModule) {
 }
 
 function renderModuleIcon(slug) {
-  const position = MODULE_ICON_POSITIONS[slug] || '0% 0%';
-  return `<span class="module-icon" aria-hidden="true"><span class="module-icon-sprite" style="--icon-position:${position}"></span></span>`;
+  const src = MODULE_ICON_URLS[slug];
+  return src
+    ? `<span class="module-icon" aria-hidden="true"><img src="${escapeHtml(src)}" alt="" loading="eager" decoding="async"></span>`
+    : '<span class="module-icon module-icon-missing" aria-hidden="true"></span>';
 }
 
 function renderThemeControl() {
