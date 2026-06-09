@@ -1,31 +1,45 @@
-import { authService } from './auth.js?v=0.1.15';
-import { entitlementService } from './entitlements.js?v=0.1.15';
-import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.15';
-import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.15';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.15';
-import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.15';
+import { authService } from './auth.js?v=0.1.16';
+import { entitlementService } from './entitlements.js?v=0.1.16';
+import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.16';
+import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.16';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.16';
+import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.16';
 
-const APP_VERSION = 'v0.1.15';
+const APP_VERSION = 'v0.1.16';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
-const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.15';
+const APP_ICON_URL = './assets/app-shell/lazy-acres-suite-icon.svg?v=0.1.16';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
+const USER_PROFILE_STORAGE_KEY = 'lazy-acres-suite-user-profile';
 const appRoot = document.querySelector('[data-app-shell-root]');
 
+const USER_PROFILE_LABELS = {
+  tod: 'Tod',
+  donna: 'Donna',
+  guest: 'Guest',
+};
+
+const USER_PROFILE_NAMES = {
+  tod: 'Tod',
+  donna: 'Donna',
+  guest: '',
+};
+
 const MODULE_ICON_URLS = {
-  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.15',
-  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.15',
-  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.15',
-  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.15',
-  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.15',
-  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.15',
-  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.15',
-  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.15',
-  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.15',
-  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.15',
+  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.16',
+  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.16',
+  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.16',
+  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.16',
+  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.16',
+  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.16',
+  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.16',
+  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.16',
+  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.16',
+  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.16',
 };
 
 let activeRoute = 'dashboard';
 let themeMode = getStoredThemeMode();
+let activeUserProfile = getStoredUserProfile();
 let activeResolvedTheme = null;
 let dashboardSnapshot = null;
 
@@ -42,9 +56,27 @@ function getStoredThemeMode() {
   return ['auto', 'field', 'aurora'].includes(stored) ? stored : 'auto';
 }
 
+function getStoredUserProfile() {
+  const stored = localStorage.getItem(USER_PROFILE_STORAGE_KEY);
+  return Object.prototype.hasOwnProperty.call(USER_PROFILE_LABELS, stored) ? stored : '';
+}
+
 function getAutoTheme() {
   const hour = new Date().getHours();
   return hour >= 19 || hour < 7 ? 'aurora' : 'field';
+}
+
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
+}
+
+function renderGreeting({ expanded = false } = {}) {
+  if (expanded) return 'Today';
+  const name = USER_PROFILE_NAMES[activeUserProfile] || '';
+  return `${getTimeGreeting()}${name ? `, ${name}` : ''}.`;
 }
 
 function resolveTheme(mode = themeMode) {
@@ -72,6 +104,19 @@ function setThemeMode(nextMode) {
   renderRoute(activeRoute).catch(showRenderError);
 }
 
+function setUserProfile(nextProfile) {
+  if (!Object.prototype.hasOwnProperty.call(USER_PROFILE_LABELS, nextProfile)) return;
+  activeUserProfile = nextProfile;
+  localStorage.setItem(USER_PROFILE_STORAGE_KEY, nextProfile);
+  renderRoute(activeRoute).catch(showRenderError);
+}
+
+function requestUserProfile() {
+  activeUserProfile = '';
+  localStorage.removeItem(USER_PROFILE_STORAGE_KEY);
+  renderRoute(activeRoute).catch(showRenderError);
+}
+
 function getModuleAccent(appModule) {
   return activeResolvedTheme === 'aurora' ? appModule.accentDark : appModule.accentLight;
 }
@@ -90,6 +135,28 @@ function renderThemeControl() {
   return `<div class="theme-control" role="group" aria-label="Theme mode">${buttons}</div>`;
 }
 
+function renderProfileControl() {
+  const label = activeUserProfile ? USER_PROFILE_LABELS[activeUserProfile] : 'Choose user';
+  return `<button class="profile-change" type="button" data-profile-change aria-label="Change user profile">${escapeHtml(label)}</button>`;
+}
+
+function renderProfilePrompt() {
+  if (activeUserProfile) return '';
+  return `
+    <div class="profile-prompt-overlay" role="dialog" aria-modal="true" aria-labelledby="profile-prompt-title">
+      <section class="profile-prompt-card">
+        <p class="eyebrow">Local Profile</p>
+        <h2 id="profile-prompt-title">Who is using Lazy Acres Suite?</h2>
+        <p>This is only saved on this browser. Pick Guest to keep the greeting neutral.</p>
+        <div class="profile-options">
+          <button class="profile-option" type="button" data-profile-choice="tod">Tod</button>
+          <button class="profile-option" type="button" data-profile-choice="donna">Donna</button>
+          <button class="profile-option profile-option-secondary" type="button" data-profile-choice="guest">Guest</button>
+        </div>
+      </section>
+    </div>`;
+}
+
 function renderShell(content) {
   applyTheme();
   appRoot.innerHTML = `
@@ -104,10 +171,11 @@ function renderShell(content) {
           <input type="search" placeholder="Search apps or Today…" disabled />
           <kbd>⌘ K</kbd>
         </label>
-        <div class="header-actions">${renderThemeControl()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
+        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
       </header>
       ${content}
-    </div>`;
+    </div>
+    ${renderProfilePrompt()}`;
 }
 
 function renderCopyButton(appModule, className = 'button button-secondary') {
@@ -129,14 +197,53 @@ function renderAppCard(appModule) {
     </article>`;
 }
 
+function getTodaySectionRoute(sectionId) {
+  if (sectionId === 'scheduler') return 'scheduler';
+  if (sectionId === 'shopping') return 'shopping';
+  return '';
+}
+
+function inferRecentItemRoute(item) {
+  const text = String(item || '').toLowerCase();
+  if (/shopping|grocery|list|store|walmart|super one|menards/.test(text)) return 'shopping';
+  if (/calendar|event|meeting|lesson|schedule|appointment|rehearsal|performance/.test(text)) return 'scheduler';
+  if (/recipe|meal|cook|bread|pantry/.test(text)) return 'recipes';
+  if (/tv|episode|series|watch/.test(text)) return 'tv';
+  if (/ski|trail|run|snow/.test(text)) return 'ski';
+  if (/forag|mushroom|berry|plant|find/.test(text)) return 'foraging';
+  if (/camp|trip|site|route|boondock/.test(text)) return 'camping';
+  if (/fish|catch|trout|salmon|lake/.test(text)) return 'fishing';
+  if (/genealogy|family|record|ancestor/.test(text)) return 'genealogy';
+  if (/church|music|song|canticle|hymn|choir/.test(text)) return 'church-music';
+  return '';
+}
+
+function renderTodayItem(section, item) {
+  const text = typeof item === 'string' ? item : String(item?.text || item?.title || item?.label || '');
+  if (!text) return '';
+  const route = section.id === 'recent' ? inferRecentItemRoute(text) : '';
+  return route
+    ? `<li><a class="today-item-link" href="${routeToHash(route)}">${escapeHtml(text)}</a></li>`
+    : `<li>${escapeHtml(text)}</li>`;
+}
+
+function renderTodayTileContent(section) {
+  return `
+    <div class="today-tile-heading"><h3>${escapeHtml(section.title)}</h3>${section.state === 'connected' ? '<span>Live</span>' : '<span class="quiet-state">Pending</span>'}</div>
+    <p>${escapeHtml(section.message)}</p>
+    ${section.items?.length ? `<ul>${section.items.map((item) => renderTodayItem(section, item)).join('')}</ul>` : ''}`;
+}
+
 function renderTodayTiles(snapshot = dashboardSnapshot) {
   const sections = snapshot?.sections || [];
-  return sections.map((section) => `
-    <article class="today-tile today-tile-${escapeHtml(section.state)} today-tile-${escapeHtml(section.id)}">
-      <div class="today-tile-heading"><h3>${escapeHtml(section.title)}</h3>${section.state === 'connected' ? '<span>Live</span>' : '<span class="quiet-state">Pending</span>'}</div>
-      <p>${escapeHtml(section.message)}</p>
-      ${section.items?.length ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
-    </article>`).join('');
+  return sections.map((section) => {
+    const route = getTodaySectionRoute(section.id);
+    const classes = `today-tile today-tile-${escapeHtml(section.state)} today-tile-${escapeHtml(section.id)}${route ? ' today-tile-clickable' : ''}`;
+    const content = renderTodayTileContent(section);
+    return route
+      ? `<a class="${classes}" href="${routeToHash(route)}" aria-label="Open ${escapeHtml(section.title)}">${content}</a>`
+      : `<article class="${classes}">${content}</article>`;
+  }).join('');
 }
 
 function renderHeroStats(snapshot = dashboardSnapshot) {
@@ -152,7 +259,7 @@ function renderHero({ expanded = false } = {}) {
   return `
     <section class="hero ${activeResolvedTheme === 'aurora' ? 'hero-aurora' : 'hero-field'} ${expanded ? 'hero-expanded' : ''}">
       <div class="hero-art" aria-hidden="true"></div>
-      <div class="hero-intro"><p class="eyebrow">${activeResolvedTheme === 'aurora' ? 'Aurora Utility' : 'Field Lab'}</p><h1>${expanded ? 'Today' : 'Good morning, Tod.'}</h1><p>${escapeHtml(heroLine)}</p><div class="hero-stats" aria-label="Today data status">${renderHeroStats()}</div></div>
+      <div class="hero-intro"><p class="eyebrow">${activeResolvedTheme === 'aurora' ? 'Aurora Utility' : 'Field Lab'}</p><h1>${escapeHtml(renderGreeting({ expanded }))}</h1><p>${escapeHtml(heroLine)}</p><div class="hero-stats" aria-label="Today data status">${renderHeroStats()}</div></div>
       <div class="today-surface" aria-label="Today overview">${renderTodayTiles()}</div>
     </section>`;
 }
@@ -213,6 +320,11 @@ function bindThemeButtons() {
   appRoot.querySelectorAll('[data-theme-mode]').forEach((button) => button.addEventListener('click', () => setThemeMode(button.dataset.themeMode)));
 }
 
+function bindProfileButtons() {
+  appRoot.querySelectorAll('[data-profile-choice]').forEach((button) => button.addEventListener('click', () => setUserProfile(button.dataset.profileChoice)));
+  appRoot.querySelector('[data-profile-change]')?.addEventListener('click', requestUserProfile);
+}
+
 function showRenderError(error) {
   console.error(error);
   appRoot.innerHTML = '<main class="no-script"><h1>App shell error</h1><p>Check the browser console for details.</p></main>';
@@ -229,6 +341,7 @@ async function renderRoute(route) {
   renderShell(content);
   bindRouteButtons();
   bindThemeButtons();
+  bindProfileButtons();
   bindCopyButtons();
 }
 
