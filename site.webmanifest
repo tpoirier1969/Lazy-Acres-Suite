@@ -2,16 +2,16 @@
   "name": "Lazy Acres Suite",
   "short_name": "Lazy Acres",
   "description": "Home base for Lazy Acres household and field tools.",
-  "start_url": "./?v=0.1.18#/dashboard",
+  "start_url": "./?v=0.1.21#/dashboard",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f4f0e6",
   "theme_color": "#315f48",
   "icons": [
     {
-      "src": "./assets/app-shell/mountain-suite-icon.svg?v=0.1.18",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./assets/app-shell/mountain-photo-icon.png?v=0.1.21",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
