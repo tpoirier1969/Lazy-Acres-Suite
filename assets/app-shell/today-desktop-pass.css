@@ -1,0 +1,113 @@
+/* Desktop-first Today/module cleanup pass. Loaded last. */
+
+.today-tile-heading > span:not(.shopping-count-line),
+.module-card__actions .icon-action {
+  display: none !important;
+}
+
+.today-surface {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.today-tile-scheduler,
+.today-tile-weather,
+.today-tile-tv {
+  grid-column: span 1;
+}
+
+.today-tile-shopping {
+  grid-column: 1 / -1;
+}
+
+.today-tile-shopping .today-tile-heading {
+  justify-content: flex-start;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.today-tile-shopping h3 {
+  flex: 0 0 auto;
+}
+
+.shopping-count-line {
+  color: color-mix(in srgb, var(--ink) 68%, var(--muted));
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.52), 0 7px 18px rgb(255 251 243 / 0.34);
+}
+
+.today-tile-shopping ul {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 2px 14px !important;
+  margin-top: 2px;
+}
+
+.today-tile-shopping li,
+.today-tile-shopping .today-item-link {
+  font-size: 0.68rem !important;
+  line-height: 1.16 !important;
+}
+
+.today-tile-weather,
+.today-tile-scheduler,
+.today-tile-tv {
+  min-height: 118px;
+}
+
+.today-tile-tv ul,
+.today-tile-scheduler ul,
+.today-tile-weather ul {
+  gap: 2px;
+}
+
+.today-tile-tv li,
+.today-tile-scheduler li,
+.today-tile-weather li {
+  font-size: 0.72rem !important;
+  line-height: 1.18 !important;
+}
+
+.module-card__actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.module-card__actions .button {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 760px) {
+  .today-surface {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .today-tile-shopping {
+    grid-column: 1 / -1;
+  }
+
+  .today-tile-shopping .today-tile-heading {
+    display: block;
+  }
+
+  .shopping-count-line {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.68rem;
+  }
+
+  .today-tile-shopping ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .today-tile-shopping ul {
+    grid-template-columns: 1fr !important;
+  }
+}
