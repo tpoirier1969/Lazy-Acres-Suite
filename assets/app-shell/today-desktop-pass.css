@@ -90,6 +90,28 @@
   line-height: 1.18 !important;
 }
 
+.module-card .module-icon,
+.module-card .module-icon img,
+.placeholder-card .module-icon,
+.placeholder-card .module-icon img {
+  background: #fff !important;
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+.module-card .module-icon,
+.placeholder-card .module-icon {
+  border: 1px solid rgb(80 92 72 / 0.12) !important;
+  outline: 0 !important;
+  overflow: hidden;
+}
+
+.module-card .module-icon img,
+.placeholder-card .module-icon img {
+  border-radius: inherit;
+}
+
 .module-card__actions {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr));
