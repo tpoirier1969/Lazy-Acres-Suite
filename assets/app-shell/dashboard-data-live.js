@@ -4,25 +4,31 @@ const SHOPPING_SCHEMA = 'tod_donna_shared_shopping';
 const SHOPPING_HOUSEHOLD_ID = 'tod-donna-shared';
 const WEATHER_LATITUDE = 46.5435;
 const WEATHER_LONGITUDE = -87.3954;
+const TV_TRACKER_FEEDS = [
+  'https://tpoirier1969.github.io/tv-tracker/data/episodes.json',
+  'https://tpoirier1969.github.io/tv-tracker/episodes.json',
+  'https://tpoirier1969.github.io/tv-tracker/data/tv-data.json',
+  'https://tpoirier1969.github.io/tv-tracker/data.json',
+];
 
 const REQUIREMENTS = [
   { id: 'scheduler', title: 'Calendar', missing: 'A readable Scheduler adapter or exported calendar data source.' },
   { id: 'weather', title: 'Weather', missing: 'A browser-safe weather adapter or public forecast feed.' },
-  { id: 'recent', title: 'Recent', missing: 'A readable recent-activity adapter or local module activity export.' },
   { id: 'shopping', title: 'Shopping', missing: 'A readable Shopping List adapter or exported list data source.' },
+  { id: 'tv', title: 'TV Tracker', missing: 'A readable TV Tracker episode feed.' },
 ];
 
 const UNAVAILABLE = {
   scheduler: 'Calendar source not connected.',
   weather: 'Weather source not connected.',
-  recent: 'No recent activity source connected.',
   shopping: 'Shopping list source not connected.',
+  tv: 'TV Tracker source not connected.',
 };
 
 let supabaseScriptPromise = null;
 let supabaseClientPromise = null;
 
-function normalizeItems(items) {
+function normalizeItems(items, limit = 8) {
   return (Array.isArray(items) ? items : [])
     .map((item) => {
       if (typeof item === 'string') return item;
@@ -31,15 +37,22 @@ function normalizeItems(items) {
     })
     .map((item) => item.trim())
     .filter(Boolean)
-    .slice(0, 4);
+    .slice(0, limit);
 }
 
 function unavailableSection(requirement, message = UNAVAILABLE[requirement.id]) {
   return { id: requirement.id, title: requirement.title, state: 'unavailable', message, items: [], missing: requirement.missing };
 }
 
-function connectedSection(requirement, message, items = []) {
-  return { id: requirement.id, title: requirement.title, state: 'connected', message, items: normalizeItems(items), missing: '' };
+function connectedSection(requirement, message, items = [], options = {}) {
+  return {
+    id: requirement.id,
+    title: requirement.title,
+    state: 'connected',
+    message,
+    items: normalizeItems(items, options.limit ?? 8),
+    missing: '',
+  };
 }
 
 function loadSupabaseScript() {
@@ -115,6 +128,7 @@ async function readScheduler(requirement) {
     requirement,
     `${events.length} calendar item${events.length === 1 ? '' : 's'} today.`,
     events.slice(0, 4).map((event) => ({ time: formatEventTime(event), title: event.title || event.preset_name || 'Untitled event' })),
+    { limit: 4 },
   );
 }
 
@@ -145,7 +159,7 @@ async function readWeather(requirement) {
   return connectedSection(requirement, hasTemps ? `${temp}° · ${condition}` : condition, [
     hasTemps ? `High ${high}° / Low ${low}°` : '',
     Number.isFinite(data.current?.wind_speed_10m) ? `Wind ${Math.round(data.current.wind_speed_10m)} mph` : '',
-  ].filter(Boolean));
+  ].filter(Boolean), { limit: 2 });
 }
 
 async function readShopping(requirement) {
@@ -157,18 +171,75 @@ async function readShopping(requirement) {
     .eq('household_id', SHOPPING_HOUSEHOLD_ID)
     .eq('on_shopping_list', true)
     .order('created_at', { ascending: true })
-    .limit(25);
+    .limit(40);
   if (error) throw error;
   const activeItems = (data || []).filter((item) => item.removed !== true);
-  const displayItems = activeItems.map((item) => item.item_name || '').filter(Boolean).slice(0, 4);
+  const displayItems = activeItems.map((item) => item.item_name || '').filter(Boolean).slice(0, 18);
   if (!activeItems.length) return connectedSection(requirement, 'Shopping list is empty.', []);
-  return connectedSection(requirement, `${activeItems.length} shopping item${activeItems.length === 1 ? '' : 's'} active.`, displayItems);
+  return connectedSection(requirement, `You have ${activeItems.length} item${activeItems.length === 1 ? '' : 's'} in your shopping list.`, displayItems, { limit: 18 });
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.episodes)) return value.episodes;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.shows)) return value.shows;
+  return [];
+}
+
+function getEpisodeDate(episode) {
+  const raw = episode.air_date || episode.airDate || episode.date || episode.next_air_date || episode.airstamp || episode.first_aired;
+  if (!raw) return null;
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getEpisodeLabel(episode) {
+  const show = episode.show || episode.show_name || episode.series || episode.series_name || episode.name || episode.title || 'TV episode';
+  const title = episode.episode_title || episode.episode || episode.subtitle || '';
+  const date = getEpisodeDate(episode);
+  const day = date ? date.toLocaleDateString(undefined, { weekday: 'short' }) : '';
+  return [day, show, title].filter(Boolean).join(' · ');
+}
+
+async function fetchTvFeed() {
+  for (const url of TV_TRACKER_FEEDS) {
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) continue;
+      const data = await response.json();
+      const episodes = asArray(data);
+      if (episodes.length) return episodes;
+    } catch (error) {
+      console.warn('TV Tracker feed unavailable:', url, error);
+    }
+  }
+  return [];
+}
+
+async function readTvTracker(requirement) {
+  const episodes = await fetchTvFeed();
+  if (!episodes.length) return unavailableSection(requirement);
+  const now = new Date();
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  const nextFive = new Date(start);
+  nextFive.setDate(nextFive.getDate() + 5);
+  const previousWeek = new Date(start);
+  previousWeek.setDate(previousWeek.getDate() - 7);
+  const withDates = episodes.map((episode) => ({ episode, date: getEpisodeDate(episode) })).filter((item) => item.date);
+  const upcoming = withDates.filter((item) => item.date >= start && item.date <= nextFive).sort((a, b) => a.date - b.date);
+  const recent = withDates.filter((item) => item.date >= previousWeek && item.date < start).sort((a, b) => b.date - a.date);
+  const selected = [...upcoming, ...recent].slice(0, 6).map((item) => getEpisodeLabel(item.episode));
+  if (!selected.length) return unavailableSection(requirement);
+  return connectedSection(requirement, upcoming.length ? 'Upcoming episodes.' : 'Recent episodes.', selected, { limit: 6 });
 }
 
 async function readBuiltIn(requirement) {
   if (requirement.id === 'scheduler') return readScheduler(requirement);
   if (requirement.id === 'weather') return readWeather(requirement);
   if (requirement.id === 'shopping') return readShopping(requirement);
+  if (requirement.id === 'tv') return readTvTracker(requirement);
   return unavailableSection(requirement);
 }
 
@@ -182,13 +253,13 @@ async function readSection(requirement) {
 }
 
 export async function getDashboardSnapshot() {
-  const sections = await Promise.all(REQUIREMENTS.map(readSection));
-  const connected = sections.filter((section) => section.state === 'connected').length;
+  const results = await Promise.all(REQUIREMENTS.map(readSection));
+  const sections = results.filter((section) => section.state === 'connected');
   return {
-    status: connected > 0 ? 'partial' : 'unavailable',
+    status: sections.length > 0 ? 'partial' : 'unavailable',
     generatedAt: new Date().toISOString(),
     sections,
-    summary: { connected, unavailable: sections.length - connected, total: sections.length },
-    missingConfig: sections.filter((section) => section.state !== 'connected').map((section) => section.missing).filter(Boolean),
+    summary: { connected: sections.length, unavailable: 0, total: sections.length },
+    missingConfig: [],
   };
 }
