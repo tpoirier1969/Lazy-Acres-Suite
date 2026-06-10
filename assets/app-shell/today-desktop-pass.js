@@ -1,11 +1,27 @@
 import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.22';
 import { getModuleBySlug } from './modules.js?v=0.1.18';
 
-const DISPLAY_VERSION = 'v0.1.27';
-const ICON_VERSION = '0.1.27';
+const DISPLAY_VERSION = 'v0.1.29';
+const ICON_VERSION = '0.1.29';
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+function installStableTodayHover() {
+  if (document.getElementById('lazy-acres-stable-today-hover')) return;
+  const style = document.createElement('style');
+  style.id = 'lazy-acres-stable-today-hover';
+  style.textContent = `
+    .today-tile,
+    .today-tile:hover,
+    .today-tile-clickable,
+    .today-tile-clickable:hover {
+      transform: none !important;
+      translate: none !important;
+    }
+  `;
+  document.head.append(style);
 }
 
 function getModuleLaunchUrl(slug) {
@@ -65,6 +81,7 @@ function refreshModuleIcons() {
 }
 
 async function refreshTodaySurface() {
+  installStableTodayHover();
   refreshDisplayedVersion();
   refreshModuleIcons();
   const surface = document.querySelector('.today-surface');
@@ -86,8 +103,10 @@ function scheduleRefresh() {
   window.__lazyAcresTodayDesktopPassTimer = window.setTimeout(refreshTodaySurface, 80);
 }
 
+installStableTodayHover();
 scheduleRefresh();
 new MutationObserver(() => {
+  installStableTodayHover();
   refreshDisplayedVersion();
   refreshModuleIcons();
   scheduleRefresh();
