@@ -1,6 +1,8 @@
 import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.22';
 import { getModuleBySlug } from './modules.js?v=0.1.18';
 
+const DISPLAY_VERSION = 'v0.1.26';
+
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 }
@@ -44,7 +46,15 @@ function renderTodayTile(section) {
   return `<a class="${classes}" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)} aria-label="Open ${escapeHtml(section.title)}">${content}</a>`;
 }
 
+function refreshDisplayedVersion() {
+  document.querySelectorAll('.version-flag').forEach((flag) => {
+    if (flag.textContent !== DISPLAY_VERSION) flag.textContent = DISPLAY_VERSION;
+    flag.setAttribute('aria-label', `App version ${DISPLAY_VERSION}`);
+  });
+}
+
 async function refreshTodaySurface() {
+  refreshDisplayedVersion();
   const surface = document.querySelector('.today-surface');
   if (!surface || surface.dataset.todayDesktopPass === 'rendering') return;
   surface.dataset.todayDesktopPass = 'rendering';
@@ -65,4 +75,7 @@ function scheduleRefresh() {
 }
 
 scheduleRefresh();
-new MutationObserver(() => scheduleRefresh()).observe(document.documentElement, { childList: true, subtree: true });
+new MutationObserver(() => {
+  refreshDisplayedVersion();
+  scheduleRefresh();
+}).observe(document.documentElement, { childList: true, subtree: true });
