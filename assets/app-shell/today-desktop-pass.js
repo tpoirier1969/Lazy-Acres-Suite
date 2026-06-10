@@ -1,7 +1,8 @@
 import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.22';
 import { getModuleBySlug } from './modules.js?v=0.1.18';
 
-const DISPLAY_VERSION = 'v0.1.26';
+const DISPLAY_VERSION = 'v0.1.27';
+const ICON_VERSION = '0.1.27';
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -53,8 +54,19 @@ function refreshDisplayedVersion() {
   });
 }
 
+function refreshModuleIcons() {
+  document.querySelectorAll('.module-icon img').forEach((img) => {
+    const source = img.getAttribute('src') || '';
+    if (!source.includes('/icons/field-lab/')) return;
+    const cleanSource = source.split('?')[0];
+    const nextSource = `${cleanSource}?v=${ICON_VERSION}`;
+    if (source !== nextSource) img.setAttribute('src', nextSource);
+  });
+}
+
 async function refreshTodaySurface() {
   refreshDisplayedVersion();
+  refreshModuleIcons();
   const surface = document.querySelector('.today-surface');
   if (!surface || surface.dataset.todayDesktopPass === 'rendering') return;
   surface.dataset.todayDesktopPass = 'rendering';
@@ -77,5 +89,6 @@ function scheduleRefresh() {
 scheduleRefresh();
 new MutationObserver(() => {
   refreshDisplayedVersion();
+  refreshModuleIcons();
   scheduleRefresh();
 }).observe(document.documentElement, { childList: true, subtree: true });
