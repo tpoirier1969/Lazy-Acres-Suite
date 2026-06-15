@@ -1,12 +1,12 @@
 {
-  "version": "0.1.34",
-  "display_version": "v0.1.34",
+  "version": "0.1.35",
+  "display_version": "v0.1.35",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-06-15",
   "notes": [
-    "Moved Shopping quick-add Add button onto the same row as the input on phone layouts.",
-    "Removed the Shopping tile item list from the landing page to reduce vertical space.",
-    "Shortcut entry updated to load the compact Shopping tile patch."
+    "Forced Shopping quick-add to use a no-wrap flex row so the Add button stays beside the input on phone layouts.",
+    "Updated the runtime style block in place instead of leaving older one-column mobile CSS active.",
+    "Shortcut entry updated to load the forced inline quick-add patch."
   ]
 }
