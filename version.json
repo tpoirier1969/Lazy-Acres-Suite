@@ -1,12 +1,12 @@
 {
-  "version": "0.1.35",
-  "display_version": "v0.1.35",
+  "version": "0.1.36",
+  "display_version": "v0.1.36",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-06-15",
   "notes": [
-    "Forced Shopping quick-add to use a no-wrap flex row so the Add button stays beside the input on phone layouts.",
-    "Updated the runtime style block in place instead of leaving older one-column mobile CSS active.",
-    "Shortcut entry updated to load the forced inline quick-add patch."
+    "Forced Shopping quick-add to use a no-wrap flex row and updated the runtime style block in place.",
+    "Made the greeting line autosize and stay on one line across the hero width.",
+    "Shortcut entry updated to load the one-line greeting layout patch."
   ]
 }
