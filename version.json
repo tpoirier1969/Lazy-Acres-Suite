@@ -1,12 +1,12 @@
 {
-  "version": "0.1.32",
-  "display_version": "v0.1.32",
+  "version": "0.1.33",
+  "display_version": "v0.1.33",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-06-15",
   "notes": [
-    "Shortcut entry with startup update checking.",
-    "Shopping quick-add on dashboard landing page.",
-    "Foraging link corrected."
+    "Fixed Shopping quick-add payload to match the Shopping app item schema.",
+    "Kept Add button inline and compact on phone layouts.",
+    "Shortcut entry updated to load the fixed dashboard patch."
   ]
 }
