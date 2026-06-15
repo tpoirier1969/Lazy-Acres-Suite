@@ -1,10 +1,11 @@
-import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.32';
+import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.37';
 import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.36';
-const ICON_VERSION = '0.1.36';
+const DISPLAY_VERSION = 'v0.1.37';
+const ICON_VERSION = '0.1.37';
 const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 let shoppingQuickAddBound = false;
+let todaySurfaceRenderInFlight = false;
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -25,6 +26,11 @@ function installStableTodayHover() {
       transform: none !important;
       translate: none !important;
     }
+    .hero-intro {
+      width: 100% !important;
+      max-width: none !important;
+      min-width: 0 !important;
+    }
     .hero-intro h1 {
       display: block !important;
       width: 100% !important;
@@ -38,9 +44,13 @@ function installStableTodayHover() {
       word-spacing: normal !important;
     }
     @media (max-width: 430px) {
+      .hero {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+      }
       .hero-intro h1 {
-        font-size: clamp(1.34rem, 6.7vw, 2rem) !important;
-        letter-spacing: -0.075em !important;
+        font-size: clamp(1.16rem, 5.7vw, 1.72rem) !important;
+        letter-spacing: -0.085em !important;
       }
     }
     .today-tile-shopping {
@@ -93,6 +103,10 @@ function installStableTodayHover() {
       cursor: pointer;
       white-space: nowrap;
     }
+    .shopping-quick-add button:disabled {
+      cursor: wait;
+      opacity: 0.62;
+    }
     .shopping-quick-add-status {
       min-height: 1em;
       margin: -2px 0 3px;
@@ -103,6 +117,25 @@ function installStableTodayHover() {
       display: none !important;
     }
   `;
+}
+
+function fitGreetingToOneLine() {
+  const heading = document.querySelector('.hero-intro h1');
+  if (!heading) return;
+  heading.style.removeProperty('font-size');
+  heading.style.removeProperty('letter-spacing');
+  const maxWidth = heading.clientWidth;
+  if (!maxWidth || heading.scrollWidth <= maxWidth) return;
+  const computed = window.getComputedStyle(heading);
+  let size = parseFloat(computed.fontSize) || 28;
+  const minSize = window.matchMedia('(max-width: 430px)').matches ? 18 : 22;
+  while (size > minSize && heading.scrollWidth > maxWidth) {
+    size -= 0.5;
+    heading.style.setProperty('font-size', `${size}px`, 'important');
+  }
+  if (heading.scrollWidth > maxWidth) {
+    heading.style.setProperty('letter-spacing', '-0.095em', 'important');
+  }
 }
 
 function getModuleLaunchUrl(slug) {
@@ -181,6 +214,16 @@ function refreshForagingLinks() {
   });
 }
 
+function setQuickAddStatus(message) {
+  const status = document.querySelector('[data-shopping-quick-add-status]');
+  if (status) status.textContent = message || '';
+}
+
+function focusQuickAddInput() {
+  const input = document.querySelector('#shoppingQuickAddInput');
+  input?.focus();
+}
+
 function bindShoppingQuickAdd() {
   if (shoppingQuickAddBound) return;
   shoppingQuickAddBound = true;
@@ -190,26 +233,24 @@ function bindShoppingQuickAdd() {
     event.preventDefault();
     const input = form.querySelector('input[name="item"]');
     const button = form.querySelector('button[type="submit"]');
-    const status = form.parentElement?.querySelector('[data-shopping-quick-add-status]');
     const value = String(input?.value || '').trim();
     if (!value) {
-      if (status) status.textContent = 'Enter an item first.';
+      setQuickAddStatus('Enter an item first.');
       input?.focus();
       return;
     }
     if (button) button.disabled = true;
-    if (status) status.textContent = 'Adding…';
+    setQuickAddStatus('Adding…');
     try {
       await addShoppingItem(value);
       if (input) input.value = '';
-      if (status) status.textContent = `Added ${value}.`;
-      await refreshTodaySurface({ force: true });
+      await refreshTodaySurface({ force: true, preserveStatus: `Added ${value}.`, focusQuickAdd: true });
     } catch (error) {
       console.warn('Shopping quick add failed.', error);
-      if (status) status.textContent = error?.message || 'Could not add item.';
+      setQuickAddStatus(error?.message || 'Could not add item.');
+      input?.focus();
     } finally {
       if (button) button.disabled = false;
-      input?.focus();
     }
   });
 }
@@ -220,17 +261,24 @@ async function refreshTodaySurface(options = {}) {
   refreshDisplayedVersion();
   refreshModuleIcons();
   refreshForagingLinks();
+  fitGreetingToOneLine();
   const surface = document.querySelector('.today-surface');
-  if (!surface || (!options.force && surface.dataset.todayDesktopPass === 'rendering')) return;
+  if (!surface || (todaySurfaceRenderInFlight && !options.force)) return;
+  todaySurfaceRenderInFlight = true;
   surface.dataset.todayDesktopPass = 'rendering';
   try {
     const snapshot = await getDashboardSnapshot();
     const sections = (snapshot.sections || []).filter((section) => section.state === 'connected');
     surface.innerHTML = sections.map(renderTodayTile).join('');
     surface.dataset.todayDesktopPass = 'done';
+    if (options.preserveStatus) setQuickAddStatus(options.preserveStatus);
+    if (options.focusQuickAdd) focusQuickAddInput();
   } catch (error) {
     console.warn('Today surface refresh failed.', error);
     surface.dataset.todayDesktopPass = 'failed';
+  } finally {
+    todaySurfaceRenderInFlight = false;
+    fitGreetingToOneLine();
   }
 }
 
@@ -239,14 +287,26 @@ function scheduleRefresh() {
   window.__lazyAcresTodayDesktopPassTimer = window.setTimeout(() => refreshTodaySurface(), 80);
 }
 
+function mutationNeedsRefresh(mutations) {
+  return mutations.some((mutation) => {
+    if (mutation.target?.closest?.('.today-surface')) return false;
+    return Array.from(mutation.addedNodes || []).some((node) => {
+      if (node.nodeType !== 1) return false;
+      return node.matches?.('.today-surface') || node.querySelector?.('.today-surface');
+    });
+  });
+}
+
 installStableTodayHover();
 bindShoppingQuickAdd();
 refreshForagingLinks();
 scheduleRefresh();
-new MutationObserver(() => {
+new MutationObserver((mutations) => {
   installStableTodayHover();
   refreshDisplayedVersion();
   refreshModuleIcons();
   refreshForagingLinks();
-  scheduleRefresh();
+  fitGreetingToOneLine();
+  if (mutationNeedsRefresh(mutations)) scheduleRefresh();
 }).observe(document.documentElement, { childList: true, subtree: true });
+window.addEventListener('resize', fitGreetingToOneLine);
