@@ -1,8 +1,8 @@
 import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.32';
 import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.35';
-const ICON_VERSION = '0.1.35';
+const DISPLAY_VERSION = 'v0.1.36';
+const ICON_VERSION = '0.1.36';
 const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 let shoppingQuickAddBound = false;
 
@@ -25,8 +25,29 @@ function installStableTodayHover() {
       transform: none !important;
       translate: none !important;
     }
+    .hero-intro h1 {
+      display: block !important;
+      width: 100% !important;
+      max-width: none !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: clip !important;
+      font-size: clamp(1.45rem, 7.2vw, 4.9rem) !important;
+      line-height: 0.98 !important;
+      letter-spacing: clamp(-0.055em, -0.8vw, 0.01em) !important;
+      word-spacing: normal !important;
+    }
+    @media (max-width: 430px) {
+      .hero-intro h1 {
+        font-size: clamp(1.34rem, 6.7vw, 2rem) !important;
+        letter-spacing: -0.075em !important;
+      }
+    }
     .today-tile-shopping {
       min-height: auto !important;
+    }
+    .today-tile-shopping .today-tile-heading {
+      margin-bottom: 4px !important;
     }
     .shopping-quick-add {
       display: flex !important;
