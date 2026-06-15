@@ -1,0 +1,12 @@
+{
+  "version": "0.1.32",
+  "display_version": "v0.1.32",
+  "entry": "shortcut.html",
+  "route": "#/dashboard",
+  "updated_at": "2026-06-15",
+  "notes": [
+    "Shortcut entry with startup update checking.",
+    "Shopping quick-add on dashboard landing page.",
+    "Foraging link corrected."
+  ]
+}
