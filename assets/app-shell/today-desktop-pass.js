@@ -1,8 +1,8 @@
 import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.32';
 import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.32';
-const ICON_VERSION = '0.1.32';
+const DISPLAY_VERSION = 'v0.1.34';
+const ICON_VERSION = '0.1.34';
 const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 let shoppingQuickAddBound = false;
 
@@ -23,15 +23,16 @@ function installStableTodayHover() {
       translate: none !important;
     }
     .shopping-quick-add {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) max-content;
-      gap: 6px;
-      align-items: center;
-      margin: 5px 0 5px;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) max-content !important;
+      gap: 6px !important;
+      align-items: center !important;
+      margin: 5px 0 5px !important;
+      width: 100% !important;
     }
     .shopping-quick-add input {
-      width: 100%;
-      min-width: 0;
+      width: 100% !important;
+      min-width: 0 !important;
       border: 1px solid rgb(80 92 72 / 0.22);
       border-radius: 12px;
       padding: 8px 10px;
@@ -43,7 +44,8 @@ function installStableTodayHover() {
     .shopping-quick-add button {
       width: auto !important;
       min-width: 0 !important;
-      justify-self: end;
+      justify-self: end !important;
+      align-self: center !important;
       border: 1px solid rgb(49 95 72 / 0.34);
       border-radius: 12px;
       padding: 8px 10px;
@@ -61,6 +63,9 @@ function installStableTodayHover() {
       margin: -2px 0 3px;
       font-size: 0.68rem;
       color: color-mix(in srgb, var(--ink) 58%, var(--muted));
+    }
+    .today-tile-shopping ul {
+      display: none !important;
     }
   `;
   document.head.append(style);
@@ -107,10 +112,11 @@ function renderShoppingQuickAdd() {
 function renderTodayTile(section) {
   const slug = getTodaySectionSlug(section.id);
   const classes = `today-tile today-tile-connected today-tile-${escapeHtml(section.id)}${slug ? ' today-tile-clickable' : ''}`;
+  const itemList = section.id === 'shopping' ? '' : (section.items?.length ? `<ul>${section.items.map((item) => renderTodayItem(section, item)).join('')}</ul>` : '');
   const content = `
     ${renderHeading(section)}
     ${section.id !== 'shopping' ? `<p>${escapeHtml(section.message)}</p>` : renderShoppingQuickAdd()}
-    ${section.items?.length ? `<ul>${section.items.map((item) => renderTodayItem(section, item)).join('')}</ul>` : ''}`;
+    ${itemList}`;
   if (section.id === 'shopping') return `<article class="${classes}" aria-label="${escapeHtml(section.title)}">${content}</article>`;
   if (!slug) return `<article class="${classes}">${content}</article>`;
   const url = getModuleLaunchUrl(slug);
