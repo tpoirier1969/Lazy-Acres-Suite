@@ -98,7 +98,7 @@ export const moduleRegistry = [
     accentDark: '#a3e635',
     status: 'legacy-link',
     group: 'commercial-candidate',
-    legacyUrl: 'https://tpoirier1969.github.io/up-foraging-guide/',
+    legacyUrl: 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html',
     legacyLabel: 'Open',
   },
   {
