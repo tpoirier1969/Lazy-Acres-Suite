@@ -1,8 +1,8 @@
-import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.31';
+import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.32';
 import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.31';
-const ICON_VERSION = '0.1.31';
+const DISPLAY_VERSION = 'v0.1.32';
+const ICON_VERSION = '0.1.32';
 const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 let shoppingQuickAddBound = false;
 
@@ -24,10 +24,10 @@ function installStableTodayHover() {
     }
     .shopping-quick-add {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      gap: 6px;
       align-items: center;
-      margin: 6px 0 6px;
+      margin: 5px 0 5px;
     }
     .shopping-quick-add input {
       width: 100%;
@@ -41,26 +41,26 @@ function installStableTodayHover() {
       color: var(--ink);
     }
     .shopping-quick-add button {
+      width: auto !important;
+      min-width: 0 !important;
+      justify-self: end;
       border: 1px solid rgb(49 95 72 / 0.34);
       border-radius: 12px;
-      padding: 8px 12px;
+      padding: 8px 10px;
       font: inherit;
       font-size: 0.78rem;
       font-weight: 850;
+      line-height: 1;
       background: rgb(49 95 72 / 0.10);
       color: var(--ink);
       cursor: pointer;
+      white-space: nowrap;
     }
     .shopping-quick-add-status {
       min-height: 1em;
       margin: -2px 0 3px;
       font-size: 0.68rem;
       color: color-mix(in srgb, var(--ink) 58%, var(--muted));
-    }
-    @media (max-width: 520px) {
-      .shopping-quick-add {
-        grid-template-columns: minmax(0, 1fr);
-      }
     }
   `;
   document.head.append(style);
