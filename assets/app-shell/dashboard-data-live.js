@@ -179,21 +179,43 @@ async function readShopping(requirement) {
   return connectedSection(requirement, `You have ${activeItems.length} item${activeItems.length === 1 ? '' : 's'} in your shopping list.`, displayItems, { limit: 18 });
 }
 
+function normalizeShoppingName(value) {
+  return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function makeShoppingId() {
+  return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 export async function addShoppingItem(itemName) {
   const cleanName = String(itemName || '').trim();
   if (!cleanName) throw new Error('Enter an item first.');
+  const now = new Date().toISOString();
+  const payload = {
+    id: makeShoppingId(),
+    household_id: SHOPPING_HOUSEHOLD_ID,
+    item_name: cleanName,
+    normalized_name: normalizeShoppingName(cleanName),
+    category: 'Other',
+    store: 'shopping',
+    parent_target: null,
+    purchased_main: false,
+    parent_checked: false,
+    on_shopping_list: true,
+    delivered: false,
+    removed: false,
+    removed_reason: null,
+    updated_at: now,
+  };
   const client = await getSupabaseClient();
-  const { error } = await client
+  const { data, error } = await client
     .schema(SHOPPING_SCHEMA)
     .from('items')
-    .insert({
-      household_id: SHOPPING_HOUSEHOLD_ID,
-      item_name: cleanName,
-      on_shopping_list: true,
-      removed: false,
-    });
+    .upsert(payload)
+    .select()
+    .single();
   if (error) throw error;
-  return { item_name: cleanName };
+  return data || payload;
 }
 
 function asArray(value) {
