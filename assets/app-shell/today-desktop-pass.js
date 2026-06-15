@@ -1,8 +1,8 @@
 import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.32';
 import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.34';
-const ICON_VERSION = '0.1.34';
+const DISPLAY_VERSION = 'v0.1.35';
+const ICON_VERSION = '0.1.35';
 const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 let shoppingQuickAddBound = false;
 
@@ -11,9 +11,12 @@ function escapeHtml(value) {
 }
 
 function installStableTodayHover() {
-  if (document.getElementById('lazy-acres-stable-today-hover')) return;
-  const style = document.createElement('style');
-  style.id = 'lazy-acres-stable-today-hover';
+  let style = document.getElementById('lazy-acres-stable-today-hover');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'lazy-acres-stable-today-hover';
+    document.head.append(style);
+  }
   style.textContent = `
     .today-tile,
     .today-tile:hover,
@@ -22,17 +25,25 @@ function installStableTodayHover() {
       transform: none !important;
       translate: none !important;
     }
+    .today-tile-shopping {
+      min-height: auto !important;
+    }
     .shopping-quick-add {
-      display: grid !important;
-      grid-template-columns: minmax(0, 1fr) max-content !important;
-      gap: 6px !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
       align-items: center !important;
+      gap: 6px !important;
       margin: 5px 0 5px !important;
       width: 100% !important;
+      max-width: 100% !important;
     }
     .shopping-quick-add input {
-      width: 100% !important;
+      display: block !important;
+      flex: 1 1 auto !important;
+      width: auto !important;
       min-width: 0 !important;
+      max-width: none !important;
       border: 1px solid rgb(80 92 72 / 0.22);
       border-radius: 12px;
       padding: 8px 10px;
@@ -42,10 +53,13 @@ function installStableTodayHover() {
       color: var(--ink);
     }
     .shopping-quick-add button {
+      display: inline-flex !important;
+      flex: 0 0 auto !important;
       width: auto !important;
       min-width: 0 !important;
-      justify-self: end !important;
-      align-self: center !important;
+      max-width: max-content !important;
+      align-items: center !important;
+      justify-content: center !important;
       border: 1px solid rgb(49 95 72 / 0.34);
       border-radius: 12px;
       padding: 8px 10px;
@@ -68,7 +82,6 @@ function installStableTodayHover() {
       display: none !important;
     }
   `;
-  document.head.append(style);
 }
 
 function getModuleLaunchUrl(slug) {
