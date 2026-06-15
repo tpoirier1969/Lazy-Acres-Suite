@@ -1,8 +1,9 @@
 import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.22';
-import { getModuleBySlug } from './modules.js?v=0.1.18';
+import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.29';
-const ICON_VERSION = '0.1.29';
+const DISPLAY_VERSION = 'v0.1.30';
+const ICON_VERSION = '0.1.30';
+const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -25,6 +26,7 @@ function installStableTodayHover() {
 }
 
 function getModuleLaunchUrl(slug) {
+  if (slug === 'foraging') return FORAGING_URL;
   const appModule = getModuleBySlug(slug);
   return appModule?.legacyUrl || `#/${slug}`;
 }
@@ -80,10 +82,18 @@ function refreshModuleIcons() {
   });
 }
 
+function refreshForagingLinks() {
+  document.querySelectorAll('[data-module-slug="foraging"] a[href], a[href*="up-foraging-guide"]').forEach((link) => {
+    if (link.getAttribute('href') !== FORAGING_URL) link.setAttribute('href', FORAGING_URL);
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+}
+
 async function refreshTodaySurface() {
   installStableTodayHover();
   refreshDisplayedVersion();
   refreshModuleIcons();
+  refreshForagingLinks();
   const surface = document.querySelector('.today-surface');
   if (!surface || surface.dataset.todayDesktopPass === 'rendering') return;
   surface.dataset.todayDesktopPass = 'rendering';
@@ -104,10 +114,12 @@ function scheduleRefresh() {
 }
 
 installStableTodayHover();
+refreshForagingLinks();
 scheduleRefresh();
 new MutationObserver(() => {
   installStableTodayHover();
   refreshDisplayedVersion();
   refreshModuleIcons();
+  refreshForagingLinks();
   scheduleRefresh();
 }).observe(document.documentElement, { childList: true, subtree: true });
