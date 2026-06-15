@@ -1,12 +1,12 @@
 {
-  "version": "0.1.33",
-  "display_version": "v0.1.33",
+  "version": "0.1.34",
+  "display_version": "v0.1.34",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-06-15",
   "notes": [
-    "Fixed Shopping quick-add payload to match the Shopping app item schema.",
-    "Kept Add button inline and compact on phone layouts.",
-    "Shortcut entry updated to load the fixed dashboard patch."
+    "Moved Shopping quick-add Add button onto the same row as the input on phone layouts.",
+    "Removed the Shopping tile item list from the landing page to reduce vertical space.",
+    "Shortcut entry updated to load the compact Shopping tile patch."
   ]
 }
