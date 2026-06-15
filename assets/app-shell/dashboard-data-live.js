@@ -179,6 +179,23 @@ async function readShopping(requirement) {
   return connectedSection(requirement, `You have ${activeItems.length} item${activeItems.length === 1 ? '' : 's'} in your shopping list.`, displayItems, { limit: 18 });
 }
 
+export async function addShoppingItem(itemName) {
+  const cleanName = String(itemName || '').trim();
+  if (!cleanName) throw new Error('Enter an item first.');
+  const client = await getSupabaseClient();
+  const { error } = await client
+    .schema(SHOPPING_SCHEMA)
+    .from('items')
+    .insert({
+      household_id: SHOPPING_HOUSEHOLD_ID,
+      item_name: cleanName,
+      on_shopping_list: true,
+      removed: false,
+    });
+  if (error) throw error;
+  return { item_name: cleanName };
+}
+
 function asArray(value) {
   if (Array.isArray(value)) return value;
   if (Array.isArray(value?.episodes)) return value.episodes;
