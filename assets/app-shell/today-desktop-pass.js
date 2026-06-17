@@ -1,8 +1,8 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.46';
 
-const DISPLAY_VERSION = 'v0.1.46';
+const DISPLAY_VERSION = 'v0.1.47';
 const STYLE_ID = 'lazy-acres-today-pass-style';
-const MAX_ATTEMPTS = 16;
+const MAX_ATTEMPTS = 60;
 let attempts = 0;
 let shoppingQuickAddBound = false;
 
@@ -88,9 +88,20 @@ function refreshDisplayedVersion() {
   });
 }
 
+function decoupleShoppingTile() {
+  const linkTile = document.querySelector('a.today-tile-shopping');
+  if (!linkTile) return;
+  const card = document.createElement('article');
+  card.className = String(linkTile.className || '').replace(/\btoday-tile-clickable\b/g, '').replace(/\s+/g, ' ').trim();
+  card.innerHTML = linkTile.innerHTML;
+  card.setAttribute('aria-label', linkTile.getAttribute('aria-label') || 'Shopping');
+  card.dataset.shoppingQuickAddOnly = 'true';
+  linkTile.replaceWith(card);
+}
+
 function openSuiteLaunchLinksInNewPages() {
   document.querySelectorAll('.module-card__actions a[href], .detail-actions a[href], .today-tile-clickable[href]').forEach((link) => {
-    if (link.closest('.brand')) return;
+    if (link.closest('.brand') || link.classList.contains('today-tile-shopping')) return;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
   });
@@ -109,6 +120,7 @@ function bindShoppingQuickAdd() {
     const form = event.target?.closest?.('[data-shopping-quick-add]');
     if (!form) return;
     event.preventDefault();
+    event.stopPropagation();
     const input = form.querySelector('input[name="item"]');
     const button = form.querySelector('button[type="submit"]');
     const status = form.parentElement?.querySelector('[data-shopping-quick-add-status]');
@@ -132,11 +144,17 @@ function bindShoppingQuickAdd() {
       input?.focus();
     }
   });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target?.closest?.('[data-shopping-quick-add]')) return;
+    event.stopPropagation();
+  }, true);
 }
 
 function boot() {
   installStyles();
   refreshDisplayedVersion();
+  decoupleShoppingTile();
   openSuiteLaunchLinksInNewPages();
   ensureShoppingQuickAdd();
   bindShoppingQuickAdd();
