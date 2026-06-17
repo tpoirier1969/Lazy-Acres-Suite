@@ -128,6 +128,47 @@ function formatEventTime(event) {
   return `${((hours + 11) % 12) + 1}:${String(minutes).padStart(2, '0')}${suffix}`;
 }
 
+function cleanOwnerName(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const lower = raw.toLowerCase();
+  if (lower === 'all' || lower === 'everyone' || lower === 'shared') return 'Shared';
+  if (lower.includes('donna')) return 'Donna';
+  if (lower.includes('tod')) return 'Tod';
+  if (lower.includes('frank')) return 'Frank';
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+function getEventOwner(event) {
+  const direct = cleanOwnerName(
+    event.owner_name ||
+    event.owner ||
+    event.person_name ||
+    event.person ||
+    event.assigned_to ||
+    event.profile_name ||
+    event.profile ||
+    event.calendar_owner ||
+    event.preset_owner ||
+    event.user_name ||
+    event.user ||
+    event.who,
+  );
+  if (direct) return direct;
+
+  const combined = `${event.preset_name || ''} ${event.title || ''}`.toLowerCase();
+  if (/\bdonna\b/.test(combined)) return 'Donna';
+  if (/\btod\b/.test(combined)) return 'Tod';
+  if (/\bfrank\b/.test(combined)) return 'Frank';
+  return '';
+}
+
+function formatEventTitle(event) {
+  const title = event.title || event.preset_name || 'Untitled event';
+  const owner = getEventOwner(event);
+  return owner ? `${title} · ${owner}` : title;
+}
+
 async function readScheduler(requirement) {
   const client = await getSupabaseClient();
   const today = todayIsoDate();
@@ -144,7 +185,7 @@ async function readScheduler(requirement) {
   return connectedSection(
     requirement,
     `${events.length} calendar item${events.length === 1 ? '' : 's'} today.`,
-    events.slice(0, 4).map((event) => ({ time: formatEventTime(event), title: event.title || event.preset_name || 'Untitled event' })),
+    events.slice(0, 4).map((event) => ({ time: formatEventTime(event), title: formatEventTitle(event) })),
     { limit: 4 },
   );
 }

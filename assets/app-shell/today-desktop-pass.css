@@ -69,8 +69,36 @@
   width: 100% !important;
   align-self: end !important;
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
   gap: 12px !important;
+}
+
+@media (min-width: 980px) {
+  .today-surface {
+    grid-template-columns: minmax(200px, 0.72fr) minmax(420px, 1.85fr) minmax(320px, 1fr) !important;
+    align-items: stretch !important;
+  }
+
+  .today-tile-scheduler {
+    grid-column: 1 !important;
+    order: 1 !important;
+  }
+
+  .today-tile-weather {
+    grid-column: 2 !important;
+    order: 2 !important;
+    min-height: 292px !important;
+  }
+
+  .today-tile-shopping {
+    grid-column: 3 !important;
+    order: 3 !important;
+    min-height: 126px !important;
+  }
+
+  .today-tile-tv {
+    grid-column: 1 / -1 !important;
+    order: 4 !important;
+  }
 }
 
 .today-tile {
@@ -89,6 +117,10 @@
 .today-tile-tv,
 .today-tile-shopping {
   grid-column: auto !important;
+}
+
+.today-tile-scheduler,
+.today-tile-shopping {
   min-height: 126px !important;
 }
 
@@ -114,12 +146,6 @@
   display: none !important;
 }
 
-.today-tile-weather,
-.today-tile-scheduler,
-.today-tile-tv {
-  min-height: 126px;
-}
-
 .today-tile p,
 .today-tile li {
   color: color-mix(in srgb, var(--ink) 72%, var(--muted)) !important;
@@ -137,6 +163,37 @@
 .today-tile-weather li {
   font-size: 0.72rem !important;
   line-height: 1.18 !important;
+}
+
+.weather-radar-panel {
+  display: none;
+  margin-top: 10px;
+}
+
+@media (min-width: 980px) {
+  .weather-radar-panel {
+    display: block !important;
+  }
+
+  .weather-radar-label {
+    margin-bottom: 6px;
+    font-size: 0.72rem;
+    font-weight: 850;
+    color: color-mix(in srgb, var(--ink) 76%, var(--muted));
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 1px rgb(255 255 255 / 0.58);
+  }
+
+  .weather-radar-frame {
+    display: block;
+    width: 100%;
+    height: 190px;
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgb(255 255 255 / 0.65);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.36), 0 8px 24px rgb(20 32 26 / 0.12);
+  }
 }
 
 .shopping-quick-add {
@@ -192,12 +249,7 @@
   justify-content: center;
 }
 
-@media (max-width: 900px) {
-  .hero-intro h1 {
-    font-size: clamp(2.15rem, 9vw, 4rem) !important;
-    letter-spacing: -0.07em !important;
-  }
-
+@media (max-width: 979px) {
   .today-surface {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 10px !important;

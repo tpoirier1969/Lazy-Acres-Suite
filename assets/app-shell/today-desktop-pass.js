@@ -1,8 +1,9 @@
-import { addShoppingItem } from './dashboard-data-live.js?v=0.1.46';
+import { addShoppingItem } from './dashboard-data-live.js?v=0.1.48';
 
-const DISPLAY_VERSION = 'v0.1.47';
+const DISPLAY_VERSION = 'v0.1.48';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
+const RADAR_EMBED_URL = 'https://embed.windy.com/embed2.html?lat=46.6&lon=-86.1&zoom=5&level=surface&overlay=radar&product=radar&menu=&message=&marker=&calendar=now&type=map&location=coordinates&detail=&detailLat=46.6&detailLon=-86.1&metricWind=mph&metricTemp=%C2%B0F';
 let attempts = 0;
 let shoppingQuickAddBound = false;
 
@@ -113,6 +114,33 @@ function ensureShoppingQuickAdd() {
   tile.insertAdjacentHTML('beforeend', renderShoppingQuickAdd());
 }
 
+function ensureWeatherRadar() {
+  const tile = document.querySelector('.today-tile-weather');
+  if (!tile) return;
+
+  if (window.matchMedia('(max-width: 979px)').matches) {
+    tile.querySelector('[data-weather-radar]')?.remove();
+    return;
+  }
+
+  if (tile.querySelector('[data-weather-radar]')) return;
+
+  const panel = document.createElement('div');
+  panel.className = 'weather-radar-panel';
+  panel.dataset.weatherRadar = 'true';
+  panel.innerHTML = `
+    <div class="weather-radar-label">Northern Michigan radar</div>
+    <iframe
+      class="weather-radar-frame"
+      src="${RADAR_EMBED_URL}"
+      title="Northern Michigan radar"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen>
+    </iframe>`;
+  tile.appendChild(panel);
+}
+
 function bindShoppingQuickAdd() {
   if (shoppingQuickAddBound) return;
   shoppingQuickAddBound = true;
@@ -157,6 +185,7 @@ function boot() {
   decoupleShoppingTile();
   openSuiteLaunchLinksInNewPages();
   ensureShoppingQuickAdd();
+  ensureWeatherRadar();
   bindShoppingQuickAdd();
   attempts += 1;
   if (attempts < MAX_ATTEMPTS) window.setTimeout(boot, 250);
