@@ -4,7 +4,13 @@ const SHOPPING_SCHEMA = 'tod_donna_shared_shopping';
 const SHOPPING_HOUSEHOLD_ID = 'tod-donna-shared';
 const WEATHER_LATITUDE = 46.5435;
 const WEATHER_LONGITUDE = -87.3954;
-const DASHBOARD_SOURCE_TIMEOUT_MS = 2200;
+const DASHBOARD_SOURCE_TIMEOUT_MS = 9000;
+const DASHBOARD_SOURCE_TIMEOUTS = {
+  scheduler: 9000,
+  weather: 3500,
+  shopping: 9000,
+  tv: 7000,
+};
 const TV_TRACKER_FEEDS = [
   'https://tpoirier1969.github.io/tv-tracker/data/episodes.json',
   'https://tpoirier1969.github.io/tv-tracker/episodes.json',
@@ -56,9 +62,13 @@ function connectedSection(requirement, message, items = [], options = {}) {
   };
 }
 
+function getSourceTimeout(requirement) {
+  return DASHBOARD_SOURCE_TIMEOUTS[requirement.id] || DASHBOARD_SOURCE_TIMEOUT_MS;
+}
+
 function timedOutSection(requirement) {
   return new Promise((resolve) => {
-    window.setTimeout(() => resolve(unavailableSection(requirement, `${requirement.title} took too long to load.`)), DASHBOARD_SOURCE_TIMEOUT_MS);
+    globalThis.setTimeout(() => resolve(unavailableSection(requirement, `${requirement.title} took too long to load.`)), getSourceTimeout(requirement));
   });
 }
 
@@ -212,6 +222,7 @@ export async function addShoppingItem(itemName) {
     delivered: false,
     removed: false,
     removed_reason: null,
+    created_at: now,
     updated_at: now,
   };
   const client = await getSupabaseClient();
