@@ -1,13 +1,16 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.48';
 
-const DISPLAY_VERSION = 'v0.1.50';
+const DISPLAY_VERSION = 'v0.1.51';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
-const RADAR_IMAGE_URL = 'https://radar.weather.gov/ridge/Conus/RadarImg/centgrtlakes.gif';
-const RADAR_FALLBACK_IMAGE_URL = 'https://radar.weather.gov/ridge/standard/KMQT_0.gif';
-const RADAR_OPEN_URL = 'https://radar.weather.gov/';
+const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json';
+const RAINVIEWER_OPEN_URL = 'https://www.rainviewer.com/map.html';
+const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+const LEAFLET_JS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
 let attempts = 0;
 let shoppingQuickAddBound = false;
+let leafletPromise = null;
+let rainviewerPromise = null;
 
 function installStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -74,6 +77,52 @@ function installStyles() {
   document.head.append(style);
 }
 
+function loadLeaflet() {
+  if (window.L) return Promise.resolve(window.L);
+  if (leafletPromise) return leafletPromise;
+  leafletPromise = new Promise((resolve, reject) => {
+    if (!document.querySelector('link[data-lazy-acres-leaflet]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = LEAFLET_CSS_URL;
+      link.dataset.lazyAcresLeaflet = 'true';
+      document.head.append(link);
+    }
+    const existing = document.querySelector('script[data-lazy-acres-leaflet]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.L), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Leaflet failed to load.')), { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = LEAFLET_JS_URL;
+    script.async = true;
+    script.defer = true;
+    script.dataset.lazyAcresLeaflet = 'true';
+    script.onload = () => window.L ? resolve(window.L) : reject(new Error('Leaflet unavailable.'));
+    script.onerror = () => reject(new Error('Leaflet failed to load.'));
+    document.head.append(script);
+  });
+  return leafletPromise;
+}
+
+async function getRainviewerFrame() {
+  if (!rainviewerPromise) {
+    rainviewerPromise = fetch(RAINVIEWER_API_URL, { cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`RainViewer request failed: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        const frames = data?.radar?.past || [];
+        const latest = frames[frames.length - 1];
+        if (!data?.host || !latest?.path) throw new Error('RainViewer radar frame unavailable.');
+        return { host: data.host, path: latest.path, generated: data.generated || latest.time };
+      });
+  }
+  return rainviewerPromise;
+}
+
 function renderShoppingQuickAdd() {
   return `
     <form class="shopping-quick-add" data-shopping-quick-add>
@@ -125,24 +174,50 @@ function ensureWeatherRadar() {
   panel.dataset.weatherRadar = 'true';
   panel.innerHTML = `
     <div class="weather-radar-label">Northern Michigan radar</div>
-    <a class="weather-radar-link" href="${RADAR_OPEN_URL}" target="_blank" rel="noopener noreferrer" aria-label="Open full National Weather Service radar">
-      <img
-        class="weather-radar-frame weather-radar-image"
-        src="${RADAR_IMAGE_URL}"
-        alt="Still radar image for Northern Michigan and the Great Lakes"
-        loading="lazy"
-        decoding="async">
-    </a>`;
-  const image = panel.querySelector('img');
-  image?.addEventListener('error', () => {
-    if (image.dataset.fallbackApplied === 'true') {
-      panel.classList.add('weather-radar-unavailable');
-      return;
-    }
-    image.dataset.fallbackApplied = 'true';
-    image.src = RADAR_FALLBACK_IMAGE_URL;
-  }, { once: false });
+    <div class="weather-radar-frame" data-weather-radar-map aria-label="Northern Michigan RainViewer radar map"></div>
+    <div class="weather-radar-attribution"><a href="${RAINVIEWER_OPEN_URL}" target="_blank" rel="noopener noreferrer">Radar: RainViewer</a> · Map: OpenStreetMap</div>`;
   tile.appendChild(panel);
+
+  const mapElement = panel.querySelector('[data-weather-radar-map]');
+  initializeRainviewerMap(mapElement, panel);
+}
+
+async function initializeRainviewerMap(mapElement, panel) {
+  if (!mapElement || mapElement.dataset.mapReady === 'true') return;
+  mapElement.dataset.mapReady = 'pending';
+  try {
+    const [Leaflet, frame] = await Promise.all([loadLeaflet(), getRainviewerFrame()]);
+    if (!document.body.contains(mapElement)) return;
+    const map = Leaflet.map(mapElement, {
+      center: [46.65, -86.1],
+      zoom: 5,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      tap: false,
+    });
+    Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 7,
+      minZoom: 3,
+      opacity: 0.72,
+    }).addTo(map);
+    Leaflet.tileLayer(`${frame.host}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`, {
+      tileSize: 256,
+      maxZoom: 7,
+      minZoom: 3,
+      opacity: 0.82,
+    }).addTo(map);
+    mapElement.dataset.mapReady = 'true';
+    window.requestAnimationFrame(() => map.invalidateSize(false));
+  } catch (error) {
+    console.warn('RainViewer radar unavailable.', error);
+    mapElement.dataset.mapReady = 'failed';
+    panel?.classList.add('weather-radar-unavailable');
+  }
 }
 
 function bindShoppingQuickAdd() {
