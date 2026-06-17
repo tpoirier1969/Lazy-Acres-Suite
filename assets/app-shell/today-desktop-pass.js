@@ -1,11 +1,12 @@
 import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.40';
 
-const DISPLAY_VERSION = 'v0.1.43';
+const DISPLAY_VERSION = 'v0.1.45';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 16;
 let attempts = 0;
 let shoppingQuickAddBound = false;
 let refreshInFlight = false;
+let shoppingTileRefreshQueued = false;
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
@@ -93,6 +94,14 @@ function refreshDisplayedVersion() {
   });
 }
 
+function openSuiteLaunchLinksInNewPages() {
+  document.querySelectorAll('.module-card__actions a[href], .detail-actions a[href], .today-tile-clickable[href], a[href^="https://tpoirier1969.github.io/"]').forEach((link) => {
+    if (link.closest('.brand')) return;
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+}
+
 function renderShoppingTile(section) {
   const tile = document.querySelector('.today-tile-shopping');
   if (!tile) return false;
@@ -143,6 +152,7 @@ async function refreshShoppingTile() {
     const snapshot = await getDashboardSnapshot();
     const section = (snapshot.sections || []).find((entry) => entry.id === 'shopping');
     renderShoppingTile(section);
+    openSuiteLaunchLinksInNewPages();
   } catch (error) {
     console.warn('Shopping tile refresh failed.', error);
   } finally {
@@ -153,11 +163,15 @@ async function refreshShoppingTile() {
 function boot() {
   installStyles();
   refreshDisplayedVersion();
+  openSuiteLaunchLinksInNewPages();
   bindShoppingQuickAdd();
   const tileExists = Boolean(document.querySelector('.today-tile-shopping'));
-  if (tileExists) refreshShoppingTile();
+  if (tileExists && !shoppingTileRefreshQueued) {
+    shoppingTileRefreshQueued = true;
+    refreshShoppingTile();
+  }
   attempts += 1;
-  if (!tileExists && attempts < MAX_ATTEMPTS) window.setTimeout(boot, 250);
+  if (attempts < MAX_ATTEMPTS) window.setTimeout(boot, 250);
 }
 
 boot();
