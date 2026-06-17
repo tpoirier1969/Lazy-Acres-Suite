@@ -1,6 +1,6 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.48';
 
-const DISPLAY_VERSION = 'v0.1.48';
+const DISPLAY_VERSION = 'v0.1.49';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
 const RADAR_EMBED_URL = 'https://embed.windy.com/embed2.html?lat=46.6&lon=-86.1&zoom=5&level=surface&overlay=radar&product=radar&menu=&message=&marker=&calendar=now&type=map&location=coordinates&detail=&detailLat=46.6&detailLon=-86.1&metricWind=mph&metricTemp=%C2%B0F';
@@ -116,14 +116,7 @@ function ensureShoppingQuickAdd() {
 
 function ensureWeatherRadar() {
   const tile = document.querySelector('.today-tile-weather');
-  if (!tile) return;
-
-  if (window.matchMedia('(max-width: 979px)').matches) {
-    tile.querySelector('[data-weather-radar]')?.remove();
-    return;
-  }
-
-  if (tile.querySelector('[data-weather-radar]')) return;
+  if (!tile || tile.querySelector('[data-weather-radar]')) return;
 
   const panel = document.createElement('div');
   panel.className = 'weather-radar-panel';
