@@ -74,7 +74,7 @@
 
 @media (min-width: 980px) {
   .today-surface {
-    grid-template-columns: minmax(200px, 0.72fr) minmax(420px, 1.85fr) minmax(320px, 1fr) !important;
+    grid-template-columns: minmax(190px, 0.72fr) minmax(500px, 1.72fr) minmax(320px, 1fr) !important;
     align-items: stretch !important;
   }
 
@@ -86,13 +86,13 @@
   .today-tile-weather {
     grid-column: 2 !important;
     order: 2 !important;
-    min-height: 292px !important;
+    min-height: 154px !important;
   }
 
   .today-tile-shopping {
     grid-column: 3 !important;
     order: 3 !important;
-    min-height: 126px !important;
+    min-height: 154px !important;
   }
 
   .today-tile-tv {
@@ -122,6 +122,31 @@
 .today-tile-scheduler,
 .today-tile-shopping {
   min-height: 126px !important;
+}
+
+@media (min-width: 980px) {
+  .today-tile-weather {
+    display: grid !important;
+    grid-template-columns: minmax(140px, 0.58fr) minmax(260px, 1fr) !important;
+    grid-template-rows: auto 1fr !important;
+    column-gap: 12px !important;
+    row-gap: 4px !important;
+    align-content: start !important;
+    align-items: start !important;
+  }
+
+  .today-tile-weather .today-tile-heading,
+  .today-tile-weather > p,
+  .today-tile-weather > ul {
+    grid-column: 1 !important;
+  }
+
+  .today-tile-weather .weather-radar-panel {
+    grid-column: 2 !important;
+    grid-row: 1 / span 3 !important;
+    align-self: start !important;
+    margin-top: 0 !important;
+  }
 }
 
 .today-tile-shopping .today-tile-heading {
@@ -166,34 +191,28 @@
 }
 
 .weather-radar-panel {
-  display: none;
-  margin-top: 10px;
+  display: block !important;
+  margin-top: 8px;
 }
 
-@media (min-width: 980px) {
-  .weather-radar-panel {
-    display: block !important;
-  }
+.weather-radar-label {
+  margin-bottom: 4px;
+  font-size: 0.68rem;
+  font-weight: 850;
+  color: color-mix(in srgb, var(--ink) 76%, var(--muted));
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 1px rgb(255 255 255 / 0.58);
+}
 
-  .weather-radar-label {
-    margin-bottom: 6px;
-    font-size: 0.72rem;
-    font-weight: 850;
-    color: color-mix(in srgb, var(--ink) 76%, var(--muted));
-    letter-spacing: 0.02em;
-    text-shadow: 0 1px 1px rgb(255 255 255 / 0.58);
-  }
-
-  .weather-radar-frame {
-    display: block;
-    width: 100%;
-    height: 190px;
-    border: 0;
-    border-radius: 16px;
-    overflow: hidden;
-    background: rgb(255 255 255 / 0.65);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.36), 0 8px 24px rgb(20 32 26 / 0.12);
-  }
+.weather-radar-frame {
+  display: block;
+  width: 100%;
+  height: 124px;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.65);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.36), 0 8px 24px rgb(20 32 26 / 0.12);
 }
 
 .shopping-quick-add {
@@ -258,6 +277,10 @@
   .today-tile-shopping {
     grid-column: 1 / -1 !important;
   }
+
+  .weather-radar-frame {
+    height: 112px;
+  }
 }
 
 @media (max-width: 760px) {
@@ -292,5 +315,15 @@
     display: block;
     margin-top: 2px;
     font-size: 0.68rem;
+  }
+
+  .weather-radar-label {
+    font-size: 0.64rem;
+    margin-bottom: 3px;
+  }
+
+  .weather-radar-frame {
+    height: 86px;
+    border-radius: 12px;
   }
 }
