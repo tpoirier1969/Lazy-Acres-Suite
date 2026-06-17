@@ -44,10 +44,21 @@ let activeUserProfile = getStoredUserProfile();
 let activeModuleOrder = getStoredModuleOrder();
 let moduleReorderMode = false;
 let activeResolvedTheme = null;
-let dashboardSnapshot = null;
+let dashboardSnapshot = getFallbackDashboardSnapshot();
+let dashboardSnapshotRequestId = 0;
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+function getFallbackDashboardSnapshot() {
+  return {
+    status: 'loading',
+    generatedAt: new Date().toISOString(),
+    sections: [],
+    summary: { connected: 0, unavailable: 4, total: 4 },
+    missingConfig: [],
+  };
 }
 
 function getLiveModuleUrl(slug) {
@@ -463,26 +474,46 @@ function bindPreferenceSelects() {
   });
 }
 
-function showRenderError(error) {
-  console.error(error);
-  appRoot.innerHTML = '<main class="no-script"><h1>App shell error</h1><p>Check the browser console for details.</p></main>';
-}
-
-async function renderRoute(route) {
-  activeRoute = route;
-  applyTheme();
-  dashboardSnapshot = await getDashboardSnapshot();
-  const user = await authService.getCurrentUser();
-  await entitlementService.listVisibleModules(user, moduleRegistry);
-  const appModule = getModuleBySlug(route);
-  const content = route === 'dashboard' ? renderDashboard() : route === 'today' ? renderTodayPage() : appModule ? renderModule(appModule) : renderNotFound(route);
-  renderShell(content);
+function bindShellControls() {
   bindRouteButtons();
   bindThemeButtons();
   bindProfileButtons();
   bindLayoutButtons();
   bindPreferenceSelects();
   bindCopyButtons();
+}
+
+function showRenderError(error) {
+  console.error(error);
+  appRoot.innerHTML = '<main class="no-script"><h1>App shell error</h1><p>Check the browser console for details.</p></main>';
+}
+
+function renderRouteContent(route) {
+  const appModule = getModuleBySlug(route);
+  const content = route === 'dashboard' ? renderDashboard() : route === 'today' ? renderTodayPage() : appModule ? renderModule(appModule) : renderNotFound(route);
+  renderShell(content);
+  bindShellControls();
+}
+
+async function refreshLiveDashboard(route, requestId) {
+  try {
+    const nextSnapshot = await getDashboardSnapshot();
+    if (requestId !== dashboardSnapshotRequestId || route !== activeRoute) return;
+    dashboardSnapshot = nextSnapshot;
+    renderRouteContent(route);
+  } catch (error) {
+    console.warn('Dashboard live data refresh failed.', error);
+  }
+}
+
+async function renderRoute(route) {
+  activeRoute = route;
+  applyTheme();
+  const user = await authService.getCurrentUser();
+  await entitlementService.listVisibleModules(user, moduleRegistry);
+  renderRouteContent(route);
+  const requestId = ++dashboardSnapshotRequestId;
+  refreshLiveDashboard(route, requestId);
 }
 
 if (!appRoot) throw new Error('Missing app shell root element.');
