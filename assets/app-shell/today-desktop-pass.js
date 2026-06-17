@@ -1,16 +1,10 @@
-import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.40';
+import { addShoppingItem } from './dashboard-data-live.js?v=0.1.46';
 
-const DISPLAY_VERSION = 'v0.1.45';
+const DISPLAY_VERSION = 'v0.1.46';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 16;
 let attempts = 0;
 let shoppingQuickAddBound = false;
-let refreshInFlight = false;
-let shoppingTileRefreshQueued = false;
-
-function escapeHtml(value) {
-  return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
-}
 
 function installStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -95,22 +89,17 @@ function refreshDisplayedVersion() {
 }
 
 function openSuiteLaunchLinksInNewPages() {
-  document.querySelectorAll('.module-card__actions a[href], .detail-actions a[href], .today-tile-clickable[href], a[href^="https://tpoirier1969.github.io/"]').forEach((link) => {
+  document.querySelectorAll('.module-card__actions a[href], .detail-actions a[href], .today-tile-clickable[href]').forEach((link) => {
     if (link.closest('.brand')) return;
-    link.setAttribute('target', '_blank');
-    link.setAttribute('rel', 'noopener noreferrer');
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
   });
 }
 
-function renderShoppingTile(section) {
+function ensureShoppingQuickAdd() {
   const tile = document.querySelector('.today-tile-shopping');
-  if (!tile) return false;
-  const title = section?.title || 'Shopping';
-  const message = section?.message || 'Shopping list is loading.';
-  tile.innerHTML = `
-    <div class="today-tile-heading"><h3>${escapeHtml(title)}</h3><span class="shopping-count-line">${escapeHtml(message)}</span></div>
-    ${renderShoppingQuickAdd()}`;
-  return true;
+  if (!tile || tile.querySelector('[data-shopping-quick-add]')) return;
+  tile.insertAdjacentHTML('beforeend', renderShoppingQuickAdd());
 }
 
 function bindShoppingQuickAdd() {
@@ -145,31 +134,12 @@ function bindShoppingQuickAdd() {
   });
 }
 
-async function refreshShoppingTile() {
-  if (refreshInFlight) return;
-  refreshInFlight = true;
-  try {
-    const snapshot = await getDashboardSnapshot();
-    const section = (snapshot.sections || []).find((entry) => entry.id === 'shopping');
-    renderShoppingTile(section);
-    openSuiteLaunchLinksInNewPages();
-  } catch (error) {
-    console.warn('Shopping tile refresh failed.', error);
-  } finally {
-    refreshInFlight = false;
-  }
-}
-
 function boot() {
   installStyles();
   refreshDisplayedVersion();
   openSuiteLaunchLinksInNewPages();
+  ensureShoppingQuickAdd();
   bindShoppingQuickAdd();
-  const tileExists = Boolean(document.querySelector('.today-tile-shopping'));
-  if (tileExists && !shoppingTileRefreshQueued) {
-    shoppingTileRefreshQueued = true;
-    refreshShoppingTile();
-  }
   attempts += 1;
   if (attempts < MAX_ATTEMPTS) window.setTimeout(boot, 250);
 }
