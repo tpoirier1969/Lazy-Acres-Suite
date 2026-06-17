@@ -4,6 +4,7 @@ const SHOPPING_SCHEMA = 'tod_donna_shared_shopping';
 const SHOPPING_HOUSEHOLD_ID = 'tod-donna-shared';
 const WEATHER_LATITUDE = 46.5435;
 const WEATHER_LONGITUDE = -87.3954;
+const DASHBOARD_SOURCE_TIMEOUT_MS = 2200;
 const TV_TRACKER_FEEDS = [
   'https://tpoirier1969.github.io/tv-tracker/data/episodes.json',
   'https://tpoirier1969.github.io/tv-tracker/episodes.json',
@@ -53,6 +54,12 @@ function connectedSection(requirement, message, items = [], options = {}) {
     items: normalizeItems(items, options.limit ?? 8),
     missing: '',
   };
+}
+
+function timedOutSection(requirement) {
+  return new Promise((resolve) => {
+    window.setTimeout(() => resolve(unavailableSection(requirement, `${requirement.title} took too long to load.`)), DASHBOARD_SOURCE_TIMEOUT_MS);
+  });
 }
 
 function loadSupabaseScript() {
@@ -284,7 +291,7 @@ async function readBuiltIn(requirement) {
 
 async function readSection(requirement) {
   try {
-    return await readBuiltIn(requirement);
+    return await Promise.race([readBuiltIn(requirement), timedOutSection(requirement)]);
   } catch (error) {
     console.warn(`Dashboard source unavailable: ${requirement.id}`, error);
     return unavailableSection(requirement);
@@ -294,11 +301,12 @@ async function readSection(requirement) {
 export async function getDashboardSnapshot() {
   const results = await Promise.all(REQUIREMENTS.map(readSection));
   const sections = results.filter((section) => section.state === 'connected');
+  const unavailable = results.length - sections.length;
   return {
     status: sections.length > 0 ? 'partial' : 'unavailable',
     generatedAt: new Date().toISOString(),
     sections,
-    summary: { connected: sections.length, unavailable: 0, total: sections.length },
-    missingConfig: [],
+    summary: { connected: sections.length, unavailable, total: results.length },
+    missingConfig: results.filter((section) => section.state !== 'connected'),
   };
 }
