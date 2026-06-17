@@ -1,11 +1,11 @@
 import { authService } from './auth.js?v=0.1.18';
 import { entitlementService } from './entitlements.js?v=0.1.18';
-import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.18';
+import { getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.40';
 import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
 import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.18';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
-const APP_VERSION = 'v0.1.18';
+const APP_VERSION = 'v0.1.40';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
 const APP_ICON_URL = './assets/app-shell/mountain-suite-icon.svg?v=0.1.18';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
@@ -385,7 +385,8 @@ function renderNotFound(route) {
 }
 
 async function copyTextToClipboard(text) {
-  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+  const clipboard = navigator?.['clipboard'];
+  if (clipboard?.writeText) return clipboard.writeText(text);
   throw new Error('Clipboard unavailable.');
 }
 
