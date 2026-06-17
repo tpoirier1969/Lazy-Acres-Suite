@@ -2,41 +2,66 @@
 
 .today-tile-heading > span:not(.shopping-count-line),
 .module-card__actions .icon-action,
-.hero-intro > p:not(.eyebrow),
 .hero-stats {
   display: none !important;
 }
 
+.hero {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: clamp(16px, 2.4vw, 26px) !important;
+}
+
+.hero-intro {
+  max-width: none !important;
+  width: 100% !important;
+  align-content: start !important;
+}
+
 .hero-intro h1 {
-  max-width: 9ch;
-  line-height: 0.96;
-  letter-spacing: 0.012em;
-  word-spacing: 0.12em;
-  text-wrap: balance;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  line-height: 0.94 !important;
+  letter-spacing: -0.065em !important;
+  word-spacing: normal !important;
+  font-size: clamp(3.2rem, 6.7vw, 6.75rem) !important;
+  text-wrap: nowrap !important;
 }
 
 .hero-intro h1::first-line {
-  letter-spacing: 0.02em;
+  letter-spacing: inherit;
+}
+
+.hero-intro > p:not(.eyebrow) {
+  max-width: 760px !important;
+  margin-top: -4px !important;
 }
 
 .today-surface {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+  width: 100% !important;
+  align-self: end !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+  gap: 12px !important;
 }
 
 .today-tile-scheduler,
 .today-tile-weather,
-.today-tile-tv {
-  grid-column: span 1;
-}
-
+.today-tile-tv,
 .today-tile-shopping {
-  grid-column: 1 / -1;
+  grid-column: auto !important;
+  min-height: 126px !important;
 }
 
 .today-tile-shopping .today-tile-heading {
   justify-content: flex-start;
-  gap: 12px;
+  gap: 10px;
   align-items: baseline;
 }
 
@@ -46,35 +71,20 @@
 
 .shopping-count-line {
   color: color-mix(in srgb, var(--ink) 68%, var(--muted));
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 850;
   letter-spacing: 0.01em;
   text-shadow: 0 1px 0 rgb(255 255 255 / 0.52), 0 7px 18px rgb(255 251 243 / 0.34);
 }
 
 .today-tile-shopping ul {
-  display: block !important;
-  column-count: 4;
-  column-gap: 18px;
-  margin-top: 2px;
-}
-
-.today-tile-shopping li {
-  display: block;
-  break-inside: avoid;
-  margin: 0 0 3px;
-}
-
-.today-tile-shopping li,
-.today-tile-shopping .today-item-link {
-  font-size: 0.68rem !important;
-  line-height: 1.16 !important;
+  display: none !important;
 }
 
 .today-tile-weather,
 .today-tile-scheduler,
 .today-tile-tv {
-  min-height: 118px;
+  min-height: 126px;
 }
 
 .today-tile-tv ul,
@@ -88,6 +98,25 @@
 .today-tile-weather li {
   font-size: 0.72rem !important;
   line-height: 1.18 !important;
+}
+
+.shopping-quick-add {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+.shopping-quick-add input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.shopping-quick-add button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
 }
 
 .module-card .module-icon,
@@ -123,19 +152,39 @@
   justify-content: center;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .hero-intro h1 {
-    max-width: 8.4ch;
-    line-height: 0.95;
+    font-size: clamp(2.15rem, 9vw, 4rem) !important;
+    letter-spacing: -0.07em !important;
   }
 
   .today-surface {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .today-tile-shopping {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    gap: 14px !important;
+  }
+
+  .hero-intro h1 {
+    font-size: clamp(1.75rem, 8.6vw, 2.6rem) !important;
+    letter-spacing: -0.065em !important;
+  }
+
+  .today-surface {
+    grid-template-columns: 1fr !important;
     gap: 8px !important;
   }
 
   .today-tile-shopping {
-    grid-column: 1 / -1;
+    grid-column: auto !important;
   }
 
   .today-tile-shopping .today-tile-heading {
@@ -146,16 +195,5 @@
     display: block;
     margin-top: 2px;
     font-size: 0.68rem;
-  }
-
-  .today-tile-shopping ul {
-    column-count: 2;
-    column-gap: 14px;
-  }
-}
-
-@media (max-width: 380px) {
-  .today-tile-shopping ul {
-    column-count: 1;
   }
 }
