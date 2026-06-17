@@ -1,9 +1,11 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.48';
 
-const DISPLAY_VERSION = 'v0.1.49';
+const DISPLAY_VERSION = 'v0.1.50';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
-const RADAR_EMBED_URL = 'https://embed.windy.com/embed2.html?lat=46.6&lon=-86.1&zoom=5&level=surface&overlay=radar&product=radar&menu=&message=&marker=&calendar=now&type=map&location=coordinates&detail=&detailLat=46.6&detailLon=-86.1&metricWind=mph&metricTemp=%C2%B0F';
+const RADAR_IMAGE_URL = 'https://radar.weather.gov/ridge/Conus/RadarImg/centgrtlakes.gif';
+const RADAR_FALLBACK_IMAGE_URL = 'https://radar.weather.gov/ridge/standard/KMQT_0.gif';
+const RADAR_OPEN_URL = 'https://radar.weather.gov/';
 let attempts = 0;
 let shoppingQuickAddBound = false;
 
@@ -123,14 +125,23 @@ function ensureWeatherRadar() {
   panel.dataset.weatherRadar = 'true';
   panel.innerHTML = `
     <div class="weather-radar-label">Northern Michigan radar</div>
-    <iframe
-      class="weather-radar-frame"
-      src="${RADAR_EMBED_URL}"
-      title="Northern Michigan radar"
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      allowfullscreen>
-    </iframe>`;
+    <a class="weather-radar-link" href="${RADAR_OPEN_URL}" target="_blank" rel="noopener noreferrer" aria-label="Open full National Weather Service radar">
+      <img
+        class="weather-radar-frame weather-radar-image"
+        src="${RADAR_IMAGE_URL}"
+        alt="Still radar image for Northern Michigan and the Great Lakes"
+        loading="lazy"
+        decoding="async">
+    </a>`;
+  const image = panel.querySelector('img');
+  image?.addEventListener('error', () => {
+    if (image.dataset.fallbackApplied === 'true') {
+      panel.classList.add('weather-radar-unavailable');
+      return;
+    }
+    image.dataset.fallbackApplied = 'true';
+    image.src = RADAR_FALLBACK_IMAGE_URL;
+  }, { once: false });
   tile.appendChild(panel);
 }
 
