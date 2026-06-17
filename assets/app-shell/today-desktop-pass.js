@@ -1,8 +1,8 @@
-import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.32';
+import { addShoppingItem, getDashboardSnapshot } from './dashboard-data-live.js?v=0.1.40';
 import { getModuleBySlug } from './modules.js?v=0.1.29';
 
-const DISPLAY_VERSION = 'v0.1.36';
-const ICON_VERSION = '0.1.36';
+const DISPLAY_VERSION = 'v0.1.40';
+const ICON_VERSION = '0.1.40';
 const FORAGING_URL = 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html';
 let shoppingQuickAddBound = false;
 
