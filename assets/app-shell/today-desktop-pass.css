@@ -217,8 +217,26 @@
   border: 0;
   border-radius: 14px;
   overflow: hidden;
-  background: rgb(255 255 255 / 0.65);
+  background: rgb(228 232 218 / 0.78);
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.36), 0 8px 24px rgb(20 32 26 / 0.12);
+}
+
+.weather-radar-frame .leaflet-control-container {
+  display: none !important;
+}
+
+.weather-radar-attribution {
+  margin-top: 3px;
+  font-size: 0.57rem;
+  line-height: 1.05;
+  color: color-mix(in srgb, var(--ink) 54%, var(--muted));
+  text-shadow: 0 1px 1px rgb(255 255 255 / 0.55);
+}
+
+.weather-radar-attribution a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 750;
 }
 
 .weather-radar-image {
@@ -227,7 +245,7 @@
 }
 
 .weather-radar-unavailable::after {
-  content: 'Radar image unavailable';
+  content: 'Radar unavailable';
   display: block;
   margin-top: 4px;
   font-size: 0.66rem;
@@ -322,6 +340,29 @@
     gap: 8px !important;
   }
 
+  .today-tile-weather {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(108px, 38vw) !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 9px !important;
+    row-gap: 2px !important;
+    align-items: start !important;
+    min-height: 104px !important;
+  }
+
+  .today-tile-weather .today-tile-heading,
+  .today-tile-weather > p,
+  .today-tile-weather > ul {
+    grid-column: 1 !important;
+  }
+
+  .today-tile-weather .weather-radar-panel {
+    grid-column: 2 !important;
+    grid-row: 1 / span 3 !important;
+    margin-top: 0 !important;
+    align-self: start !important;
+  }
+
   .today-tile-shopping {
     grid-column: auto !important;
   }
@@ -337,12 +378,18 @@
   }
 
   .weather-radar-label {
-    font-size: 0.64rem;
-    margin-bottom: 3px;
+    display: none;
   }
 
   .weather-radar-frame {
-    height: 86px;
+    height: 72px;
     border-radius: 12px;
+  }
+
+  .weather-radar-attribution {
+    margin-top: 2px;
+    font-size: 0.49rem;
+    line-height: 1;
+    text-align: center;
   }
 }
