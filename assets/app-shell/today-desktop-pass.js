@@ -239,14 +239,21 @@ function scheduleRefresh() {
   window.__lazyAcresTodayDesktopPassTimer = window.setTimeout(() => refreshTodaySurface(), 80);
 }
 
+function mutationNeedsRefresh(mutations) {
+  return mutations.some((mutation) => Array.from(mutation.addedNodes || []).some((node) => {
+    if (node.nodeType !== 1) return false;
+    return node.matches?.('.today-surface') || node.querySelector?.('.today-surface');
+  }));
+}
+
 installStableTodayHover();
 bindShoppingQuickAdd();
 refreshForagingLinks();
 scheduleRefresh();
-new MutationObserver(() => {
+new MutationObserver((mutations) => {
   installStableTodayHover();
   refreshDisplayedVersion();
   refreshModuleIcons();
   refreshForagingLinks();
-  scheduleRefresh();
+  if (mutationNeedsRefresh(mutations)) scheduleRefresh();
 }).observe(document.documentElement, { childList: true, subtree: true });
