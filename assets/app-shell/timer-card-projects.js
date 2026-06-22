@@ -2,13 +2,18 @@ const TIMER_STORE_PREFIX = 'lazy-acres-timer-v1';
 const SUITE_PROFILE_STORAGE_KEY = 'lazy-acres-suite-user-profile';
 const TIMER_PROFILES = ['tod', 'donna', 'guest'];
 const TIMER_APP_JS_URL = 'https://tpoirier1969.github.io/LazyAcresTimer/assets/app.js';
-const TIMER_ICON_URL = './assets/app-shell/icons/field-lab/timer.svg?v=0.1.51';
+const TIMER_ICON_URL = './assets/app-shell/icons/field-lab/timer.png?v=0.1.52';
 
 let timerVersionPromise = null;
 let refreshScheduled = false;
 
 function escapeHtml(value) {
-  return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll(String.fromCharCode(34), '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 function getPreferredProfiles() {
@@ -97,7 +102,7 @@ function getTimerVersion() {
   if (!timerVersionPromise) {
     timerVersionPromise = fetch(`${TIMER_APP_JS_URL}?version-probe=${Date.now()}`, { cache: 'no-store' })
       .then((response) => response.ok ? response.text() : '')
-      .then((text) => text.match(/const\s+APP_VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1] || '')
+      .then((text) => text.match(/const\s+APP_VERSION\s*=\s*'([^']+)'/)?.[1] || '')
       .catch((error) => {
         console.warn('Could not read Timer version.', error);
         return '';
@@ -177,10 +182,10 @@ function renderProjectList(projects) {
   if (!projects.length) return '';
   const visible = projects.slice(0, 3);
   const more = projects.length - visible.length;
-  return `<div class="timer-card-projects" data-timer-card-projects><strong>Current projects</strong><ul>${visible.map((project) => {
+  return `<div class='timer-card-projects' data-timer-card-projects><strong>Current projects</strong><ul>${visible.map((project) => {
     const meta = [project.running ? 'Running' : '', project.typeName || '', project.profile !== 'tod' ? profileLabel(project.profile) : ''].filter(Boolean).join(' · ');
-    return `<li><span class="timer-dot">•</span><span><span class="timer-project-name">${escapeHtml(project.name)}</span>${meta ? ` <span class="timer-project-meta">${escapeHtml(meta)}</span>` : ''}</span></li>`;
-  }).join('')}${more > 0 ? `<li class="timer-more">+${more} more</li>` : ''}</ul></div>`;
+    return `<li><span class='timer-dot'>•</span><span><span class='timer-project-name'>${escapeHtml(project.name)}</span>${meta ? ` <span class='timer-project-meta'>${escapeHtml(meta)}</span>` : ''}</span></li>`;
+  }).join('')}${more > 0 ? `<li class='timer-more'>+${more} more</li>` : ''}</ul></div>`;
 }
 
 function updateTimerIcon(timerCard) {
@@ -227,7 +232,7 @@ function decorateTimerCard(version = '') {
   updateTimerIcon(timerCard);
 
   const projects = readTimerProjects();
-  const versionHtml = version ? `<span class="timer-card-version" data-timer-card-version>${escapeHtml(version)}</span>` : '';
+  const versionHtml = version ? `<span class='timer-card-version' data-timer-card-version>${escapeHtml(version)}</span>` : '';
   setOrRemoveHtml(body, '[data-timer-card-version]', versionHtml);
   setOrRemoveHtml(body, '[data-timer-card-projects]', renderProjectList(projects));
 }
