@@ -13,7 +13,7 @@ function escapeHtml(value) {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll(String.fromCharCode(34), '&quot;')
-    .replaceAll("'", '&#039;');
+    .replaceAll(String.fromCharCode(39), '&#039;');
 }
 
 function getPreferredProfiles() {
@@ -217,9 +217,14 @@ function setOrRemoveHtml(container, selector, html) {
     existing?.remove();
     return;
   }
-  if (existing?.outerHTML === html) return;
+  if (existing?.__timerRenderedHtml === html) return;
   existing?.remove();
-  container.insertAdjacentHTML('beforeend', html);
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+  const next = template.content.firstElementChild;
+  if (!next) return;
+  next.__timerRenderedHtml = html;
+  container.appendChild(next);
 }
 
 function decorateTimerCard(version = '') {
