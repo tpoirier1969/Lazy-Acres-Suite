@@ -137,6 +137,18 @@ export const moduleRegistry = [
     legacyUrl: 'https://tpoirier1969.github.io/genealogy-map/',
     legacyLabel: 'Open',
   },
+  {
+    slug: 'timer',
+    title: 'Lazy Acres Timer',
+    shortTitle: 'Timer',
+    description: 'Project and job timers with notes, sessions, billing totals, and reports.',
+    accentLight: '#476b37',
+    accentDark: '#67efc9',
+    status: 'legacy-link',
+    group: 'work',
+    legacyUrl: 'https://tpoirier1969.github.io/LazyAcresTimer/',
+    legacyLabel: 'Open',
+  },
 ];
 
 export function getModuleBySlug(slug) {
