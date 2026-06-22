@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Melting timepiece icon</title>
+  <desc id="desc">A retro golden pocket watch melting downward, styled to match the Lazy Acres Suite icons.</desc>
+  <defs>
+    <radialGradient id="face" cx="45%" cy="34%" r="70%">
+      <stop offset="0" stop-color="#fff4cf"/>
+      <stop offset="0.62" stop-color="#ecd39a"/>
+      <stop offset="1" stop-color="#bd8540"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d6a146"/>
+      <stop offset="0.38" stop-color="#b5772e"/>
+      <stop offset="0.7" stop-color="#e5bd69"/>
+      <stop offset="1" stop-color="#7c4e22"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6a4b27"/>
+      <stop offset="1" stop-color="#2d2418"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#7b6a43" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <ellipse cx="250" cy="454" rx="116" ry="16" fill="#6d5a34" opacity="0.12"/>
+    <path d="M181 82c-5-28 15-52 48-57 35-5 64 13 67 40 2 19-10 37-31 46l-13-29c8-4 12-10 11-16-1-10-15-17-31-14-17 2-27 13-25 24 1 7 8 13 18 16l-10 31c-18-5-31-19-34-41z" fill="url(#gold)" stroke="#69451f" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M208 93c1-24 20-40 47-38 27 2 44 20 41 44-1 13-9 25-22 32l-37-3c-18-6-30-19-29-35z" fill="url(#gold)" stroke="#69451f" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M244 99c14-1 27 1 39 6 2 10 2 20-2 30-9 18-29 24-45 15-15-9-21-28-12-43 5-5 12-8 20-8z" fill="#d19b45" opacity="0.75"/>
+    <path d="M130 153c23-52 80-84 145-78 80 7 142 68 149 146 4 43-13 79-22 111-9 33 10 68-12 93-12 14-34 12-48-4-7 30-21 54-45 57-22 3-40-15-48-44-12 34-35 51-60 42-25-9-34-39-27-78-31 7-54-8-59-33-5-23 13-45 22-68 11-29-10-94 5-144z" fill="url(#gold)" stroke="#684620" stroke-width="14" stroke-linejoin="round"/>
+    <path d="M153 164c23-42 70-67 123-61 65 7 115 56 121 119 4 38-16 72-23 106-7 33 7 56-4 67-11 10-29-15-36-43-6 44-15 80-37 83-22 2-30-39-34-86-13 61-32 91-55 82-20-8-16-58-7-94-29 21-52 16-55-7-3-21 18-40 24-64 8-32-34-62-17-102z" fill="url(#face)" stroke="#8d642f" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M162 168c24-35 64-56 110-51 57 5 103 48 110 104 3 25-5 49-14 73-19 18-52 30-91 30-70 0-127-39-127-86 0-25 5-49 12-70z" fill="#fff1c7" opacity="0.55"/>
+    <g fill="url(#ink)" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="39" text-anchor="middle">
+      <text x="269" y="148">12</text>
+      <text x="340" y="171">2</text>
+      <text x="376" y="239">3</text>
+      <text x="357" y="309">5</text>
+      <text x="284" y="365">6</text>
+      <text x="216" y="332">7</text>
+      <text x="171" y="280">8</text>
+      <text x="158" y="222">9</text>
+      <text x="184" y="169">10</text>
+    </g>
+    <circle cx="264" cy="247" r="15" fill="url(#gold)" stroke="#65471f" stroke-width="5"/>
+    <path d="M263 247l96-46" stroke="url(#ink)" stroke-width="11" stroke-linecap="round"/>
+    <path d="M262 248l-60 20" stroke="url(#ink)" stroke-width="13" stroke-linecap="round"/>
+    <path d="M267 257l42 117" stroke="url(#ink)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M197 407c9-20 7-44 17-63 7-13 24-7 28 7 7 24 6 63 23 81 7 7 19-1 27-25" fill="none" stroke="#fff4cf" stroke-width="9" stroke-linecap="round" opacity="0.46"/>
+    <path d="M131 152c22-50 78-84 145-77 79 7 142 68 149 146" fill="none" stroke="#ffe3a0" stroke-width="8" stroke-linecap="round" opacity="0.45"/>
+  </g>
+</svg>
