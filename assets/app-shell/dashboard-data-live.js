@@ -11,6 +11,25 @@ const DASHBOARD_SOURCE_TIMEOUTS = {
   shopping: 9000,
   tv: 7000,
 };
+const SHOPPING_CATEGORY_RULES = [
+  { category: 'Produce', keywords: ['apple', 'apples', 'banana', 'bananas', 'orange', 'oranges', 'lettuce', 'romaine', 'spinach', 'celery', 'carrot', 'carrots', 'onion', 'onions', 'potato', 'potatoes', 'garlic', 'grape', 'grapes', 'broccoli', 'cauliflower', 'pepper', 'peppers', 'tomato', 'tomatoes', 'cucumber', 'cucumbers', 'avocado', 'avocados', 'lime', 'limes', 'lemon', 'lemons', 'salad', 'mushroom', 'mushrooms', 'berries', 'strawberry', 'blueberry'] },
+  { category: 'Deli', keywords: ['deli', 'sliced turkey', 'sliced ham', 'provolone', 'swiss slices', 'lunch meat', 'rotisserie', 'prepared salad', 'coleslaw'] },
+  { category: 'Vegan', keywords: ['tofu', 'tempeh', 'vegan', 'plant butter', 'plant-based', 'almond yogurt', 'soy yogurt', 'oatmilk creamer', 'vegan cheese'] },
+  { category: 'Meat', keywords: ['beef', 'steak', 'hamburger', 'ground beef', 'chicken', 'pork', 'bacon', 'sausage', 'ham', 'turkey', 'salmon', 'fish fillet', 'shrimp'] },
+  { category: 'Frozen', keywords: ['frozen', 'ice cream', 'pizza', 'peas', 'french fries', 'hash browns', 'waffles', 'tv dinner'] },
+  { category: 'Gluten Free', keywords: ['gluten free', 'gf bread', 'gf pasta', 'gf crackers', 'gf flour'] },
+  { category: 'Condiments', keywords: ['ketchup', 'mustard', 'mayo', 'mayonnaise', 'relish', 'salsa', 'soy sauce', 'vinegar', 'olive oil', 'hot sauce', 'salad dressing', 'bbq sauce', 'jam', 'jelly', 'peanut butter'] },
+  { category: 'Canned', keywords: ['canned', 'can of', 'soup', 'broth', 'beans', 'green beans', 'corn', 'peas', 'tuna', 'tomato sauce', 'diced tomatoes', 'crushed tomatoes', 'whole tomatoes', 'spam', 'crushed pineapple', 'pineapple chunks', 'canned pineapple', 'canned peaches', 'sliced peaches', 'canned pears', 'mandarin oranges', 'fruit cup', 'fruit cocktail', 'olives'] },
+  { category: 'Dry Goods', keywords: ['flour', 'sugar', 'salt', 'pepper', 'spice', 'seasoning', 'pasta', 'rice', 'oats', 'oatmeal', 'cereal', 'lentils', 'breadcrumbs', 'cracker crumbs', 'yeast', 'baking powder', 'baking soda', 'macaroni'] },
+  { category: 'Snacks', keywords: ['chips', 'pretzels', 'popcorn', 'cookies', 'cracker', 'crackers', 'nuts', 'trail mix', 'granola bar', 'bars'] },
+  { category: 'Bakery', keywords: ['bread', 'bagel', 'bagels', 'bun', 'buns', 'rolls', 'donut', 'donuts', 'tortilla', 'tortillas', 'muffin', 'muffins'] },
+  { category: 'Beverages', keywords: ['coffee', 'tea', 'juice', 'soda', 'sparkling water', 'water', 'milkshake', 'cider', 'gatorade', 'pop'] },
+  { category: 'Dairy / Eggs', keywords: ['milk', 'eggs', 'butter', 'cheese', 'cream', 'cream cheese', 'sour cream', 'cottage cheese', 'half and half', 'yogurt'] },
+  { category: 'Cleaning', keywords: ['bleach', 'cleaner', 'spray', 'soap', 'dish soap', 'laundry', 'detergent', 'disinfectant', 'trash bags'] },
+  { category: 'Paper Products', keywords: ['paper towel', 'paper towels', 'toilet paper', 'tissues', 'napkins', 'paper plates', 'paper cups'] },
+  { category: 'Pet Supplies', keywords: ['dog food', 'cat food', 'bird seed', 'pet', 'litter', 'treats', 'chews'] },
+  { category: 'Medicine', keywords: ['ibuprofen', 'acetaminophen', 'aspirin', 'bandages', 'vitamin', 'medicine', 'cold meds', 'cough syrup', 'antacid'] },
+];
 const TV_TRACKER_FEEDS = [
   'https://tpoirier1969.github.io/tv-tracker/data/episodes.json',
   'https://tpoirier1969.github.io/tv-tracker/episodes.json',
@@ -34,6 +53,7 @@ const UNAVAILABLE = {
 
 let supabaseScriptPromise = null;
 let supabaseClientPromise = null;
+let shoppingRulesPromise = null;
 
 function normalizeItems(items, limit = 8) {
   return (Array.isArray(items) ? items : [])
@@ -245,16 +265,65 @@ function makeShoppingId() {
   return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+async function readShoppingRules(client) {
+  if (!shoppingRulesPromise) {
+    shoppingRulesPromise = (async () => {
+      const sources = [
+        () => client.schema(SHOPPING_SCHEMA).from('rules').select('*').eq('household_id', SHOPPING_HOUSEHOLD_ID),
+        () => client.from('shopping_rules').select('*').eq('household_id', SHOPPING_HOUSEHOLD_ID),
+      ];
+      for (const readRules of sources) {
+        try {
+          const { data, error } = await readRules();
+          if (!error && Array.isArray(data)) return data;
+        } catch (error) {
+          console.warn('Shopping rules lookup skipped.', error);
+        }
+      }
+      return [];
+    })();
+  }
+  return shoppingRulesPromise;
+}
+
+function getLearnedShoppingCategory(rules, normalizedName, storeName) {
+  return (Array.isArray(rules) ? rules : []).find((rule) => rule.item_key === normalizedName && rule.store === storeName)?.category || '';
+}
+
+function guessBuiltInShoppingCategory(normalizedName) {
+  let bestCategory = '';
+  let bestScore = 0;
+  for (const rule of SHOPPING_CATEGORY_RULES) {
+    for (const keyword of rule.keywords) {
+      if (!normalizedName.includes(keyword)) continue;
+      const score = keyword.length;
+      if (score > bestScore) {
+        bestScore = score;
+        bestCategory = rule.category;
+      }
+    }
+  }
+  return bestCategory;
+}
+
+async function guessShoppingCategory(client, itemName, storeName = 'shopping') {
+  const normalized = normalizeShoppingName(itemName);
+  const rules = await readShoppingRules(client);
+  return getLearnedShoppingCategory(rules, normalized, storeName) || guessBuiltInShoppingCategory(normalized) || 'Other';
+}
+
 export async function addShoppingItem(itemName) {
   const cleanName = String(itemName || '').trim();
   if (!cleanName) throw new Error('Enter an item first.');
   const now = new Date().toISOString();
+  const client = await getSupabaseClient();
+  const category = await guessShoppingCategory(client, cleanName, 'shopping');
   const payload = {
     id: makeShoppingId(),
     household_id: SHOPPING_HOUSEHOLD_ID,
     item_name: cleanName,
     normalized_name: normalizeShoppingName(cleanName),
-    category: 'Other',
+    category,
     store: 'shopping',
     parent_target: null,
     purchased_main: false,
@@ -266,7 +335,6 @@ export async function addShoppingItem(itemName) {
     created_at: now,
     updated_at: now,
   };
-  const client = await getSupabaseClient();
   const { data, error } = await client
     .schema(SHOPPING_SCHEMA)
     .from('items')
