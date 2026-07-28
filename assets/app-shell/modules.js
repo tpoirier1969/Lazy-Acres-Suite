@@ -126,6 +126,18 @@ export const moduleRegistry = [
     legacyLabel: 'Open',
   },
   {
+    slug: 'boat-estimator',
+    title: 'Aluminum Boat Estimator',
+    shortTitle: 'Boat Estimator',
+    description: 'Aluminum boat value and equipment estimating for hulls, motors, trailers, and fishing gear.',
+    accentLight: '#285f74',
+    accentDark: '#38bdf8',
+    status: 'legacy-link',
+    group: 'commercial-candidate',
+    legacyUrl: 'https://tpoirier1969.github.io/BoatBuilder/',
+    legacyLabel: 'Open',
+  },
+  {
     slug: 'genealogy',
     title: 'Genealogy Map',
     shortTitle: 'Genealogy',
