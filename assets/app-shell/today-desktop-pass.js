@@ -1,6 +1,6 @@
-import { addShoppingItem } from './dashboard-data-live.js?v=0.1.48';
+import { addShoppingItem } from './dashboard-data-live.js?v=0.1.52';
 
-const DISPLAY_VERSION = 'v0.1.51';
+const DISPLAY_VERSION = 'v0.1.52';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
 const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json';
