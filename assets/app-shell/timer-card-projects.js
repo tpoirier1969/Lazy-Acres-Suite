@@ -2,7 +2,6 @@ const TIMER_STORE_PREFIX = 'lazy-acres-timer-v1';
 const SUITE_PROFILE_STORAGE_KEY = 'lazy-acres-suite-user-profile';
 const TIMER_PROFILES = ['tod', 'donna', 'guest'];
 const TIMER_APP_JS_URL = 'https://tpoirier1969.github.io/LazyAcresTimer/assets/app.js';
-const TIMER_ICON_URL = './assets/app-shell/icons/field-lab/timer.png?v=0.1.52';
 
 let timerVersionPromise = null;
 let refreshScheduled = false;
@@ -188,29 +187,6 @@ function renderProjectList(projects) {
   }).join('')}${more > 0 ? `<li class='timer-more'>+${more} more</li>` : ''}</ul></div>`;
 }
 
-function updateTimerIcon(timerCard) {
-  const body = timerCard.querySelector('.module-card__body');
-  if (!body) return;
-  let icon = body.querySelector('.module-icon');
-  if (!icon) {
-    icon = document.createElement('span');
-    icon.className = 'module-icon';
-    icon.setAttribute('aria-hidden', 'true');
-    body.prepend(icon);
-  }
-  let image = icon.querySelector('img');
-  if (!image) {
-    image = document.createElement('img');
-    image.alt = '';
-    image.loading = 'eager';
-    image.decoding = 'async';
-    icon.replaceChildren(image);
-  }
-  const expected = new URL(TIMER_ICON_URL, document.baseURI).href;
-  if (image.src !== expected) image.src = TIMER_ICON_URL;
-  image.dataset.timerIcon = 'true';
-}
-
 function setOrRemoveHtml(container, selector, html) {
   const existing = container.querySelector(selector);
   if (!html) {
@@ -233,8 +209,6 @@ function decorateTimerCard(version = '') {
   if (!timerCard) return;
   const body = timerCard.querySelector('.module-card__body');
   if (!body) return;
-
-  updateTimerIcon(timerCard);
 
   const projects = readTimerProjects();
   const versionHtml = version ? `<span class='timer-card-version' data-timer-card-version>${escapeHtml(version)}</span>` : '';
