@@ -18,10 +18,38 @@
 <body>
   <noscript><main class="no-script"><h1>Lazy Acres Suite</h1><p>This app shell needs JavaScript enabled.</p></main></noscript>
   <div id="app" data-app-shell-root></div>
-  <script type="module" src="./assets/app-shell/app.js?v=0.1.54"></script>
+  <script type="module" src="./assets/app-shell/app.js?v=0.1.56"></script>
   <script type="module" src="./assets/app-shell/photo-icon.js?v=0.1.21"></script>
   <script type="module" src="./assets/app-shell/today-desktop-pass.js?v=0.1.55"></script>
   <script type="module" src="./assets/app-shell/timer-card-projects.js?v=0.1.52"></script>
   <script type="module" src="./assets/app-shell/timer-card-controls.js?v=0.1.53"></script>
+  <script type="module">
+    const exactModuleIcons = {
+      'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.svg?v=0.1.56',
+      timer: './assets/app-shell/icons/field-lab/timer.svg?v=0.1.56',
+    };
+
+    function applyExactModuleIcons() {
+      document.querySelectorAll('[data-module-card]').forEach((card) => {
+        const slug = card.dataset.moduleSlug;
+        const src = exactModuleIcons[slug];
+        if (!src) return;
+        const icon = card.querySelector('.module-icon');
+        if (!icon) return;
+        const current = icon.querySelector('img')?.getAttribute('src') || '';
+        if (current === src) return;
+        icon.classList.remove('module-icon-missing');
+        icon.innerHTML = `<img src="${src}" alt="" loading="eager" decoding="async">`;
+      });
+    }
+
+    let exactIconAttempts = 0;
+    applyExactModuleIcons();
+    const exactIconTimer = window.setInterval(() => {
+      applyExactModuleIcons();
+      exactIconAttempts += 1;
+      if (exactIconAttempts >= 80) window.clearInterval(exactIconTimer);
+    }, 250);
+  </script>
 </body>
 </html>
