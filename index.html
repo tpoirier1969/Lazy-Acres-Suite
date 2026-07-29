@@ -24,32 +24,76 @@
   <script type="module" src="./assets/app-shell/timer-card-projects.js?v=0.1.52"></script>
   <script type="module" src="./assets/app-shell/timer-card-controls.js?v=0.1.53"></script>
   <script type="module">
-    const exactModuleIcons = {
+    const exactModuleIconFiles = {
       'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.svg?v=0.1.56',
       timer: './assets/app-shell/icons/field-lab/timer.svg?v=0.1.56',
     };
 
+    const exactModuleIconData = new Map();
+    const exactModuleIconLoads = new Map();
+
+    async function getExactModuleIconData(slug) {
+      if (exactModuleIconData.has(slug)) return exactModuleIconData.get(slug);
+      if (exactModuleIconLoads.has(slug)) return exactModuleIconLoads.get(slug);
+
+      const source = exactModuleIconFiles[slug];
+      if (!source) return '';
+
+      const load = fetch(source, { cache: 'no-store' })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Icon request failed: ${response.status}`);
+          return response.text();
+        })
+        .then((svgText) => {
+          const match = svgText.match(/(?:href|xlink:href)="(data:image\/(?:png|webp|jpeg);base64,[^"]+)"/i);
+          const dataUrl = match?.[1] || '';
+          if (!dataUrl) throw new Error(`No embedded icon image found for ${slug}.`);
+          exactModuleIconData.set(slug, dataUrl);
+          return dataUrl;
+        })
+        .catch((error) => {
+          console.warn(`Exact icon unavailable for ${slug}.`, error);
+          exactModuleIconData.set(slug, '');
+          return '';
+        });
+
+      exactModuleIconLoads.set(slug, load);
+      return load;
+    }
+
+    async function applyExactModuleIcon(card) {
+      const slug = card?.dataset?.moduleSlug;
+      if (!slug || !exactModuleIconFiles[slug]) return;
+
+      const icon = card.querySelector('.module-icon');
+      if (!icon) return;
+
+      const dataUrl = await getExactModuleIconData(slug);
+      if (!dataUrl || !document.body.contains(card)) return;
+
+      const image = icon.querySelector('img');
+      if (image?.getAttribute('src') === dataUrl) return;
+
+      icon.classList.remove('module-icon-missing');
+      icon.innerHTML = `<img src="${dataUrl}" alt="" loading="eager" decoding="async">`;
+    }
+
     function applyExactModuleIcons() {
       document.querySelectorAll('[data-module-card]').forEach((card) => {
-        const slug = card.dataset.moduleSlug;
-        const src = exactModuleIcons[slug];
-        if (!src) return;
-        const icon = card.querySelector('.module-icon');
-        if (!icon) return;
-        const current = icon.querySelector('img')?.getAttribute('src') || '';
-        if (current === src) return;
-        icon.classList.remove('module-icon-missing');
-        icon.innerHTML = `<img src="${src}" alt="" loading="eager" decoding="async">`;
+        applyExactModuleIcon(card);
       });
     }
 
-    let exactIconAttempts = 0;
+    const appRoot = document.querySelector('[data-app-shell-root]');
     applyExactModuleIcons();
-    const exactIconTimer = window.setInterval(() => {
-      applyExactModuleIcons();
-      exactIconAttempts += 1;
-      if (exactIconAttempts >= 80) window.clearInterval(exactIconTimer);
-    }, 250);
+    window.requestAnimationFrame(applyExactModuleIcons);
+
+    if (appRoot) {
+      const observer = new MutationObserver(() => {
+        window.requestAnimationFrame(applyExactModuleIcons);
+      });
+      observer.observe(appRoot, { childList: true, subtree: true });
+    }
   </script>
 </body>
 </html>
