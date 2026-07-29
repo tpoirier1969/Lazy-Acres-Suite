@@ -5,7 +5,7 @@ import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
 import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.52';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
-const APP_VERSION = 'v0.1.54';
+const APP_VERSION = 'v0.1.58';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
 const APP_ICON_URL = './assets/app-shell/mountain-suite-icon.svg?v=0.1.18';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
@@ -36,7 +36,8 @@ const MODULE_ICON_URLS = {
   ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.18',
   genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.18',
   'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.18',
-  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.svg?v=0.1.54',
+  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.png?v=0.1.58',
+  timer: './assets/app-shell/icons/field-lab/timer.png?v=0.1.58',
 };
 
 let activeRoute = 'dashboard';
