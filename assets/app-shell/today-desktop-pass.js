@@ -1,6 +1,6 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.52';
 
-const DISPLAY_VERSION = 'v0.1.52';
+const DISPLAY_VERSION = 'v0.1.53';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
 const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json';
@@ -45,9 +45,10 @@ function installStyles() {
       min-width: 0 !important;
       border: 1px solid rgb(80 92 72 / 0.22);
       border-radius: 12px;
-      padding: 8px 10px;
+      padding: 6px 10px;
       font: inherit;
-      font-size: 0.78rem;
+      font-size: 16px;
+      line-height: 1.15;
       background: rgb(255 255 255 / 0.78);
       color: var(--ink);
     }
