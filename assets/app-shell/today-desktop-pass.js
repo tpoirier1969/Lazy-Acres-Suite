@@ -1,6 +1,6 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.52';
 
-const DISPLAY_VERSION = 'v0.1.53';
+const DISPLAY_VERSION = 'v0.1.54';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
 const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json';
@@ -25,10 +25,45 @@ function installStyles() {
       letter-spacing: -0.045em !important;
       line-height: 1.02 !important;
     }
+    .hero-intro > p:not(.eyebrow),
+    .command-bar,
+    .module-card__actions,
+    .module-card__body > p {
+      display: none !important;
+    }
+    .module-card__top {
+      display: grid !important;
+      grid-template-columns: auto minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 10px !important;
+      width: 100% !important;
+    }
+    .module-card__top h3 {
+      margin: 0 !important;
+      min-width: 0 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      line-height: 1.08 !important;
+    }
+    .module-open-button {
+      width: auto !important;
+      min-width: 0 !important;
+      padding: 0.48rem 0.68rem !important;
+      white-space: nowrap !important;
+      justify-self: end !important;
+    }
     @media (max-width: 430px) {
       .hero-intro h1 {
         font-size: clamp(1rem, 5.25vw, 1.6rem) !important;
         letter-spacing: -0.055em !important;
+      }
+      .module-card__top {
+        gap: 8px !important;
+      }
+      .module-open-button {
+        padding: 0.42rem 0.58rem !important;
+        font-size: 0.78rem !important;
       }
     }
     .today-tile-shopping ul { display: none !important; }
@@ -73,6 +108,15 @@ function installStyles() {
       margin: -2px 0 3px;
       font-size: 0.68rem;
       color: color-mix(in srgb, var(--ink) 58%, var(--muted));
+    }
+    .weather-radar-link {
+      display: block !important;
+      cursor: pointer !important;
+      color: inherit !important;
+      text-decoration: none !important;
+    }
+    .weather-radar-link .weather-radar-frame {
+      pointer-events: none !important;
     }
   `;
   document.head.append(style);
@@ -153,7 +197,7 @@ function decoupleShoppingTile() {
 }
 
 function openSuiteLaunchLinksInNewPages() {
-  document.querySelectorAll('.module-card__actions a[href], .detail-actions a[href], .today-tile-clickable[href]').forEach((link) => {
+  document.querySelectorAll('.detail-actions a[href], .today-tile-clickable[href]').forEach((link) => {
     if (link.closest('.brand') || link.classList.contains('today-tile-shopping')) return;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
@@ -166,6 +210,17 @@ function ensureShoppingQuickAdd() {
   tile.insertAdjacentHTML('beforeend', renderShoppingQuickAdd());
 }
 
+function scheduleRainviewerMap(mapElement, panel) {
+  if (!mapElement || mapElement.dataset.mapReady) return;
+  mapElement.dataset.mapReady = 'scheduled';
+  const load = () => initializeRainviewerMap(mapElement, panel);
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(load, { timeout: 2400 });
+  } else {
+    window.setTimeout(load, 1200);
+  }
+}
+
 function ensureWeatherRadar() {
   const tile = document.querySelector('.today-tile-weather');
   if (!tile || tile.querySelector('[data-weather-radar]')) return;
@@ -175,16 +230,18 @@ function ensureWeatherRadar() {
   panel.dataset.weatherRadar = 'true';
   panel.innerHTML = `
     <div class="weather-radar-label">Northern Michigan radar</div>
-    <div class="weather-radar-frame" data-weather-radar-map aria-label="Northern Michigan RainViewer radar map"></div>
+    <a class="weather-radar-link" href="${RAINVIEWER_OPEN_URL}" target="_blank" rel="noopener noreferrer" aria-label="Open RainViewer radar">
+      <div class="weather-radar-frame" data-weather-radar-map aria-label="Northern Michigan RainViewer radar map"></div>
+    </a>
     <div class="weather-radar-attribution"><a href="${RAINVIEWER_OPEN_URL}" target="_blank" rel="noopener noreferrer">Radar: RainViewer</a> · Map: OpenStreetMap</div>`;
   tile.appendChild(panel);
 
   const mapElement = panel.querySelector('[data-weather-radar-map]');
-  initializeRainviewerMap(mapElement, panel);
+  scheduleRainviewerMap(mapElement, panel);
 }
 
 async function initializeRainviewerMap(mapElement, panel) {
-  if (!mapElement || mapElement.dataset.mapReady === 'true') return;
+  if (!mapElement || mapElement.dataset.mapReady === 'true' || mapElement.dataset.mapReady === 'pending') return;
   mapElement.dataset.mapReady = 'pending';
   try {
     const [Leaflet, frame] = await Promise.all([loadLeaflet(), getRainviewerFrame()]);
@@ -265,8 +322,8 @@ function boot() {
   decoupleShoppingTile();
   openSuiteLaunchLinksInNewPages();
   ensureShoppingQuickAdd();
-  ensureWeatherRadar();
   bindShoppingQuickAdd();
+  ensureWeatherRadar();
   attempts += 1;
   if (attempts < MAX_ATTEMPTS) window.setTimeout(boot, 250);
 }
