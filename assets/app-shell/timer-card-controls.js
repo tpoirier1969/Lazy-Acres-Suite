@@ -1,7 +1,6 @@
 const TIMER_STORE_PREFIX = 'lazy-acres-timer-v1';
 const SUITE_PROFILE_STORAGE_KEY = 'lazy-acres-suite-user-profile';
 const TIMER_PROFILES = ['tod', 'donna', 'guest'];
-const TIMER_ICON_URL = './assets/app-shell/icons/field-lab/timer.png?v=0.1.52';
 const CAP_SECONDS = 36000;
 
 let renderQueued = false;
@@ -198,26 +197,6 @@ function findTimerCard() {
     || [...document.querySelectorAll('[data-module-card]')].find((card) => card.textContent?.includes('Lazy Acres Timer') || card.textContent?.includes('Timer'));
 }
 
-function ensureIcon(card) {
-  const body = card.querySelector('.module-card__body') || card;
-  let icon = body.querySelector('.module-icon');
-  if (!icon) {
-    icon = document.createElement('span');
-    icon.className = 'module-icon';
-    icon.setAttribute('aria-hidden', 'true');
-    body.prepend(icon);
-  }
-  let image = icon.querySelector('img');
-  if (!image) {
-    image = document.createElement('img');
-    image.alt = '';
-    image.loading = 'eager';
-    image.decoding = 'async';
-    icon.replaceChildren(image);
-  }
-  image.src = TIMER_ICON_URL;
-}
-
 function ensureStyles() {
   if (document.querySelector('[data-timer-card-controls-style]')) return;
   const style = document.createElement('style');
@@ -239,7 +218,6 @@ function renderControls() {
   ensureStyles();
   const card = findTimerCard();
   if (!card) return;
-  ensureIcon(card);
   const body = card.querySelector('.module-card__body') || card;
   const projects = activeTimerProjects();
   body.querySelector('[data-timer-card-quick]')?.remove();
