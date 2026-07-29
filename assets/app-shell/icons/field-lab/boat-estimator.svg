@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Boat Estimator</title>
+  <desc id="desc">A stylized aluminum fishing boat with an estimate gauge.</desc>
+  <defs>
+    <linearGradient id="sky" x1="96" y1="56" x2="420" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e8f7ef"/>
+      <stop offset="1" stop-color="#b8d9df"/>
+    </linearGradient>
+    <linearGradient id="water" x1="76" y1="344" x2="442" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3e7a76"/>
+      <stop offset="1" stop-color="#225f7d"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="104" y1="218" x2="410" y2="306" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f5f7f2"/>
+      <stop offset="0.52" stop-color="#c8d2cf"/>
+      <stop offset="1" stop-color="#8fa5a5"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#173023" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect x="48" y="48" width="416" height="416" rx="98" fill="url(#sky)"/>
+  <path d="M91 356c38 12 70 12 108 0s72-12 110 0 70 12 112 0v64H91z" fill="url(#water)" opacity="0.92"/>
+  <path d="M111 366c28 8 55 8 83 0 35-10 66-10 101 0 34 10 66 10 104 0" fill="none" stroke="#d6efe6" stroke-width="10" stroke-linecap="round" opacity="0.75"/>
+  <g filter="url(#softShadow)">
+    <path d="M88 246h327c-9 37-31 71-64 90H163c-35-18-60-50-75-90z" fill="url(#metal)" stroke="#537275" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M154 246l33-48h112l44 48" fill="#dce8e5" stroke="#537275" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M199 208h78l24 38H173z" fill="#85b8c3" stroke="#537275" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M133 278h235" stroke="#ffffff" stroke-width="9" stroke-linecap="round" opacity="0.72"/>
+    <path d="M170 312h152" stroke="#587477" stroke-width="8" stroke-linecap="round" opacity="0.56"/>
+  </g>
+  <g transform="translate(325 116)">
+    <circle cx="56" cy="56" r="54" fill="#f6f1df" stroke="#315f48" stroke-width="10"/>
+    <path d="M24 67a34 34 0 0 1 64 0" fill="none" stroke="#6aa477" stroke-width="9" stroke-linecap="round"/>
+    <path d="M56 60l27-20" stroke="#bd7c21" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="56" cy="60" r="8" fill="#315f48"/>
+    <path d="M36 84h40" stroke="#315f48" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>
