@@ -1,0 +1,110 @@
+/* Phone launcher: two compact module cards per row. */
+@media (max-width: 760px) {
+  .module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .module-card {
+    min-width: 0;
+    min-height: 172px;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .module-card__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title title'
+      'icon open';
+    align-items: center;
+    gap: 8px 6px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .module-card__top h3 {
+    grid-area: title;
+    min-width: 0;
+    font-size: clamp(0.78rem, 3.8vw, 0.98rem);
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+  }
+
+  .module-card__top .module-icon {
+    grid-area: icon;
+    align-self: center;
+    width: 74px;
+    height: 68px;
+    margin: 0;
+    min-width: 0;
+  }
+
+  .module-card__top .module-icon img,
+  .module-card__top .module-icon svg {
+    width: 74px;
+    height: 68px;
+    object-fit: contain;
+  }
+
+  .module-card__top .module-open-button {
+    grid-area: open;
+    align-self: center;
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.74rem;
+    white-space: nowrap;
+  }
+
+  .module-card .button::before {
+    inset: -6px;
+    filter: blur(6px);
+  }
+
+  .module-card-reorder {
+    min-height: 220px;
+  }
+
+  .module-reorder-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .module-move-button {
+    min-width: 0;
+    padding-inline: 5px;
+    font-size: 0.68rem;
+  }
+
+  /* Keep launcher cards equally compact on phones. */
+  .module-card .timer-card-quick,
+  .module-card .timer-card-projects,
+  .module-card .timer-card-version {
+    display: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .module-grid {
+    gap: 8px !important;
+  }
+
+  .module-card {
+    padding: 10px;
+  }
+
+  .module-card__top .module-icon,
+  .module-card__top .module-icon img,
+  .module-card__top .module-icon svg {
+    width: 64px;
+    height: 60px;
+  }
+
+  .module-card__top .module-open-button {
+    padding-inline: 8px;
+    font-size: 0.7rem;
+  }
+}

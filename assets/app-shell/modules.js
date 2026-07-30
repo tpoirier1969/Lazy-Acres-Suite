@@ -90,6 +90,18 @@ export const moduleRegistry = [
     legacyLabel: 'Open',
   },
   {
+    slug: 'songwriting',
+    title: 'Songwriting Studio',
+    shortTitle: 'Songwriting',
+    description: 'Chord progressions, key changes, mood-driven harmony ideas, and songwriting tools.',
+    accentLight: '#9a5b28',
+    accentDark: '#f6b85f',
+    status: 'legacy-link',
+    group: 'household',
+    legacyUrl: 'https://songwriting.tpoirier.workers.dev/',
+    legacyLabel: 'Open',
+  },
+  {
     slug: 'foraging',
     title: 'UP Foraging Guide',
     shortTitle: 'Foraging',

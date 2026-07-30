@@ -2,10 +2,10 @@ import { authService } from './auth.js?v=0.1.18';
 import { entitlementService } from './entitlements.js?v=0.1.18';
 import { getDashboardSnapshot } from './dashboard-data-live-timer.js?v=0.1.49';
 import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.52';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.61';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
-const APP_VERSION = 'v0.1.58';
+const APP_VERSION = 'v0.1.61';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
 const APP_ICON_URL = './assets/app-shell/mountain-suite-icon.svg?v=0.1.18';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
@@ -36,8 +36,9 @@ const MODULE_ICON_URLS = {
   ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.18',
   genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.18',
   'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.18',
-  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.png?v=0.1.58',
-  timer: './assets/app-shell/icons/field-lab/timer.png?v=0.1.58',
+  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator-approved-20260729.png?v=0.1.61',
+  timer: './assets/app-shell/icons/field-lab/timer-approved-20260729.png?v=0.1.61',
+  songwriting: './assets/app-shell/icons/field-lab/songwriting.svg?v=0.1.61',
 };
 
 let activeRoute = 'dashboard';
@@ -330,7 +331,8 @@ function inferRecentItemRoute(item) {
   if (/fish|catch|trout|salmon|lake/.test(text)) return 'fishing';
   if (/boat|aluminum|hull|motor|trailer|estimate/.test(text)) return 'boat-estimator';
   if (/genealogy|family|record|ancestor/.test(text)) return 'genealogy';
-  if (/church|music|song|canticle|hymn|choir/.test(text)) return 'church-music';
+  if (/songwriting|chord|lyric|melody|harmony|progression/.test(text)) return 'songwriting';
+  if (/church|music|canticle|hymn|choir/.test(text)) return 'church-music';
   return '';
 }
 
