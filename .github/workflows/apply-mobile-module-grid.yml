@@ -1,0 +1,205 @@
+name: Apply mobile module grid
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/apply-mobile-module-grid.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply suite update
+        shell: bash
+        run: |
+          python - <<'PYCODE'
+          from pathlib import Path
+          import shutil
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"Expected exactly one {label} match, found {count}")
+              return text.replace(old, new, 1)
+
+          app_path = Path('assets/app-shell/app.js')
+          app = app_path.read_text(encoding='utf-8')
+          app = replace_once(app, "./modules.js?v=0.1.52", "./modules.js?v=0.1.60", 'module import')
+          app = replace_once(app, "const APP_VERSION = 'v0.1.58';", "const APP_VERSION = 'v0.1.60';", 'app version')
+          old_icons = '''  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.png?v=0.1.58',
+          timer: './assets/app-shell/icons/field-lab/timer.png?v=0.1.58','''
+          new_icons = '''  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator-v2.png?v=0.1.60',
+          timer: './assets/app-shell/icons/field-lab/timer-v2.png?v=0.1.60',
+          songwriting: './assets/app-shell/icons/field-lab/songwriting.svg?v=0.1.60','''
+          app = replace_once(app, old_icons, new_icons, 'module icon map')
+          app_path.write_text(app, encoding='utf-8')
+
+          modules_path = Path('assets/app-shell/modules.js')
+          modules = modules_path.read_text(encoding='utf-8')
+          if "slug: 'songwriting'" not in modules:
+              marker = '''  {
+              slug: 'timer','''
+              songwriting = '''  {
+              slug: 'songwriting',
+              title: 'Songwriting Studio',
+              shortTitle: 'Songwriting',
+              description: 'Chord progressions, key changes, mood-driven harmony ideas, and songwriting tools.',
+              accentLight: '#9a5b28',
+              accentDark: '#f6b85f',
+              status: 'legacy-link',
+              group: 'household',
+              legacyUrl: 'https://songwriting.tpoirier.workers.dev/',
+              legacyLabel: 'Open',
+            },
+          '''
+              modules = replace_once(modules, marker, songwriting + marker, 'timer module insertion point')
+          modules_path.write_text(modules, encoding='utf-8')
+
+          index_path = Path('index.html')
+          index = index_path.read_text(encoding='utf-8')
+          css_link = '  <link rel="stylesheet" href="./assets/app-shell/mobile-module-grid.css?v=0.1.60">\n'
+          if 'mobile-module-grid.css' not in index:
+              anchor = '  <link rel="stylesheet" href="./assets/app-shell/today-desktop-pass.css?v=0.1.51">\n'
+              index = replace_once(index, anchor, anchor + css_link, 'mobile CSS insertion point')
+          index = index.replace('./assets/app-shell/app.js?v=0.1.58', './assets/app-shell/app.js?v=0.1.60')
+          index_path.write_text(index, encoding='utf-8')
+
+          mobile_css = r'''/* Phone launcher: two compact module cards per row. */
+          @media (max-width: 760px) {
+            .module-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+              gap: 10px !important;
+            }
+            .module-card {
+              min-width: 0;
+              min-height: 172px;
+              gap: 8px;
+              padding: 12px;
+              border-radius: 20px;
+            }
+            .module-card__top {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr) auto;
+              grid-template-areas: 'title title' 'icon open';
+              align-items: center;
+              gap: 8px 6px;
+              width: 100%;
+              min-width: 0;
+            }
+            .module-card__top h3 {
+              grid-area: title;
+              min-width: 0;
+              font-size: clamp(0.78rem, 3.8vw, 0.98rem);
+              line-height: 1.12;
+              overflow-wrap: anywhere;
+            }
+            .module-card__top .module-icon {
+              grid-area: icon;
+              align-self: center;
+              width: 74px;
+              height: 68px;
+              margin: 0;
+              min-width: 0;
+            }
+            .module-card__top .module-icon img,
+            .module-card__top .module-icon svg {
+              width: 74px;
+              height: 68px;
+              object-fit: contain;
+            }
+            .module-card__top .module-open-button {
+              grid-area: open;
+              align-self: center;
+              min-height: 34px;
+              padding: 7px 10px;
+              font-size: 0.74rem;
+              white-space: nowrap;
+            }
+            .module-card .button::before { inset: -6px; filter: blur(6px); }
+            .module-card-reorder { min-height: 220px; }
+            .module-reorder-actions {
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 6px;
+            }
+            .module-move-button {
+              min-width: 0;
+              padding-inline: 5px;
+              font-size: 0.68rem;
+            }
+            .module-card .timer-card-quick,
+            .module-card .timer-card-projects,
+            .module-card .timer-card-version { display: none !important; }
+          }
+          @media (max-width: 360px) {
+            .module-grid { gap: 8px !important; }
+            .module-card { padding: 10px; }
+            .module-card__top .module-icon,
+            .module-card__top .module-icon img,
+            .module-card__top .module-icon svg { width: 64px; height: 60px; }
+            .module-card__top .module-open-button {
+              padding-inline: 8px;
+              font-size: 0.7rem;
+            }
+          }
+          '''
+          Path('assets/app-shell/mobile-module-grid.css').write_text(mobile_css, encoding='utf-8')
+
+          icons = Path('assets/app-shell/icons/field-lab')
+          shutil.copyfile(icons / 'boat-estimator.png', icons / 'boat-estimator-v2.png')
+          shutil.copyfile(icons / 'timer.png', icons / 'timer-v2.png')
+          songwriting_svg = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Songwriting">
+          <defs>
+            <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3aa3f"/><stop offset=".55" stop-color="#d97921"/><stop offset="1" stop-color="#9b491c"/></linearGradient>
+            <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff9df"/><stop offset="1" stop-color="#eadbb5"/></linearGradient>
+            <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#24190f" flood-opacity=".28"/></filter>
+          </defs>
+          <g filter="url(#shadow)" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M137 40h83a18 18 0 0 1 18 18v150a18 18 0 0 1-18 18h-83a18 18 0 0 1-18-18V58a18 18 0 0 1 18-18z" fill="#c8b587" opacity=".72"/>
+            <path d="M126 31h82l21 22v143a18 18 0 0 1-18 18h-85a18 18 0 0 1-18-18V49a18 18 0 0 1 18-18z" fill="url(#paper)" stroke="#725b37" stroke-width="4"/>
+            <path d="M208 31v28h21" fill="#dccb9f" stroke="#8b744d" stroke-width="3"/>
+            <g stroke="#6f5d43" stroke-width="5"><path d="M148 92h48"/><path d="M148 116h56"/><path d="M148 140h45"/><path d="M148 164h54"/></g>
+            <g fill="#493526" stroke="#493526" stroke-width="4"><circle cx="151" cy="67" r="8"/><path d="M158 67V43"/><circle cx="188" cy="78" r="8"/><path d="M195 78V51"/></g>
+            <path d="M198 159l18 12-43 48-14 4 3-14z" fill="#d88e27"/><path d="M159 223l14-4-11-10z" fill="#473328"/>
+            <rect x="68" y="15" width="31" height="132" rx="14" fill="#9f572b" stroke="#5f351f" stroke-width="4"/>
+            <rect x="61" y="4" width="45" height="39" rx="13" fill="#8e4c29" stroke="#5f351f" stroke-width="4"/>
+            <g fill="#d3b77c" stroke="#59442d" stroke-width="2"><circle cx="61" cy="14" r="6"/><circle cx="106" cy="14" r="6"/><circle cx="61" cy="32" r="6"/><circle cx="106" cy="32" r="6"/></g>
+            <g stroke="#e8bd69" stroke-width="2"><path d="M69 53h29"/><path d="M69 72h29"/><path d="M69 91h29"/><path d="M69 110h29"/></g>
+            <path d="M82 91c-34 0-61 25-61 57 0 16 7 30 19 40-5 9-8 19-8 30 0 26 22 34 50 34s50-8 50-34c0-11-3-21-8-30 12-10 19-24 19-40 0-32-27-57-61-57z" fill="url(#wood)" stroke="#62341c" stroke-width="5"/>
+            <path d="M34 136c12-20 29-30 52-31" fill="none" stroke="#ffd078" stroke-width="6"/>
+            <circle cx="82" cy="176" r="27" fill="#2f241d" stroke="#f2c45e" stroke-width="7"/>
+            <rect x="56" y="221" width="53" height="13" rx="6" fill="#66351d"/>
+            <g stroke="#f4dfaa" stroke-width="1.5"><path d="M77 33l10 198"/><path d="M81 33l6 198"/><path d="M85 33l2 198"/></g>
+            <g fill="#493526" stroke="#493526" stroke-width="4"><circle cx="23" cy="67" r="7"/><path d="M30 67V42"/><circle cx="48" cy="48" r="7"/><path d="M55 48V22"/></g>
+          </g></svg>'''
+          (icons / 'songwriting.svg').write_text(songwriting_svg, encoding='utf-8')
+          PYCODE
+
+      - name: Verify update
+        shell: bash
+        run: |
+          node --check assets/app-shell/app.js
+          node --check assets/app-shell/modules.js
+          test -s assets/app-shell/icons/field-lab/songwriting.svg
+          test -s assets/app-shell/icons/field-lab/boat-estimator-v2.png
+          test -s assets/app-shell/icons/field-lab/timer-v2.png
+          grep -q "grid-template-columns: repeat(2" assets/app-shell/mobile-module-grid.css
+          grep -q "songwriting.tpoirier.workers.dev" assets/app-shell/modules.js
+
+      - name: Commit update
+        shell: bash
+        run: |
+          git config user.name "Lazy Acres Suite updater"
+          git config user.email "actions@users.noreply.github.com"
+          git rm .github/workflows/apply-mobile-module-grid.yml
+          git add index.html assets/app-shell/app.js assets/app-shell/modules.js assets/app-shell/mobile-module-grid.css assets/app-shell/icons/field-lab/boat-estimator-v2.png assets/app-shell/icons/field-lab/timer-v2.png assets/app-shell/icons/field-lab/songwriting.svg
+          git commit -m "Add mobile two-column modules and Songwriting"
+          git push origin HEAD:main
