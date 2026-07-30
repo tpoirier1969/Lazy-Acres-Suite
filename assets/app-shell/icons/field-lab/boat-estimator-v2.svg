@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Boat Estimator</title><desc id="desc">A dimensional aluminum fishing boat riding over blue water.</desc>
+<defs>
+ <linearGradient id="hull" x1="70" y1="180" x2="430" y2="370" gradientUnits="userSpaceOnUse"><stop stop-color="#f8fbf7"/><stop offset=".32" stop-color="#c9d4d4"/><stop offset=".7" stop-color="#708790"/><stop offset="1" stop-color="#334a54"/></linearGradient>
+ <linearGradient id="glass" x1="160" y1="130" x2="300" y2="245" gradientUnits="userSpaceOnUse"><stop stop-color="#e6fbff"/><stop offset=".5" stop-color="#8db5c6"/><stop offset="1" stop-color="#426c7f"/></linearGradient>
+ <linearGradient id="motor" x1="390" y1="175" x2="468" y2="302" gradientUnits="userSpaceOnUse"><stop stop-color="#d8e2e4"/><stop offset=".42" stop-color="#73858c"/><stop offset="1" stop-color="#263a42"/></linearGradient>
+</defs>
+<g stroke-linecap="round" stroke-linejoin="round">
+ <path d="M65 250c83 13 175 11 276-7 49-8 91-19 126-31-11 55-39 99-85 132-34 24-78 40-132 47H151c-40-8-72-24-96-48-19-20-31-51-36-94 15 0 30 0 46 1z" fill="url(#hull)" stroke="#29434c" stroke-width="12"/>
+ <path d="M75 269c93 17 191 13 294-10 31-7 61-16 90-27-18 34-43 62-76 83-30 19-68 31-113 37H154c-33-7-58-19-76-36-10-10-18-26-23-48z" fill="#395b68" opacity=".38"/>
+ <path d="M82 259c87 13 181 9 283-12 34-7 64-15 91-24" fill="none" stroke="#ffffff" stroke-width="13" opacity=".72"/>
+ <path d="M137 242l55-91h100l65 87" fill="#d8e1df" stroke="#29434c" stroke-width="12"/>
+ <path d="M174 231l41-67h68l50 67z" fill="url(#glass)" stroke="#29434c" stroke-width="10"/>
+ <path d="M230 165l-7 65M281 170l-7 60" stroke="#29434c" stroke-width="8"/>
+ <path d="M199 151l39-51 73 48" fill="none" stroke="#29434c" stroke-width="11"/>
+ <path d="M337 226c22-20 51-22 77-2l-9 55h-69z" fill="#778b90" stroke="#29434c" stroke-width="10"/>
+ <path d="M421 181c27-10 53 4 61 35l-19 92h-58l-9-66c-4-29 5-50 25-61z" fill="url(#motor)" stroke="#263b43" stroke-width="12"/>
+ <path d="M422 216c20 6 38 5 55-2" stroke="#f3f6f3" stroke-width="8" opacity=".55"/>
+ <path d="M72 408c58-31 113 22 175-5 62-27 116-17 161 0 39 15 70 11 94-3" fill="none" stroke="#4e91ad" stroke-width="15" opacity=".8"/>
+ <path d="M84 449c52-26 101 18 157-4 54-22 102-15 142-1 36 13 66 11 91 0" fill="none" stroke="#82bad0" stroke-width="13" opacity=".65"/>
+</g></svg>
