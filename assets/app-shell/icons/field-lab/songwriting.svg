@@ -1,64 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Songwriting">
-  <defs>
-    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#f3aa3f"/>
-      <stop offset=".55" stop-color="#d97921"/>
-      <stop offset="1" stop-color="#9b491c"/>
-    </linearGradient>
-    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-      <stop stop-color="#fff9df"/>
-      <stop offset="1" stop-color="#eadbb5"/>
-    </linearGradient>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#24190f" flood-opacity=".28"/>
-    </filter>
-  </defs>
-  <g filter="url(#shadow)" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M137 40h83a18 18 0 0 1 18 18v150a18 18 0 0 1-18 18h-83a18 18 0 0 1-18-18V58a18 18 0 0 1 18-18z" fill="#c8b587" opacity=".72"/>
-    <path d="M126 31h82l21 22v143a18 18 0 0 1-18 18h-85a18 18 0 0 1-18-18V49a18 18 0 0 1 18-18z" fill="url(#paper)" stroke="#725b37" stroke-width="4"/>
-    <path d="M208 31v28h21" fill="#dccb9f" stroke="#8b744d" stroke-width="3"/>
-    <g stroke="#6f5d43" stroke-width="5">
-      <path d="M148 92h48"/>
-      <path d="M148 116h56"/>
-      <path d="M148 140h45"/>
-      <path d="M148 164h54"/>
-    </g>
-    <g fill="#493526" stroke="#493526" stroke-width="4">
-      <circle cx="151" cy="67" r="8"/>
-      <path d="M158 67V43"/>
-      <circle cx="188" cy="78" r="8"/>
-      <path d="M195 78V51"/>
-    </g>
-    <path d="M198 159l18 12-43 48-14 4 3-14z" fill="#d88e27"/>
-    <path d="M159 223l14-4-11-10z" fill="#473328"/>
-    <rect x="68" y="15" width="31" height="132" rx="14" fill="#9f572b" stroke="#5f351f" stroke-width="4"/>
-    <rect x="61" y="4" width="45" height="39" rx="13" fill="#8e4c29" stroke="#5f351f" stroke-width="4"/>
-    <g fill="#d3b77c" stroke="#59442d" stroke-width="2">
-      <circle cx="61" cy="14" r="6"/>
-      <circle cx="106" cy="14" r="6"/>
-      <circle cx="61" cy="32" r="6"/>
-      <circle cx="106" cy="32" r="6"/>
-    </g>
-    <g stroke="#e8bd69" stroke-width="2">
-      <path d="M69 53h29"/>
-      <path d="M69 72h29"/>
-      <path d="M69 91h29"/>
-      <path d="M69 110h29"/>
-    </g>
-    <path d="M82 91c-34 0-61 25-61 57 0 16 7 30 19 40-5 9-8 19-8 30 0 26 22 34 50 34s50-8 50-34c0-11-3-21-8-30 12-10 19-24 19-40 0-32-27-57-61-57z" fill="url(#wood)" stroke="#62341c" stroke-width="5"/>
-    <path d="M34 136c12-20 29-30 52-31" fill="none" stroke="#ffd078" stroke-width="6"/>
-    <circle cx="82" cy="176" r="27" fill="#2f241d" stroke="#f2c45e" stroke-width="7"/>
-    <rect x="56" y="221" width="53" height="13" rx="6" fill="#66351d"/>
-    <g stroke="#f4dfaa" stroke-width="1.5">
-      <path d="M77 33l10 198"/>
-      <path d="M81 33l6 198"/>
-      <path d="M85 33l2 198"/>
-    </g>
-    <g fill="#493526" stroke="#493526" stroke-width="4">
-      <circle cx="23" cy="67" r="7"/>
-      <path d="M30 67V42"/>
-      <circle cx="48" cy="48" r="7"/>
-      <path d="M55 48V22"/>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Songwriting Studio</title><desc id="desc">An acoustic guitar resting across an open music notebook with a pencil and notes.</desc>
+<defs>
+  <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffdf1"/><stop offset="1" stop-color="#d9c99d"/></linearGradient>
+  <linearGradient id="paperShade" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eee0b7"/><stop offset="1" stop-color="#aa9366"/></linearGradient>
+  <radialGradient id="wood" cx="35%" cy="26%" r="78%"><stop stop-color="#ffc45c"/><stop offset=".42" stop-color="#d77a25"/><stop offset="1" stop-color="#743916"/></radialGradient>
+  <linearGradient id="neck" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9b5b2e"/><stop offset="1" stop-color="#4b2819"/></linearGradient>
+  <linearGradient id="pencil" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7c64b"/><stop offset="1" stop-color="#c86a22"/></linearGradient>
+</defs>
+<g stroke-linejoin="round" stroke-linecap="round">
+  <path d="M116 126c73-24 142-18 202 12v244c-62-26-130-31-202-8z" fill="url(#paperShade)" stroke="#5a4932" stroke-width="10"/>
+  <path d="M318 138c48-22 96-26 144-12v246c-48-10-96-4-144 16z" fill="url(#paper)" stroke="#5a4932" stroke-width="10"/>
+  <path d="M318 138v250" stroke="#8a744d" stroke-width="7"/>
+  <g fill="none" stroke="#8c7956" stroke-width="5" opacity=".82">
+    <path d="M145 188c52-12 101-9 145 7"/><path d="M145 220c52-12 101-9 145 7"/><path d="M145 252c52-12 101-9 145 7"/>
+    <path d="M345 187c31-9 62-12 92-8"/><path d="M345 219c31-9 62-12 92-8"/><path d="M345 251c31-9 62-12 92-8"/><path d="M345 283c31-9 62-12 92-8"/>
   </g>
+  <g fill="#3d3124" stroke="#3d3124" stroke-width="5"><circle cx="175" cy="166" r="11"/><path d="M186 166v-38"/><circle cx="224" cy="178" r="11"/><path d="M235 178v-42"/><circle cx="392" cy="157" r="10"/><path d="M402 157v-36"/></g>
+  <g transform="rotate(-37 246 261)">
+    <rect x="227" y="32" width="48" height="216" rx="18" fill="url(#neck)" stroke="#4b2819" stroke-width="10"/>
+    <path d="M217 42c0-17 14-30 31-30h6c18 0 32 13 32 30v43h-69z" fill="#6f391e" stroke="#4b2819" stroke-width="10"/>
+    <g fill="#d7bd78" stroke="#4b3823" stroke-width="4"><circle cx="218" cy="31" r="10"/><circle cx="286" cy="31" r="10"/><circle cx="218" cy="62" r="10"/><circle cx="286" cy="62" r="10"/></g>
+    <path d="M250 206c-69 0-119 48-119 108 0 28 11 52 31 70-10 17-15 36-15 56 0 45 39 60 103 60s103-15 103-60c0-20-5-39-15-56 20-18 31-42 31-70 0-60-50-108-119-108z" fill="url(#wood)" stroke="#643417" stroke-width="11"/>
+    <path d="M169 281c22-35 54-54 97-58" fill="none" stroke="#ffd47a" stroke-width="12" opacity=".75"/>
+    <ellipse cx="250" cy="348" rx="47" ry="52" fill="#2b211a" stroke="#f0bb50" stroke-width="12"/>
+    <rect x="202" y="446" width="96" height="22" rx="10" fill="#633119" stroke="#472214" stroke-width="6"/>
+    <g stroke="#f7e4aa" stroke-width="3"><path d="M240 47l9 408"/><path d="M247 47l4 408"/><path d="M254 47l-1 408"/><path d="M261 47l-6 408"/></g>
+    <g stroke="#dcb36f" stroke-width="4" opacity=".8"><path d="M230 100h43"/><path d="M230 132h43"/><path d="M230 164h43"/></g>
+  </g>
+  <g transform="rotate(28 393 340)"><path d="M380 260h31v139h-31z" fill="url(#pencil)" stroke="#6b3b1f" stroke-width="7"/><path d="M380 399h31l-16 38z" fill="#d8b184" stroke="#6b3b1f" stroke-width="7"/><path d="M391 424h8l-4 13z" fill="#2f2821"/><path d="M380 260h31v24h-31z" fill="#b74f4a" stroke="#6b3b1f" stroke-width="7"/></g>
+</g>
 </svg>
