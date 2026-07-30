@@ -7,7 +7,7 @@
 
   .module-card {
     min-width: 0;
-    min-height: 172px;
+    min-height: 188px;
     gap: 8px;
     padding: 12px;
     border-radius: 20px;
@@ -15,43 +15,51 @@
 
   .module-card__top {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(76px, 1fr) auto;
     grid-template-areas:
-      'title title'
-      'icon open';
+      'title'
+      'icon'
+      'open';
+    justify-items: center;
     align-items: center;
-    gap: 8px 6px;
+    gap: 8px;
     width: 100%;
+    height: 100%;
     min-width: 0;
   }
 
   .module-card__top h3 {
     grid-area: title;
     min-width: 0;
+    min-height: 2.2em;
     font-size: clamp(0.78rem, 3.8vw, 0.98rem);
     line-height: 1.12;
+    text-align: center;
     overflow-wrap: anywhere;
   }
 
   .module-card__top .module-icon {
     grid-area: icon;
     align-self: center;
-    width: 74px;
-    height: 68px;
-    margin: 0;
+    width: 82px;
+    height: 76px;
+    margin: 0 auto;
     min-width: 0;
   }
 
   .module-card__top .module-icon img,
   .module-card__top .module-icon svg {
-    width: 74px;
-    height: 68px;
+    width: 82px;
+    height: 76px;
     object-fit: contain;
   }
 
   .module-card__top .module-open-button {
     grid-area: open;
-    align-self: center;
+    justify-self: center;
+    align-self: end;
+    width: min(100%, 104px);
     min-height: 34px;
     padding: 7px 10px;
     font-size: 0.74rem;
@@ -64,7 +72,7 @@
   }
 
   .module-card-reorder {
-    min-height: 220px;
+    min-height: 230px;
   }
 
   .module-reorder-actions {
@@ -93,17 +101,23 @@
   }
 
   .module-card {
+    min-height: 178px;
     padding: 10px;
+  }
+
+  .module-card__top {
+    grid-template-rows: auto minmax(66px, 1fr) auto;
   }
 
   .module-card__top .module-icon,
   .module-card__top .module-icon img,
   .module-card__top .module-icon svg {
-    width: 64px;
-    height: 60px;
+    width: 70px;
+    height: 66px;
   }
 
   .module-card__top .module-open-button {
+    width: min(100%, 96px);
     padding-inline: 8px;
     font-size: 0.7rem;
   }
