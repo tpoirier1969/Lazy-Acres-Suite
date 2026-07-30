@@ -1,12 +1,13 @@
 {
-  "version": "0.1.36",
-  "display_version": "v0.1.36",
+  "version": "0.1.62",
+  "display_version": "v0.1.62",
+  "build": "0.1.62",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-06-15",
+  "updated_at": "2026-07-30",
   "notes": [
-    "Forced Shopping quick-add to use a no-wrap flex row and updated the runtime style block in place.",
-    "Made the greeting line autosize and stay on one line across the hero width.",
-    "Shortcut entry updated to load the one-line greeting layout patch."
+    "Moved phone Open buttons below module icons.",
+    "Replaced Boat Estimator, Timer, and Songwriting launcher artwork with clean suite-style icons.",
+    "Updated the desktop and home-screen shortcut version checker to reload newer deployments."
   ]
 }
