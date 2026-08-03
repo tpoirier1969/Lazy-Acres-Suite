@@ -1,4 +1,4 @@
-const SUITE_BUILD = '0.1.63';
+const SUITE_BUILD = '0.1.64';
 
 const MODULE_ICON_OVERRIDES = {
   'boat-estimator': `./assets/app-shell/icons/field-lab/boat-estimator-approved-20260803.webp?v=${SUITE_BUILD}`,
