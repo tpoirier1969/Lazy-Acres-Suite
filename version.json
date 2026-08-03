@@ -1,13 +1,13 @@
 {
-  "version": "0.1.63",
-  "display_version": "v0.1.63",
-  "build": "0.1.63",
+  "version": "0.1.64",
+  "display_version": "v0.1.64",
+  "build": "0.1.64",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-03",
   "notes": [
-    "Installed the approved Boat Estimator launcher artwork.",
-    "Installed the approved Songwriting Studio launcher artwork.",
-    "Published both icons through the existing launcher asset path with fresh cache versions."
+    "Reserved the final Today dashboard height before live data loads.",
+    "Remembered the measured Today-card height separately for phone, tablet, and desktop layouts.",
+    "Prevented the module grid from jumping while the top dashboard data arrives."
   ]
 }
