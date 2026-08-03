@@ -1,13 +1,13 @@
 {
-  "version": "0.1.62",
-  "display_version": "v0.1.62",
-  "build": "0.1.62",
+  "version": "0.1.63",
+  "display_version": "v0.1.63",
+  "build": "0.1.63",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-07-30",
+  "updated_at": "2026-08-03",
   "notes": [
-    "Moved phone Open buttons below module icons.",
-    "Replaced Boat Estimator, Timer, and Songwriting launcher artwork with clean suite-style icons.",
-    "Updated the desktop and home-screen shortcut version checker to reload newer deployments."
+    "Installed the approved Boat Estimator launcher artwork.",
+    "Installed the approved Songwriting Studio launcher artwork.",
+    "Published both icons through the existing launcher asset path with fresh cache versions."
   ]
 }
