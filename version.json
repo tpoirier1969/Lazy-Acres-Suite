@@ -1,13 +1,13 @@
 {
-  "version": "0.1.64",
-  "display_version": "v0.1.64",
-  "build": "0.1.64",
+  "version": "0.1.65",
+  "display_version": "v0.1.65",
+  "build": "0.1.65",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-03",
   "notes": [
-    "Reserved the final Today dashboard height before live data loads.",
-    "Remembered the measured Today-card height separately for phone, tablet, and desktop layouts.",
-    "Prevented the module grid from jumping while the top dashboard data arrives."
+    "Restored the approved Songwriting icon whenever the dashboard renders.",
+    "Prevented older launcher code from replacing the approved Boat Estimator icon.",
+    "Scaled both approved renderings to fill the standard module icon box."
   ]
 }
