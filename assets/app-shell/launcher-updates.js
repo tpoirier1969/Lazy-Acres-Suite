@@ -1,4 +1,4 @@
-const SUITE_BUILD = '0.1.64';
+const SUITE_BUILD = '0.1.65';
 
 const MODULE_ICON_OVERRIDES = {
   'boat-estimator': `./assets/app-shell/icons/field-lab/boat-estimator-approved-20260803.webp?v=${SUITE_BUILD}`,
@@ -12,11 +12,26 @@ function applyLauncherUpdates() {
     const iconUrl = MODULE_ICON_OVERRIDES[slug];
     if (!iconUrl) return;
 
-    const image = card.querySelector('.module-icon img');
-    if (image && image.getAttribute('src') !== iconUrl) {
+    let icon = card.querySelector('.module-icon');
+    if (!icon) {
+      icon = document.createElement('span');
+      icon.className = 'module-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      card.querySelector('.module-card__top')?.prepend(icon);
+    }
+
+    icon.classList.remove('module-icon-missing');
+    let image = icon.querySelector('img');
+    if (!image) {
+      image = document.createElement('img');
+      image.alt = '';
+      image.loading = 'eager';
+      image.decoding = 'async';
+      icon.replaceChildren(image);
+    }
+
+    if (image.getAttribute('src') !== iconUrl) {
       image.setAttribute('src', iconUrl);
-      image.setAttribute('loading', 'eager');
-      image.setAttribute('decoding', 'async');
     }
   });
 
@@ -28,7 +43,17 @@ function applyLauncherUpdates() {
 }
 
 const observer = new MutationObserver(applyLauncherUpdates);
-observer.observe(document.documentElement, { childList: true, subtree: true });
+observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ['src'],
+});
+
+window.addEventListener('pageshow', applyLauncherUpdates);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) applyLauncherUpdates();
+});
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', applyLauncherUpdates, { once: true });
