@@ -1,0 +1,20 @@
+/* The approved PNG/WebP artwork includes generous transparent margins.
+   Scale only these two images so the visible artwork fills the standard icon box. */
+.module-boat-estimator .module-icon,
+.module-songwriting .module-icon {
+  overflow: visible !important;
+}
+
+.module-boat-estimator .module-icon img[src*="boat-estimator-approved-20260803"],
+.module-songwriting .module-icon img[src*="songwriting-approved-20260803"] {
+  transform-origin: 50% 50% !important;
+  will-change: transform;
+}
+
+.module-boat-estimator .module-icon img[src*="boat-estimator-approved-20260803"] {
+  transform: scale(1.64) !important;
+}
+
+.module-songwriting .module-icon img[src*="songwriting-approved-20260803"] {
+  transform: scale(1.70) !important;
+}
