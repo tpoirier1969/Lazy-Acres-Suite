@@ -1,0 +1,16 @@
+/* Reserve the final Today-card footprint before live data arrives. */
+.today-surface {
+  min-height: 154px !important;
+}
+
+@media (max-width: 979px) {
+  .today-surface {
+    min-height: 268px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .today-surface {
+    min-height: 372px !important;
+  }
+}
