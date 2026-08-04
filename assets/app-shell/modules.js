@@ -138,6 +138,18 @@ export const moduleRegistry = [
     legacyLabel: 'Open',
   },
   {
+    slug: 'fly-tyer',
+    title: 'Fly Tyer',
+    shortTitle: 'Fly Tyer',
+    description: 'Fly-pattern discovery, tying recipes, material inventory, substitutions, and bench planning.',
+    accentLight: '#73542c',
+    accentDark: '#f5c56b',
+    status: 'legacy-link',
+    group: 'commercial-candidate',
+    legacyUrl: 'https://flytying.tpoirier.workers.dev/',
+    legacyLabel: 'Open',
+  },
+  {
     slug: 'boat-estimator',
     title: 'Aluminum Boat Estimator',
     shortTitle: 'Boat Estimator',
