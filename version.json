@@ -1,13 +1,13 @@
 {
-  "version": "0.1.65",
-  "display_version": "v0.1.65",
-  "build": "0.1.65",
+  "version": "0.1.66",
+  "display_version": "v0.1.66",
+  "build": "0.1.66",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-08-03",
+  "updated_at": "2026-08-04",
   "notes": [
-    "Restored the approved Songwriting icon whenever the dashboard renders.",
-    "Prevented older launcher code from replacing the approved Boat Estimator icon.",
-    "Scaled both approved renderings to fill the standard module icon box."
+    "Added Fly Tyer to the Suite module registry and launcher.",
+    "Wired the approved transparent Royal Coachman icon through the existing module icon plumbing.",
+    "Linked the Fly Tyer card to its production Cloudflare Worker."
   ]
 }
