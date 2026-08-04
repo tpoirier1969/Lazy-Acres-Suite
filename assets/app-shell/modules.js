@@ -110,7 +110,7 @@ export const moduleRegistry = [
     accentDark: '#a3e635',
     status: 'legacy-link',
     group: 'commercial-candidate',
-    legacyUrl: 'https://tpoirier1969.github.io/up-foraging-guide/Fixed-Site/index.html',
+    legacyUrl: 'https://tpoirier1969.github.io/up-foraging-guide/',
     legacyLabel: 'Open',
   },
   {
@@ -132,10 +132,10 @@ export const moduleRegistry = [
     description: 'Fishing trips, conditions, catches, locations, and gear notes.',
     accentLight: '#225f7d',
     accentDark: '#22d3ee',
-    status: 'legacy-link',
+    status: 'planned',
     group: 'commercial-candidate',
-    legacyUrl: 'https://tpoirier1969.github.io/Fishing-Logbook/',
-    legacyLabel: 'Open',
+    legacyUrl: null,
+    legacyLabel: 'Not live',
   },
   {
     slug: 'fly-tyer',
@@ -146,7 +146,7 @@ export const moduleRegistry = [
     accentDark: '#f5c56b',
     status: 'legacy-link',
     group: 'commercial-candidate',
-    legacyUrl: 'https://flytying.tpoirier.workers.dev/',
+    legacyUrl: 'https://flytying-app.tpoirier.workers.dev/',
     legacyLabel: 'Open',
   },
   {
