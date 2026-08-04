@@ -1,13 +1,13 @@
 {
-  "version": "0.1.66",
-  "display_version": "v0.1.66",
-  "build": "0.1.66",
+  "version": "0.1.67",
+  "display_version": "v0.1.67",
+  "build": "0.1.67",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-04",
   "notes": [
-    "Added Fly Tyer to the Suite module registry and launcher.",
-    "Wired the approved transparent Royal Coachman icon through the existing module icon plumbing.",
-    "Linked the Fly Tyer card to its production Cloudflare Worker."
+    "Replaced the broken Songwriting WebP override with the repository's valid guitar-and-notebook SVG.",
+    "Advanced the Suite cache version so installed and browser launchers fetch the corrected icon reference.",
+    "Kept the Fly Tyer module and Royal Coachman icon wiring unchanged."
   ]
 }
