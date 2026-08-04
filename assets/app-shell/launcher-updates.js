@@ -1,7 +1,7 @@
-const SUITE_BUILD = '0.1.68';
+const SUITE_BUILD = '0.1.69';
 
 const MODULE_ICON_OVERRIDES = {
-  'boat-estimator': `./assets/app-shell/icons/field-lab/boat-estimator-approved-20260803.webp?v=${SUITE_BUILD}`,
+  'boat-estimator': `./assets/app-shell/icons/field-lab/boat-estimator-approved-20260804.webp?v=${SUITE_BUILD}`,
   timer: `./assets/app-shell/icons/field-lab/timer-v2.svg?v=${SUITE_BUILD}`,
   songwriting: `./assets/app-shell/icons/field-lab/songwriting-approved-20260803.webp?v=${SUITE_BUILD}`,
   'fly-tyer': `./assets/app-shell/icons/field-lab/fly-tyer-approved-20260804.png?v=${SUITE_BUILD}`,
