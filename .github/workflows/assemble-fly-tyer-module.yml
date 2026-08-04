@@ -1,0 +1,123 @@
+name: Assemble Fly Tyer module
+
+on:
+  push:
+    branches: [agent/add-fly-tyer-module]
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/add-fly-tyer-module
+          fetch-depth: 0
+
+      - name: Wire Fly Tyer through existing Suite plumbing
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          root = Path('.')
+          modules = root / 'assets/app-shell/modules.js'
+          app = root / 'assets/app-shell/app.js'
+          search = root / 'assets/app-shell/search.js'
+          launcher = root / 'assets/app-shell/launcher-updates.js'
+          index = root / 'index.html'
+          shortcut = root / 'shortcut.html'
+          startup = root / 'assets/app-shell/startup-update.js'
+          version = root / 'version.json'
+
+          text = modules.read_text()
+          if "slug: 'fly-tyer'" not in text:
+              marker = "  {\n    slug: 'boat-estimator',"
+              entry = """  {
+    slug: 'fly-tyer',
+    title: 'Fly Tyer',
+    shortTitle: 'Fly Tyer',
+    description: 'Fly-pattern discovery, tying recipes, material inventory, substitutions, and bench planning.',
+    accentLight: '#73542c',
+    accentDark: '#f5c56b',
+    status: 'legacy-link',
+    group: 'commercial-candidate',
+    legacyUrl: 'https://flytying.tpoirier.workers.dev/',
+    legacyLabel: 'Open',
+  },
+"""
+              if marker not in text:
+                  raise SystemExit('Boat Estimator insertion marker not found')
+              text = text.replace(marker, entry + marker, 1)
+          modules.write_text(text)
+
+          text = app.read_text()
+          text = text.replace("./modules.js?v=0.1.61", "./modules.js?v=0.1.66")
+          text = text.replace("const APP_VERSION = 'v0.1.61';", "const APP_VERSION = 'v0.1.66';")
+          icon_marker = "  songwriting: './assets/app-shell/icons/field-lab/songwriting.svg?v=0.1.61',\n"
+          icon_line = "  'fly-tyer': './assets/app-shell/icons/field-lab/fly-tyer-approved-20260804.png?v=0.1.66',\n"
+          if icon_line not in text:
+              if icon_marker not in text:
+                  raise SystemExit('Module icon insertion marker not found')
+              text = text.replace(icon_marker, icon_marker + icon_line, 1)
+          app.write_text(text)
+
+          text = search.read_text().replace("./modules.js?v=0.1.18", "./modules.js?v=0.1.66")
+          search.write_text(text)
+
+          text = launcher.read_text().replace("const SUITE_BUILD = '0.1.65';", "const SUITE_BUILD = '0.1.66';")
+          override_marker = "  songwriting: `./assets/app-shell/icons/field-lab/songwriting-approved-20260803.webp?v=${SUITE_BUILD}`,\n"
+          override_line = "  'fly-tyer': `./assets/app-shell/icons/field-lab/fly-tyer-approved-20260804.png?v=${SUITE_BUILD}`,\n"
+          if override_line not in text:
+              if override_marker not in text:
+                  raise SystemExit('Launcher override insertion marker not found')
+              text = text.replace(override_marker, override_marker + override_line, 1)
+          launcher.write_text(text)
+
+          for path in (index, shortcut):
+              text = path.read_text().replace('data-suite-build="0.1.65"', 'data-suite-build="0.1.66"')
+              text = text.replace('site.webmanifest?v=0.1.65', 'site.webmanifest?v=0.1.66')
+              text = text.replace('startup-update.js?v=0.1.65', 'startup-update.js?v=0.1.66')
+              text = text.replace('app.js?v=0.1.65', 'app.js?v=0.1.66')
+              text = text.replace('launcher-updates.js?v=0.1.65', 'launcher-updates.js?v=0.1.66')
+              path.write_text(text)
+
+          startup.write_text(startup.read_text().replace("const CURRENT_ENTRY_VERSION = '0.1.65';", "const CURRENT_ENTRY_VERSION = '0.1.66';"))
+
+          info = json.loads(version.read_text())
+          info.update({
+              'version': '0.1.66',
+              'display_version': 'v0.1.66',
+              'build': '0.1.66',
+              'updated_at': '2026-08-04',
+              'notes': [
+                  'Added Fly Tyer to the Suite module registry and search index.',
+                  'Wired the approved transparent Royal Coachman icon through the standard module icon map.',
+                  'Linked the launcher card to the production Fly Tyer Cloudflare Worker.'
+              ]
+          })
+          version.write_text(json.dumps(info, indent=2) + '\n')
+
+          workflow = root / '.github/workflows/assemble-fly-tyer-module.yml'
+          workflow.unlink()
+          PY
+
+      - name: Verify integration
+        run: |
+          test -s assets/app-shell/icons/field-lab/fly-tyer-approved-20260804.png
+          grep -q "slug: 'fly-tyer'" assets/app-shell/modules.js
+          grep -q "fly-tyer-approved-20260804.png" assets/app-shell/app.js
+          grep -q "flytying.tpoirier.workers.dev" assets/app-shell/modules.js
+          grep -q 'data-suite-build="0.1.66"' index.html
+          grep -q 'data-suite-build="0.1.66"' shortcut.html
+
+      - name: Commit assembled integration
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Wire Fly Tyer into Lazy Acres Suite'
+          git push origin HEAD:agent/add-fly-tyer-module
