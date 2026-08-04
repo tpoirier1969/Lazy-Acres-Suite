@@ -1,13 +1,13 @@
 {
-  "version": "0.1.68",
-  "display_version": "v0.1.68",
-  "build": "0.1.68",
+  "version": "0.1.69",
+  "display_version": "v0.1.69",
+  "build": "0.1.69",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-04",
   "notes": [
-    "Restored the approved Songwriting Studio WebP uploaded on August 3.",
-    "Removed the unapproved guitar-and-notebook SVG fallback from the Suite assets.",
-    "Advanced browser and installed-app cache versions to load the approved icon."
+    "Replaced the Boat Estimator launcher artwork with the approved transparent Lund Tyee-style fishing boat image.",
+    "Stored a display-optimized lossless WebP so the approved artwork remains visually unchanged at launcher size.",
+    "Advanced browser and installed-app cache versions so the new boat icon loads immediately."
   ]
 }
