@@ -1,13 +1,13 @@
 {
-  "version": "0.1.69",
-  "display_version": "v0.1.69",
-  "build": "0.1.69",
+  "version": "0.1.70",
+  "display_version": "v0.1.70",
+  "build": "0.1.70",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-04",
   "notes": [
-    "Replaced the Boat Estimator launcher artwork with the approved transparent Lund Tyee-style fishing boat image.",
-    "Stored a display-optimized lossless WebP so the approved artwork remains visually unchanged at launcher size.",
-    "Advanced browser and installed-app cache versions so the new boat icon loads immediately."
+    "Corrected the UP Foraging Guide and Fly Tyer launcher destinations.",
+    "Disabled the Fishing Logbook launcher because no deployed application currently exists.",
+    "Normalized every landing-page card through one verified icon map and refreshed all icon cache keys."
   ]
 }
