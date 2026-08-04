@@ -1,13 +1,13 @@
 {
-  "version": "0.1.67",
-  "display_version": "v0.1.67",
-  "build": "0.1.67",
+  "version": "0.1.68",
+  "display_version": "v0.1.68",
+  "build": "0.1.68",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-04",
   "notes": [
-    "Replaced the broken Songwriting WebP override with the repository's valid guitar-and-notebook SVG.",
-    "Advanced the Suite cache version so installed and browser launchers fetch the corrected icon reference.",
-    "Kept the Fly Tyer module and Royal Coachman icon wiring unchanged."
+    "Restored the approved Songwriting Studio WebP uploaded on August 3.",
+    "Removed the unapproved guitar-and-notebook SVG fallback from the Suite assets.",
+    "Advanced browser and installed-app cache versions to load the approved icon."
   ]
 }
