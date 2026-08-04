@@ -2,7 +2,7 @@
   "name": "Lazy Acres Suite",
   "short_name": "Lazy Acres",
   "description": "Home base for Lazy Acres household and field tools.",
-  "start_url": "./shortcut.html?v=0.1.67#/dashboard",
+  "start_url": "./shortcut.html?v=0.1.68#/dashboard",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f4f0e6",
