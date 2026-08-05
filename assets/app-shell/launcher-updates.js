@@ -1,4 +1,4 @@
-const SUITE_BUILD = '0.1.70';
+const SUITE_BUILD = '0.1.71';
 
 const MODULE_CONFIG = {
   shopping: {
@@ -74,10 +74,10 @@ function normalizeExternalAnchor(anchor, url) {
 
 function disableControl(control, label = 'Not live') {
   if (control.tagName === 'BUTTON') {
-    control.type = 'button';
-    control.disabled = true;
-    control.textContent = label;
-    control.removeAttribute('aria-disabled');
+    if (control.getAttribute('type') !== 'button') control.setAttribute('type', 'button');
+    if (!control.disabled) control.disabled = true;
+    if (control.textContent !== label) control.textContent = label;
+    if (control.hasAttribute('aria-disabled')) control.removeAttribute('aria-disabled');
     return control;
   }
 
@@ -156,9 +156,9 @@ function repairStaleLinks() {
       return;
     }
 
-    anchor.setAttribute('href', '#/fishing');
-    anchor.removeAttribute('target');
-    anchor.removeAttribute('rel');
+    if (anchor.getAttribute('href') !== '#/fishing') anchor.setAttribute('href', '#/fishing');
+    if (anchor.hasAttribute('target')) anchor.removeAttribute('target');
+    if (anchor.hasAttribute('rel')) anchor.removeAttribute('rel');
   });
 }
 
@@ -199,21 +199,29 @@ document.addEventListener('change', (event) => {
   openConfiguredModule(slug);
 }, true);
 
-const observer = new MutationObserver(applyLauncherUpdates);
+let updateScheduled = false;
+function scheduleLauncherUpdates() {
+  if (updateScheduled) return;
+  updateScheduled = true;
+  window.requestAnimationFrame(() => {
+    updateScheduled = false;
+    applyLauncherUpdates();
+  });
+}
+
+const observer = new MutationObserver(scheduleLauncherUpdates);
 observer.observe(document.documentElement, {
   childList: true,
   subtree: true,
-  attributes: true,
-  attributeFilter: ['src', 'href'],
 });
 
-window.addEventListener('pageshow', applyLauncherUpdates);
+window.addEventListener('pageshow', scheduleLauncherUpdates);
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) applyLauncherUpdates();
+  if (!document.hidden) scheduleLauncherUpdates();
 });
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', applyLauncherUpdates, { once: true });
+  document.addEventListener('DOMContentLoaded', scheduleLauncherUpdates, { once: true });
 } else {
-  applyLauncherUpdates();
+  scheduleLauncherUpdates();
 }
