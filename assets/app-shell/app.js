@@ -2,10 +2,10 @@ import { authService } from './auth.js?v=0.1.18';
 import { entitlementService } from './entitlements.js?v=0.1.18';
 import { getDashboardSnapshot } from './dashboard-data-live-timer.js?v=0.1.49';
 import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.61';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.72';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
-const APP_VERSION = 'v0.1.61';
+const APP_VERSION = 'v0.1.72';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
 const APP_ICON_URL = './assets/app-shell/mountain-suite-icon.svg?v=0.1.18';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
@@ -26,19 +26,20 @@ const USER_PROFILE_NAMES = {
 };
 
 const MODULE_ICON_URLS = {
-  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.18',
-  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.18',
-  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.18',
-  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.18',
-  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.18',
-  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.18',
-  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.18',
-  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.18',
-  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.18',
-  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.18',
-  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator-approved-20260729.png?v=0.1.61',
-  timer: './assets/app-shell/icons/field-lab/timer-approved-20260729.png?v=0.1.61',
-  songwriting: './assets/app-shell/icons/field-lab/songwriting.svg?v=0.1.61',
+  shopping: './assets/app-shell/icons/field-lab/Shopping.png?v=0.1.72',
+  scheduler: './assets/app-shell/icons/field-lab/scheduler.png?v=0.1.72',
+  recipes: './assets/app-shell/icons/field-lab/recipes.png?v=0.1.72',
+  foraging: './assets/app-shell/icons/field-lab/foraging.png?v=0.1.72',
+  camping: './assets/app-shell/icons/field-lab/camping.png?v=0.1.72',
+  fishing: './assets/app-shell/icons/field-lab/fishing.png?v=0.1.72',
+  tv: './assets/app-shell/icons/field-lab/tv-tracker.png?v=0.1.72',
+  ski: './assets/app-shell/icons/field-lab/ski.png?v=0.1.72',
+  genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.72',
+  'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.72',
+  songwriting: './assets/app-shell/icons/field-lab/songwriting-approved-20260803.webp?v=0.1.72',
+  'fly-tyer': './assets/app-shell/icons/field-lab/fly-tyer-approved-20260804.png?v=0.1.72',
+  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator-approved-20260804.webp?v=0.1.72',
+  timer: './assets/app-shell/icons/field-lab/timer-v2.svg?v=0.1.72',
 };
 
 let activeRoute = 'dashboard';
