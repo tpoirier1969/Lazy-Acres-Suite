@@ -1,13 +1,13 @@
 {
-  "version": "0.1.70",
-  "display_version": "v0.1.70",
-  "build": "0.1.70",
+  "version": "0.1.71",
+  "display_version": "v0.1.71",
+  "build": "0.1.71",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-08-04",
+  "updated_at": "2026-08-05",
   "notes": [
-    "Corrected the UP Foraging Guide and Fly Tyer launcher destinations.",
-    "Disabled the Fishing Logbook launcher because no deployed application currently exists.",
-    "Normalized every landing-page card through one verified icon map and refreshed all icon cache keys."
+    "Stopped the launcher MutationObserver from retriggering itself.",
+    "Made disabled launcher controls idempotent instead of rewriting them continuously.",
+    "Loaded the launcher normalizer after the main app shell to prevent startup lockups."
   ]
 }
