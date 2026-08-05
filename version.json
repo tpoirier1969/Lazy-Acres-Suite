@@ -1,13 +1,13 @@
 {
-  "version": "0.1.71",
-  "display_version": "v0.1.71",
-  "build": "0.1.71",
+  "version": "0.1.72",
+  "display_version": "v0.1.72",
+  "build": "0.1.72",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-05",
   "notes": [
-    "Stopped the launcher MutationObserver from retriggering itself.",
-    "Made disabled launcher controls idempotent instead of rewriting them continuously.",
-    "Loaded the launcher normalizer after the main app shell to prevent startup lockups."
+    "Wired every module icon directly through the app shell icon registry.",
+    "Removed the post-render launcher normalizer and its duplicate URL logic.",
+    "Kept module destinations and disabled states in the canonical module registry."
   ]
 }
