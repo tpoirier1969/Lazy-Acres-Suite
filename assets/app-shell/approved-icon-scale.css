@@ -19,7 +19,24 @@
   transform: scale(1.70) !important;
 }
 
+.module-fly-tyer .module-card__top {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+}
+
 .module-fly-tyer .module-icon {
-  margin-left: auto;
-  margin-right: auto;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  justify-self: center !important;
+  margin-inline: auto !important;
+}
+
+.module-fly-tyer .module-card__top h3 {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+.module-fly-tyer .module-open-button {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
 }
