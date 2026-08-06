@@ -1,6 +1,5 @@
 import { addShoppingItem } from './dashboard-data-live.js?v=0.1.52';
 
-const DISPLAY_VERSION = 'v0.1.55';
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
 const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json';
@@ -199,13 +198,6 @@ function renderShoppingQuickAdd() {
     <div class="shopping-quick-add-status" data-shopping-quick-add-status aria-live="polite"></div>`;
 }
 
-function refreshDisplayedVersion() {
-  document.querySelectorAll('.version-flag').forEach((flag) => {
-    flag.textContent = DISPLAY_VERSION;
-    flag.setAttribute('aria-label', `App version ${DISPLAY_VERSION}`);
-  });
-}
-
 function ensureModuleIcons() {
   document.querySelectorAll('[data-module-card][data-module-slug]').forEach((card) => {
     const slug = card.dataset.moduleSlug;
@@ -364,7 +356,6 @@ function bindShoppingQuickAdd() {
 
 function boot() {
   installStyles();
-  refreshDisplayedVersion();
   ensureModuleIcons();
   decoupleShoppingTile();
   openSuiteLaunchLinksInNewPages();
