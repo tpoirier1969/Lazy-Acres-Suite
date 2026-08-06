@@ -5,7 +5,6 @@ import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
 import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.72';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
-const APP_VERSION = 'v0.1.72';
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
 const APP_ICON_URL = './assets/app-shell/mountain-suite-icon.svg?v=0.1.18';
 const THEME_STORAGE_KEY = 'lazy-acres-suite-theme-mode';
@@ -50,9 +49,29 @@ let moduleReorderMode = false;
 let activeResolvedTheme = null;
 let dashboardSnapshot = getFallbackDashboardSnapshot();
 let dashboardSnapshotRequestId = 0;
+let appVersion = 'Version unavailable';
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+async function loadAppVersion() {
+  try {
+    const response = await fetch(`./version.json?ts=${Date.now()}`, {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error(`Version request failed: ${response.status}`);
+
+    const info = await response.json();
+    const rawVersion = String(info?.display_version || info?.version || info?.build || '').trim();
+    if (!rawVersion) throw new Error('Version response did not contain a version.');
+
+    appVersion = rawVersion.startsWith('v') ? rawVersion : `v${rawVersion}`;
+  } catch (error) {
+    console.warn('Version flag unavailable.', error);
+  }
 }
 
 function getFallbackDashboardSnapshot() {
@@ -282,7 +301,7 @@ function renderShell(content) {
           <img class="brand-icon" src="${APP_ICON_URL}" alt="" aria-hidden="true" />
           <span><strong>Lazy Acres Suite</strong><small>Home base</small></span>
         </a>
-        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderLayoutControl()}${renderMobilePreferences()}<span class="version-flag" aria-label="App version">${escapeHtml(APP_VERSION)}</span></div>
+        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderLayoutControl()}${renderMobilePreferences()}<span class="version-flag" aria-label="App version">${escapeHtml(appVersion)}</span></div>
       </header>
       ${content}
     </div>
@@ -495,8 +514,13 @@ async function renderRoute(route) {
 
 if (!appRoot) throw new Error('Missing app shell root element.');
 
-applyTheme();
-bindHashRouter((route) => renderRoute(route).catch(showRenderError));
+async function boot() {
+  await loadAppVersion();
+  applyTheme();
+  bindHashRouter((route) => renderRoute(route).catch(showRenderError));
+}
+
+boot().catch(showRenderError);
 window.setInterval(() => {
   if (themeMode !== 'auto') return;
   const nextTheme = resolveTheme('auto');
