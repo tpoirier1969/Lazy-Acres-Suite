@@ -18,3 +18,8 @@
 .module-songwriting .module-icon img[src*="songwriting-approved-20260803"] {
   transform: scale(1.70) !important;
 }
+
+.module-fly-tyer .module-icon {
+  margin-left: auto;
+  margin-right: auto;
+}
