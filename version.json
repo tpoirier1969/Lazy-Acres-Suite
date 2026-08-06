@@ -1,13 +1,12 @@
 {
-  "version": "0.1.72",
-  "display_version": "v0.1.72",
-  "build": "0.1.72",
+  "version": "0.1.73",
+  "display_version": "v0.1.73",
+  "build": "0.1.73",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-05",
   "notes": [
-    "Wired every module icon directly through the app shell icon registry.",
-    "Removed the post-render launcher normalizer and its duplicate URL logic.",
-    "Kept module destinations and disabled states in the canonical module registry."
+    "Centered only the Fly Tyer launcher icon.",
+    "Advanced the desktop shortcut and stylesheet cache keys so the change loads automatically."
   ]
 }
