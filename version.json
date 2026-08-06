@@ -1,12 +1,13 @@
 {
-  "version": "0.1.73",
-  "display_version": "v0.1.73",
-  "build": "0.1.73",
+  "version": "0.1.74",
+  "display_version": "v0.1.74",
+  "build": "0.1.74",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-05",
   "notes": [
-    "Centered only the Fly Tyer launcher icon.",
-    "Advanced the desktop shortcut and stylesheet cache keys so the change loads automatically."
+    "Made version.json the sole source for the visible version flag.",
+    "Removed the stale v0.1.55 badge writer from the Today helper.",
+    "Centered the Fly Tyer icon through its actual card grid placement."
   ]
 }
