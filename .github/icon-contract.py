@@ -34,34 +34,56 @@ def parse_registry():
     )
     registry = []
     for quoted, plain, url in pairs:
-        slug = quoted or plain
-        path = Path(url.split('?', 1)[0].removeprefix('./'))
-        registry.append((slug, path))
+        registry.append((quoted or plain, Path(url.split('?', 1)[0].removeprefix('./'))))
     if [slug for slug, _ in registry] != EXPECTED:
-        raise SystemExit(f'Registry order/content mismatch: {[slug for slug, _ in registry]}')
-    return source, registry
+        raise SystemExit(f'Registry mismatch: {[slug for slug, _ in registry]}')
+    return registry
+
+
+def command_text(args):
+    result = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return result.returncode, result.stdout.strip()
 
 
 def open_icon(path: Path):
     if not path.exists():
-        raise FileNotFoundError(path)
+        return None, 'MISSING', {'decode_error': 'file does not exist'}
+    mime_rc, mime = command_text(['file', '-b', '--mime-type', str(path)])
+    kind_rc, kind = command_text(['file', '-b', str(path)])
+    details = {
+        'file_mime': mime if mime_rc == 0 else '',
+        'file_kind': kind if kind_rc == 0 else '',
+        'byte_count': path.stat().st_size,
+        'first_32_bytes_hex': path.read_bytes()[:32].hex(),
+    }
     suffix = path.suffix.lower()
-    if suffix == '.svg':
-        raw = cairosvg.svg2png(bytestring=path.read_bytes())
-        image = Image.open(io.BytesIO(raw))
-        fmt = 'SVG'
-    elif suffix == '.webp':
-        with tempfile.TemporaryDirectory() as temp_dir:
-            png = Path(temp_dir) / 'decoded.png'
-            subprocess.run(['dwebp', str(path), '-o', str(png)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            image = Image.open(png)
-            image.load()
-        fmt = 'WEBP'
-    else:
-        image = Image.open(path)
-        fmt = image.format or suffix.lstrip('.').upper()
-    image.load()
-    return image.convert('RGBA'), fmt
+    try:
+        if suffix == '.svg':
+            raw = cairosvg.svg2png(bytestring=path.read_bytes())
+            image = Image.open(io.BytesIO(raw))
+            fmt = 'SVG'
+        elif suffix == '.webp':
+            fmt = 'WEBP'
+            with tempfile.TemporaryDirectory() as temp_dir:
+                png = Path(temp_dir) / 'decoded.png'
+                rc, output = command_text(['dwebp', str(path), '-o', str(png)])
+                details['dwebp'] = output
+                if rc != 0:
+                    rc, output = command_text(['ffmpeg', '-y', '-v', 'error', '-i', str(path), '-frames:v', '1', str(png)])
+                    details['ffmpeg'] = output
+                if rc != 0 or not png.exists():
+                    details['decode_error'] = 'WebP failed in dwebp and ffmpeg'
+                    return None, fmt, details
+                image = Image.open(png)
+                image.load()
+        else:
+            image = Image.open(path)
+            fmt = image.format or suffix.lstrip('.').upper()
+        image.load()
+        return image.convert('RGBA'), fmt, details
+    except Exception as exc:
+        details['decode_error'] = f'{type(exc).__name__}: {exc}'
+        return None, suffix.lstrip('.').upper() or 'UNKNOWN', details
 
 
 def metrics(image: Image.Image):
@@ -69,9 +91,10 @@ def metrics(image: Image.Image):
     amin, amax = alpha.getextrema()
     bbox = alpha.getbbox()
     w, h = image.size
-    pixels = list(alpha.getdata())
-    transparent = sum(1 for value in pixels if value == 0) / max(1, len(pixels))
-    partial = sum(1 for value in pixels if 0 < value < 255) / max(1, len(pixels))
+    histogram = alpha.histogram()
+    total = max(1, w * h)
+    transparent = histogram[0] / total
+    partial = sum(histogram[1:255]) / total
     edge = []
     edge.extend(alpha.crop((0, 0, w, 1)).getdata())
     edge.extend(alpha.crop((0, h - 1, w, h)).getdata())
@@ -114,44 +137,53 @@ def checkerboard(size=(260, 260), step=20):
 
 
 def main():
-    source, registry = parse_registry()
+    registry = parse_registry()
     records = []
     images = {}
     for slug, path in registry:
-        image, fmt = open_icon(path)
+        image, fmt, details = open_icon(path)
         images[slug] = image
-        records.append({'slug': slug, 'path': path.as_posix(), 'format': fmt, **metrics(image)})
+        record = {'slug': slug, 'path': path.as_posix(), 'format': fmt, **details}
+        if image is not None:
+            record.update(metrics(image))
+        records.append(record)
 
     reference = next(record for record in records if record['slug'] == 'fly-tyer')
     problems = []
     for record in records:
+        slug = record['slug']
+        if 'decode_error' in record:
+            problems.append(f"{slug}: {record['decode_error']} ({record.get('file_kind', '')})")
+            continue
         if record['format'] != 'PNG':
-            problems.append(f"{record['slug']}: format={record['format']}")
+            problems.append(f"{slug}: format={record['format']}")
         if record['alpha_min'] == 255:
-            problems.append(f"{record['slug']}: no transparent pixels")
+            problems.append(f"{slug}: no transparent pixels")
         if record['edge_transparent_ratio'] < 0.95:
-            problems.append(f"{record['slug']}: transparent edge ratio={record['edge_transparent_ratio']}")
+            problems.append(f"{slug}: transparent edge ratio={record['edge_transparent_ratio']}")
 
     report = {'apply': APPLY, 'reference': reference, 'icons': records, 'problems': problems}
     (OUT / 'icon-contract.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 
     lines = [
         '# Launcher icon contract audit', '',
-        f"Fly Tyer reference: {reference['format']} {reference['size'][0]}x{reference['size'][1]}, alpha {reference['alpha_min']}..{reference['alpha_max']}, edge transparency {reference['edge_transparent_ratio']:.3f}",
+        f"Fly Tyer reference: {reference.get('format')} {reference.get('size')}, alpha {reference.get('alpha_min')}..{reference.get('alpha_max')}, edge transparency {reference.get('edge_transparent_ratio')}",
         '',
-        '| App | File | Format | Size | Alpha | Transparent | Edge transparent | Occupancy | Center |',
-        '|---|---|---|---:|---:|---:|---:|---:|---:|',
+        '| App | File | Format | Size | Alpha | Transparent | Edge transparent | Occupancy | Center | Decode |',
+        '|---|---|---|---:|---:|---:|---:|---:|---:|---|',
     ]
     for record in records:
         lines.append(
-            f"| {record['slug']} | `{record['path']}` | {record['format']} | {record['size'][0]}x{record['size'][1]} | "
-            f"{record['alpha_min']}..{record['alpha_max']} | {record['transparent_ratio']:.3f} | {record['edge_transparent_ratio']:.3f} | "
-            f"{record['occupancy_x']:.3f}x{record['occupancy_y']:.3f} | {record['content_center_x']:.3f},{record['content_center_y']:.3f} |"
+            f"| {record['slug']} | `{record['path']}` | {record['format']} | {record.get('size', '-')} | "
+            f"{record.get('alpha_min', '-')}..{record.get('alpha_max', '-')} | {record.get('transparent_ratio', '-')} | "
+            f"{record.get('edge_transparent_ratio', '-')} | {record.get('occupancy_x', '-')}x{record.get('occupancy_y', '-')} | "
+            f"{record.get('content_center_x', '-')},{record.get('content_center_y', '-')} | {record.get('decode_error', 'OK')} |"
         )
     if problems:
         lines += ['', '## Contract failures', *[f'- {item}' for item in problems]]
-    (OUT / 'icon-contract.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
-    print('\n'.join(lines))
+    text = '\n'.join(lines) + '\n'
+    (OUT / 'icon-contract.md').write_text(text, encoding='utf-8')
+    print(text)
 
     columns = 4
     cell_w, cell_h = 310, 330
@@ -163,15 +195,19 @@ def main():
         x = (index % columns) * cell_w
         y = (index // columns) * cell_h
         board = checkerboard()
-        image = images[slug].copy()
-        image.thumbnail((240, 240), Image.Resampling.LANCZOS)
-        px = (260 - image.width) // 2
-        py = (260 - image.height) // 2
-        board.paste(image, (px, py), image)
+        image = images[slug]
+        if image is not None:
+            preview = image.copy()
+            preview.thumbnail((240, 240), Image.Resampling.LANCZOS)
+            board.paste(preview, ((260 - preview.width) // 2, (260 - preview.height) // 2), preview)
+        else:
+            bd = ImageDraw.Draw(board)
+            bd.rectangle((20, 100, 240, 160), fill='white', outline='black')
+            bd.text((35, 120), 'DECODE FAILURE', fill='black', font=font)
         sheet.paste(board, (x + 25, y + 15))
         record = next(item for item in records if item['slug'] == slug)
         draw.text((x + 25, y + 282), slug, fill='black', font=font)
-        draw.text((x + 25, y + 299), f"{record['format']} {record['size'][0]}x{record['size'][1]} edge={record['edge_transparent_ratio']:.2f}", fill='black', font=font)
+        draw.text((x + 25, y + 299), f"{record['format']} {record.get('size', '-')} edge={record.get('edge_transparent_ratio', '-')}", fill='black', font=font)
     sheet.save(OUT / 'icon-contact-sheet.png')
 
 
