@@ -1,160 +1,99 @@
 from __future__ import annotations
 
 import hashlib
-import io
 import json
-import struct
+import re
 import subprocess
 import tempfile
 from pathlib import Path
 
-import cairosvg
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 OUT = Path('icon-contract-output')
 OUT.mkdir(exist_ok=True)
-REC = OUT / 'recovered'
+REC = OUT / 'chromium-recovery'
 REC.mkdir(exist_ok=True)
 
-PATHS = [
-    'assets/app-shell/icons/field-lab/songwriting-approved-20260803.webp',
-    'assets/app-shell/icons/field-lab/songwriting.svg',
-    'assets/app-shell/icons/field-lab/boat-estimator-approved-20260804.webp',
-    'assets/app-shell/icons/field-lab/boat-estimator-approved-20260803.webp',
-    'assets/app-shell/icons/field-lab/boat-estimator-v2.svg',
+CANDIDATES = [
+    ('songwriting-current', 'HEAD', 'assets/app-shell/icons/field-lab/songwriting-approved-20260803.webp'),
+    ('boat-current', 'HEAD', 'assets/app-shell/icons/field-lab/boat-estimator-approved-20260804.webp'),
+    ('boat-20260803', 'd0d16faf59a525614c806a905b6490ccc205526b', 'assets/app-shell/icons/field-lab/boat-estimator-approved-20260803.webp'),
 ]
 
 
-def run_bytes(args):
-    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return result.returncode, result.stdout, result.stderr
+def run(args, *, cwd=None):
+    return subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-def git_blob(commit, path):
-    rc, data, err = run_bytes(['git', 'show', f'{commit}:{path}'])
-    if rc != 0:
-        return None
-    return data
+def get_bytes(ref, path):
+    if ref == 'HEAD':
+        return Path(path).read_bytes()
+    result = run(['git', 'show', f'{ref}:{path}'])
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.decode('utf-8', errors='replace'))
+    return result.stdout
 
 
-def decode_webp(data: bytes):
-    with tempfile.TemporaryDirectory() as td:
-        src = Path(td) / 'source.webp'
-        dst = Path(td) / 'decoded.png'
-        src.write_bytes(data)
-        rc, out, err = run_bytes(['dwebp', str(src), '-o', str(dst)])
-        if rc != 0 or not dst.exists():
-            return None, (out + err).decode('utf-8', errors='replace').strip()
-        image = Image.open(dst)
-        image.load()
-        return image.convert('RGBA'), 'OK'
-
-
-def decode_svg(data: bytes):
-    try:
-        raw = cairosvg.svg2png(bytestring=data)
-        image = Image.open(io.BytesIO(raw))
-        image.load()
-        return image.convert('RGBA'), 'OK'
-    except Exception as exc:
-        return None, f'{type(exc).__name__}: {exc}'
-
-
-def alpha_summary(image: Image.Image):
+def alpha_stats(path: Path):
+    image = Image.open(path).convert('RGBA')
     alpha = image.getchannel('A')
-    amin, amax = alpha.getextrema()
     bbox = alpha.getbbox()
     return {
         'size': list(image.size),
-        'alpha_min': amin,
-        'alpha_max': amax,
+        'alpha_min': alpha.getextrema()[0],
+        'alpha_max': alpha.getextrema()[1],
         'alpha_bbox': list(bbox) if bbox else None,
     }
 
 
 def main():
     records = []
-    recovered = []
-    seen = set()
+    chrome = 'google-chrome'
+    for name, ref, path in CANDIDATES:
+        data = get_bytes(ref, path)
+        record = {
+            'name': name,
+            'ref': ref,
+            'path': path,
+            'bytes': len(data),
+            'sha256': hashlib.sha256(data).hexdigest(),
+        }
+        with tempfile.TemporaryDirectory() as td_raw:
+            td = Path(td_raw)
+            webp = td / 'source.webp'
+            html = td / 'render.html'
+            screenshot = REC / f'{name}.png'
+            webp.write_bytes(data)
+            html.write_text(f'''<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{{margin:0;width:1024px;height:1024px;background:transparent;overflow:hidden}}
+#img{{display:block;max-width:900px;max-height:900px;width:auto;height:auto;margin:62px auto 0}}
+</style></head><body data-status="pending"><img id="img" src="{webp.as_uri()}"><script>
+const img=document.getElementById('img');
+img.onload=()=>document.body.dataset.status=`ok-${{img.naturalWidth}}x${{img.naturalHeight}}`;
+img.onerror=()=>document.body.dataset.status='error';
+setTimeout(()=>{{if(document.body.dataset.status==='pending')document.body.dataset.status='timeout'}},1500);
+</script></body></html>''', encoding='utf-8')
+            args = [chrome, '--headless=new', '--no-sandbox', '--disable-gpu', '--allow-file-access-from-files', '--default-background-color=00000000', '--virtual-time-budget=2500']
+            dom = run(args + ['--dump-dom', html.as_uri()])
+            dom_text = dom.stdout.decode('utf-8', errors='replace')
+            match = re.search(r'data-status="([^"]+)"', dom_text)
+            record['chromium_status'] = match.group(1) if match else 'unknown'
+            record['chromium_stderr'] = dom.stderr.decode('utf-8', errors='replace')[-2000:]
+            if record['chromium_status'].startswith('ok-'):
+                shot = run(args + ['--window-size=1024,1024', f'--screenshot={screenshot.resolve()}', html.as_uri()])
+                record['screenshot_rc'] = shot.returncode
+                if screenshot.exists():
+                    record['screenshot'] = screenshot.as_posix()
+                    record.update(alpha_stats(screenshot))
+        records.append(record)
 
-    for path in PATHS:
-        rc, out, _ = run_bytes(['git', 'log', '--all', '--format=%H', '--', path])
-        commits = out.decode().splitlines() if rc == 0 else []
-        for commit in commits:
-            data = git_blob(commit, path)
-            if data is None:
-                continue
-            digest = hashlib.sha256(data).hexdigest()
-            key = (path, digest)
-            if key in seen:
-                continue
-            seen.add(key)
-            suffix = Path(path).suffix.lower()
-            record = {
-                'path': path,
-                'commit': commit,
-                'sha256': digest,
-                'byte_count': len(data),
-                'first_32_bytes_hex': data[:32].hex(),
-            }
-            if suffix == '.webp':
-                record['riff_declared_total'] = struct.unpack('<I', data[4:8])[0] + 8 if len(data) >= 12 and data[:4] == b'RIFF' else None
-                image, status = decode_webp(data)
-                record['decode'] = status
-            else:
-                image, status = decode_svg(data)
-                record['decode'] = status
-            if image is not None:
-                record.update(alpha_summary(image))
-                safe = Path(path).stem.replace('-approved-20260803', '').replace('-approved-20260804', '')
-                output_name = f"{safe}-{commit[:8]}.png"
-                output_path = REC / output_name
-                image.save(output_path)
-                record['recovered_png'] = output_path.as_posix()
-                recovered.append((output_name, image.copy(), record))
-            records.append(record)
-
-    report = {'candidates': records}
-    (OUT / 'history-report.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
-
-    lines = [
-        '# Historical approved-icon recovery', '',
-        '| Path | Commit | Bytes | RIFF total | Decode | PNG |',
-        '|---|---|---:|---:|---|---|',
-    ]
-    for record in records:
-        lines.append(
-            f"| `{record['path']}` | `{record['commit'][:10]}` | {record['byte_count']} | "
-            f"{record.get('riff_declared_total', '-')} | {record['decode'].replace('|', '/')} | {record.get('recovered_png', '-')} |"
-        )
-    text = '\n'.join(lines) + '\n'
-    (OUT / 'history-report.md').write_text(text, encoding='utf-8')
+    (OUT / 'chromium-recovery.json').write_text(json.dumps(records, indent=2), encoding='utf-8')
+    lines = ['# Chromium WebP recovery test', '', '| Candidate | Bytes | Chromium | Screenshot | Alpha |', '|---|---:|---|---|---|']
+    for r in records:
+        lines.append(f"| {r['name']} | {r['bytes']} | {r['chromium_status']} | {r.get('screenshot','-')} | {r.get('alpha_min','-')}..{r.get('alpha_max','-')} |")
+    text='\n'.join(lines)+'\n'
+    (OUT/'chromium-recovery.md').write_text(text, encoding='utf-8')
     print(text)
-
-    if recovered:
-        columns = 3
-        cell_w, cell_h = 360, 360
-        rows = (len(recovered) + columns - 1) // columns
-        sheet = Image.new('RGB', (columns * cell_w, rows * cell_h), '#ece7dc')
-        draw = ImageDraw.Draw(sheet)
-        font = ImageFont.load_default()
-        for index, (name, image, record) in enumerate(recovered):
-            x = (index % columns) * cell_w
-            y = (index // columns) * cell_h
-            board = Image.new('RGB', (300, 280), 'white')
-            bd = ImageDraw.Draw(board)
-            step = 20
-            for yy in range(0, 280, step):
-                for xx in range(0, 300, step):
-                    if (xx // step + yy // step) % 2:
-                        bd.rectangle((xx, yy, xx + step - 1, yy + step - 1), fill='#d0d0d0')
-            preview = image.copy()
-            preview.thumbnail((270, 250), Image.Resampling.LANCZOS)
-            board.paste(preview, ((300-preview.width)//2, (280-preview.height)//2), preview)
-            sheet.paste(board, (x + 30, y + 15))
-            draw.text((x + 30, y + 305), name, fill='black', font=font)
-            draw.text((x + 30, y + 322), f"{record['byte_count']} bytes {record.get('size')}", fill='black', font=font)
-        sheet.save(OUT / 'history-contact-sheet.png')
 
 
 if __name__ == '__main__':
