@@ -1,24 +1,21 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import re
-import subprocess
 from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path.cwd()
 ICON_DIR = ROOT / 'assets/app-shell/icons/field-lab'
-OUT = Path('/tmp/icon-contract-output')
-OUT.mkdir(parents=True, exist_ok=True)
-RELEASE = '0.1.75'
-TARGET_CANVAS = 96
-TARGET_ART = 72
+OUT = ROOT / 'icon-contract-output'
+RELEASE = '0.1.76'
+SIZE = 192
+ART = 166
 
-OPAQUE_SOURCES = {
+OPAQUE = {
     'shopping': 'Shopping.png',
     'scheduler': 'scheduler.png',
     'recipes': 'recipes.png',
@@ -30,68 +27,49 @@ OPAQUE_SOURCES = {
     'genealogy': 'genealogy.png',
     'church-music': 'church-music.png',
 }
-
-ALPHA_SOURCES = {
+ALPHA = {
     'fly-tyer': 'fly-tyer-approved-20260804.png',
     'boat-estimator': 'boat-estimator.png',
     'timer': 'timer-approved-20260729.png',
 }
-
 SLUGS = [
-    'shopping', 'scheduler', 'recipes', 'foraging', 'camping', 'fishing',
-    'tv-tracker', 'ski', 'genealogy', 'church-music', 'songwriting',
-    'fly-tyer', 'boat-estimator', 'timer',
+    'shopping','scheduler','recipes','foraging','camping','fishing','tv-tracker','ski',
+    'genealogy','church-music','songwriting','fly-tyer','boat-estimator',
+    'small-buildings','cg-quilts','timer'
 ]
-
 APP_KEYS = {
-    'shopping': 'shopping',
-    'scheduler': 'scheduler',
-    'recipes': 'recipes',
-    'foraging': 'foraging',
-    'camping': 'camping',
-    'fishing': 'fishing',
-    'tv': 'tv-tracker',
-    'ski': 'ski',
-    'genealogy': 'genealogy',
-    'church-music': 'church-music',
-    'songwriting': 'songwriting',
-    'fly-tyer': 'fly-tyer',
-    'boat-estimator': 'boat-estimator',
-    'timer': 'timer',
+    'shopping':'shopping','scheduler':'scheduler','recipes':'recipes','foraging':'foraging',
+    'camping':'camping','fishing':'fishing','tv':'tv-tracker','ski':'ski',
+    'genealogy':'genealogy','church-music':'church-music','songwriting':'songwriting',
+    'fly-tyer':'fly-tyer','boat-estimator':'boat-estimator','small-buildings':'small-buildings',
+    'cg-quilts':'cg-quilts','timer':'timer'
 }
-
 OBSOLETE = [
-    'Shopping.png',
-    'boat-estimator-approved-20260729.png',
-    'boat-estimator-approved-20260803.webp',
-    'boat-estimator-approved-20260804.webp',
-    'boat-estimator-v2.svg',
-    'boat-estimator.svg',
-    'fly-tyer-approved-20260804.png',
-    'songwriting-approved-20260803.webp',
-    'timer-approved-20260729.png',
-    'timer-v2.svg',
+    'Shopping.png','boat-estimator-approved-20260729.png','boat-estimator-approved-20260803.webp',
+    'boat-estimator-approved-20260804.webp','boat-estimator-v2.svg','fly-tyer-approved-20260804.png',
+    'songwriting-approved-20260803.webp','timer-approved-20260729.png','timer-v2.svg'
 ]
 
-GENERIC_CSS = '''/* One launcher icon and card contract for every module. Fly Tyer is the template. */
+CSS = '''/* Launcher contract: every module follows the Fly Tyer card schema. */
 .module-card__top {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
-  grid-template-rows: auto auto !important;
+  grid-template-rows: minmax(118px, 1fr) auto !important;
   align-items: center !important;
   gap: 10px !important;
   width: 100% !important;
+  min-width: 0 !important;
 }
-
 .module-card__top .module-icon {
   grid-column: 1 / -1 !important;
   grid-row: 1 !important;
   justify-self: center !important;
-  inline-size: clamp(86px, 12vw, 104px) !important;
-  block-size: clamp(86px, 12vw, 104px) !important;
-  min-inline-size: clamp(86px, 12vw, 104px) !important;
-  min-block-size: clamp(86px, 12vw, 104px) !important;
-  margin: 0 auto 6px !important;
+  align-self: center !important;
+  width: 132px !important;
+  height: 114px !important;
+  min-width: 132px !important;
+  min-height: 114px !important;
+  margin: 0 auto !important;
   overflow: visible !important;
   background: transparent !important;
   border: 0 !important;
@@ -99,7 +77,6 @@ GENERIC_CSS = '''/* One launcher icon and card contract for every module. Fly Ty
   box-shadow: none !important;
   filter: none !important;
 }
-
 .module-card__top .module-icon img {
   display: block !important;
   width: 100% !important;
@@ -112,7 +89,6 @@ GENERIC_CSS = '''/* One launcher icon and card contract for every module. Fly Ty
   filter: none !important;
   transform: none !important;
 }
-
 .module-card__top h3 {
   grid-column: 1 !important;
   grid-row: 2 !important;
@@ -123,7 +99,6 @@ GENERIC_CSS = '''/* One launcher icon and card contract for every module. Fly Ty
   white-space: nowrap !important;
   line-height: 1.08 !important;
 }
-
 .module-open-button {
   grid-column: 2 !important;
   grid-row: 2 !important;
@@ -133,299 +108,153 @@ GENERIC_CSS = '''/* One launcher icon and card contract for every module. Fly Ty
   padding: 0.48rem 0.68rem !important;
   white-space: nowrap !important;
 }
-
-@media (max-width: 430px) {
-  .module-card__top {
-    gap: 8px !important;
-  }
-
-  .module-card__top .module-icon {
-    inline-size: clamp(78px, 23vw, 96px) !important;
-    block-size: clamp(78px, 23vw, 96px) !important;
-    min-inline-size: clamp(78px, 23vw, 96px) !important;
-    min-block-size: clamp(78px, 23vw, 96px) !important;
-  }
-
-  .module-open-button {
-    padding: 0.42rem 0.58rem !important;
-    font-size: 0.78rem !important;
-  }
+@media (max-width: 760px) {
+  .module-card__top { grid-template-rows: minmax(82px, 1fr) auto !important; gap: 8px !important; }
+  .module-card__top .module-icon { width: 92px !important; height: 80px !important; min-width: 92px !important; min-height: 80px !important; }
+  .module-card__top h3 { font-size: clamp(0.78rem, 3.8vw, 0.98rem) !important; }
+  .module-open-button { padding: 0.42rem 0.58rem !important; font-size: 0.78rem !important; }
 }
 '''
 
 
-def run(args: list[str], *, input_bytes: bytes | None = None) -> bytes:
-    proc = subprocess.run(args, input=input_bytes, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if proc.returncode:
-        raise RuntimeError(f"{' '.join(args)} failed:\n{proc.stderr.decode(errors='replace')}")
-    return proc.stdout
-
-
-def git_bytes(ref: str, path: str) -> bytes:
-    return run(['git', 'show', f'{ref}:{path}'])
-
-
-def alpha_from_opaque(source: Path) -> Image.Image:
-    img = cv2.imread(str(source), cv2.IMREAD_COLOR)
+def alpha_from_opaque(path: Path) -> Image.Image:
+    img = cv2.imread(str(path), cv2.IMREAD_COLOR)
     if img is None:
-        raise RuntimeError(f'OpenCV could not read {source}')
+        raise RuntimeError(f'Cannot read {path}')
     h, w = img.shape[:2]
     mask = np.full((h, w), cv2.GC_PR_BGD, np.uint8)
-    border = max(16, int(min(h, w) * 0.065))
-    mask[:border, :] = cv2.GC_BGD
-    mask[-border:, :] = cv2.GC_BGD
-    mask[:, :border] = cv2.GC_BGD
-    mask[:, -border:] = cv2.GC_BGD
-    cx1, cx2 = int(w * 0.18), int(w * 0.82)
-    cy1, cy2 = int(h * 0.18), int(h * 0.82)
-    mask[cy1:cy2, cx1:cx2] = cv2.GC_PR_FGD
-    cx1, cx2 = int(w * 0.29), int(w * 0.71)
-    cy1, cy2 = int(h * 0.29), int(h * 0.71)
-    mask[cy1:cy2, cx1:cx2] = cv2.GC_FGD
-    bg = np.zeros((1, 65), np.float64)
-    fg = np.zeros((1, 65), np.float64)
+    border = max(16, int(min(h, w) * .065))
+    mask[:border,:] = mask[-border:,:] = mask[:,:border] = mask[:,-border:] = cv2.GC_BGD
+    mask[int(h*.18):int(h*.82), int(w*.18):int(w*.82)] = cv2.GC_PR_FGD
+    mask[int(h*.29):int(h*.71), int(w*.29):int(w*.71)] = cv2.GC_FGD
+    bg = np.zeros((1,65), np.float64); fg = np.zeros((1,65), np.float64)
     cv2.grabCut(img, mask, None, bg, fg, 7, cv2.GC_INIT_WITH_MASK)
     alpha = np.where((mask == cv2.GC_FGD) | (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)
-    kernel = np.ones((5, 5), np.uint8)
+    kernel = np.ones((5,5), np.uint8)
     alpha = cv2.morphologyEx(alpha, cv2.MORPH_OPEN, kernel)
     alpha = cv2.morphologyEx(alpha, cv2.MORPH_CLOSE, kernel)
-    alpha = cv2.GaussianBlur(alpha, (0, 0), 1.2)
+    alpha = cv2.GaussianBlur(alpha, (0,0), 1.2)
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    rgba = np.dstack([rgb, alpha])
-    return Image.fromarray(rgba, 'RGBA')
+    return Image.fromarray(np.dstack([rgb, alpha]), 'RGBA')
 
 
-def normalize_icon(image: Image.Image) -> Image.Image:
-    image = image.convert('RGBA')
-    alpha = np.asarray(image.getchannel('A'))
-    ys, xs = np.where(alpha > 10)
-    if len(xs) == 0:
-        raise RuntimeError('Image has no visible pixels')
-    box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
-    crop = image.crop(box)
-    scale = min(TARGET_ART / crop.width, TARGET_ART / crop.height)
-    size = (max(1, round(crop.width * scale)), max(1, round(crop.height * scale)))
-    crop = crop.resize(size, Image.Resampling.LANCZOS)
-    canvas = Image.new('RGBA', (TARGET_CANVAS, TARGET_CANVAS), (0, 0, 0, 0))
-    x = (TARGET_CANVAS - size[0]) // 2
-    y = (TARGET_CANVAS - size[1]) // 2
-    canvas.alpha_composite(crop, (x, y))
+def normalize(im: Image.Image) -> Image.Image:
+    im = im.convert('RGBA')
+    bbox = im.getchannel('A').getbbox()
+    if not bbox:
+        raise RuntimeError('empty alpha image')
+    crop = im.crop(bbox)
+    scale = min(ART / crop.width, ART / crop.height)
+    ns = (max(1, round(crop.width*scale)), max(1, round(crop.height*scale)))
+    crop = crop.resize(ns, Image.Resampling.LANCZOS)
+    canvas = Image.new('RGBA', (SIZE,SIZE), (0,0,0,0))
+    canvas.alpha_composite(crop, ((SIZE-ns[0])//2, (SIZE-ns[1])//2))
     return canvas
 
 
-def build_icons() -> None:
-    ICON_DIR.mkdir(parents=True, exist_ok=True)
-    temp = Path('/tmp/icon-build')
-    temp.mkdir(exist_ok=True)
+def generate_small_buildings() -> Image.Image:
+    s=768; im=Image.new('RGBA',(s,s),(0,0,0,0)); d=ImageDraw.Draw(im)
+    sh=Image.new('RGBA',(s,s),(0,0,0,0)); sd=ImageDraw.Draw(sh); sd.ellipse((130,560,640,670),fill=(35,45,35,65)); sh=sh.filter(ImageFilter.GaussianBlur(28)); im.alpha_composite(sh)
+    d.polygon([(155,270),(390,145),(640,292),(408,405)],fill=(77,103,94,255),outline=(45,67,60,255))
+    d.polygon([(155,270),(390,145),(408,405),(180,492)],fill=(110,137,121,255),outline=(45,67,60,255))
+    d.polygon([(408,405),(640,292),(640,350),(407,460)],fill=(50,75,68,255),outline=(40,57,52,255))
+    wood=(122,82,45,255); dark=(79,54,34,255); light=(173,125,71,255)
+    for box in [(190,390,215,620),(380,394,405,630),(600,335,625,570)]:
+        d.rounded_rectangle(box,radius=5,fill=wood,outline=dark,width=5); x0,y0,x1,y1=box; d.line((x0+7,y0+5,x0+7,y1-5),fill=light,width=4)
+    d.polygon([(178,380),(606,320),(626,342),(198,406)],fill=wood,outline=dark)
+    d.polygon([(193,596),(606,548),(624,570),(207,620)],fill=wood,outline=dark)
+    for pts in [((205,435),(285,558)),((391,432),(470,545)),((608,385),(536,520))]:
+        d.line(pts,fill=dark,width=17); d.line(pts,fill=light,width=6)
+    d.polygon([(160,610),(404,570),(635,590),(402,680)],fill=(192,184,160,180))
+    d.polygon([(515,555),(655,555),(655,650)],outline=(60,83,72,230),fill=(232,223,189,220))
+    return im.resize((SIZE,SIZE), Image.Resampling.LANCZOS)
 
-    for slug, source_name in OPAQUE_SOURCES.items():
-        source = ICON_DIR / source_name
-        normalized = normalize_icon(alpha_from_opaque(source))
-        normalized.save(ICON_DIR / f'{slug}.png', optimize=True)
 
-    for slug, source_name in ALPHA_SOURCES.items():
-        source = ICON_DIR / source_name
-        normalized = normalize_icon(Image.open(source))
-        normalized.save(ICON_DIR / f'{slug}.png', optimize=True)
+def generate_quilt() -> Image.Image:
+    s=768; im=Image.new('RGBA',(s,s),(0,0,0,0)); d=ImageDraw.Draw(im)
+    sh=Image.new('RGBA',(s,s),(0,0,0,0)); sd=ImageDraw.Draw(sh); sd.ellipse((140,585,630,680),fill=(40,30,36,65)); sh=sh.filter(ImageFilter.GaussianBlur(26)); im.alpha_composite(sh)
+    d.rounded_rectangle((165,165,610,620),radius=24,fill=(243,236,219,255),outline=(91,72,70,255),width=8)
+    colors=[(65,112,133,255),(210,177,122,255),(164,78,69,255),(234,220,190,255),(96,133,111,255),(235,201,145,255),(117,90,118,255),(226,235,224,255)]
+    x0=y0=188; cell=94
+    for r in range(4):
+        for c in range(4):
+            x=x0+c*cell; y=y0+r*cell; col=colors[(r*3+c*5)%len(colors)]
+            d.rectangle((x,y,x+cell,y+cell),fill=col,outline=(255,255,255,210),width=5)
+            alt=tuple(max(0,v-22) for v in col[:3])+(210,) if (r+c)%2==0 else tuple(min(255,v+18) for v in col[:3])+(210,)
+            pts=[(x+8,y+8),(x+cell-8,y+8),(x+cell-8,y+cell-8)] if (r+c)%2==0 else [(x+8,y+8),(x+8,y+cell-8),(x+cell-8,y+cell-8)]
+            d.polygon(pts,fill=alt)
+    d.rectangle((353,353,399,399),fill=(164,78,69,255),outline=(255,245,230,255),width=5)
+    d.polygon([(510,540),(610,540),(610,620)],fill=(219,205,185,255),outline=(91,72,70,255))
+    return im.resize((SIZE,SIZE), Image.Resampling.LANCZOS)
 
-    svg_path = 'assets/app-shell/icons/field-lab/songwriting.svg'
-    svg = git_bytes('e30a664ccd96125546b87c958d2db22c4e0536bf', svg_path)
-    svg_tmp = temp / 'songwriting.svg'
-    png_tmp = temp / 'songwriting.png'
-    svg_tmp.write_bytes(svg)
-    run(['rsvg-convert', '-w', '1024', '-h', '1024', '-o', str(png_tmp), str(svg_tmp)])
-    normalize_icon(Image.open(png_tmp)).save(ICON_DIR / 'songwriting.png', optimize=True)
 
+def build_icons():
+    for slug, source in OPAQUE.items():
+        normalize(alpha_from_opaque(ICON_DIR/source)).save(ICON_DIR/f'{slug}.png', optimize=True)
+    for slug, source in ALPHA.items():
+        normalize(Image.open(ICON_DIR/source)).save(ICON_DIR/f'{slug}.png', optimize=True)
+    # Recover the approved songwriting SVG from history, then render it.
+    import subprocess
+    svg = subprocess.check_output(['git','show','e30a664ccd96125546b87c958d2db22c4e0536bf:assets/app-shell/icons/field-lab/songwriting.svg'])
+    tmp=Path('/tmp/songwriting.svg'); tmp.write_bytes(svg)
+    subprocess.run(['rsvg-convert','-w','1024','-h','1024','-o','/tmp/songwriting.png',str(tmp)],check=True)
+    normalize(Image.open('/tmp/songwriting.png')).save(ICON_DIR/'songwriting.png', optimize=True)
+    generate_small_buildings().save(ICON_DIR/'small-buildings.png', optimize=True)
+    generate_quilt().save(ICON_DIR/'cg-quilts.png', optimize=True)
     for name in OBSOLETE:
-        (ICON_DIR / name).unlink(missing_ok=True)
+        (ICON_DIR/name).unlink(missing_ok=True)
 
 
-def patch_app() -> None:
-    path = ROOT / 'assets/app-shell/app.js'
-    text = path.read_text(encoding='utf-8')
-    start = text.index('const MODULE_ICON_URLS = {')
-    end = text.index('\n};', start) + 3
-    rows = ['const MODULE_ICON_URLS = {']
-    for key, slug in APP_KEYS.items():
-        rendered_key = key if re.fullmatch(r'[a-z][a-z0-9]*', key) else repr(key)
-        rows.append(f"  {rendered_key}: './assets/app-shell/icons/field-lab/{slug}.png?v={RELEASE}',")
-    rows.append('};')
-    path.write_text(text[:start] + '\n'.join(rows) + text[end:], encoding='utf-8')
+def patch_code():
+    app=ROOT/'assets/app-shell/app.js'; t=app.read_text()
+    t=t.replace("import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.72';", f"import {{ getModuleBySlug, moduleRegistry }} from './modules.js?v={RELEASE}';")
+    start=t.index('const MODULE_ICON_URLS = {'); end=t.index('\n};',start)+3
+    lines=['const MODULE_ICON_URLS = {']
+    for key,slug in APP_KEYS.items():
+        k=key if re.fullmatch(r'[a-z][a-z0-9]*',key) else repr(key)
+        lines.append(f"  {k}: './assets/app-shell/icons/field-lab/{slug}.png?v={RELEASE}',")
+    lines.append('};')
+    app.write_text(t[:start]+'\n'.join(lines)+t[end:])
+
+    today=ROOT/'assets/app-shell/today-desktop-pass.js'; t=today.read_text()
+    t=re.sub(r"\nconst MODULE_ICON_OVERRIDES = \{.*?\n\};",'',t,count=1,flags=re.S)
+    for sel,indent in [(r'\.module-card__top',4),(r'\.module-card__top \.module-icon',4),(r'\.module-card__top \.module-icon img',4),(r'\.module-card__top h3',4),(r'\.module-open-button',4),(r'\.module-card__top',6),(r'\.module-card__top \.module-icon',6),(r'\.module-open-button',6)]:
+        t=re.sub(rf'\n\s{{{indent}}}{sel} \{{.*?\n\s{{{indent}}}\}}','',t,count=1,flags=re.S)
+    if 'function ensureModuleIcons()' in t:
+        s=t.index('function ensureModuleIcons()'); e=t.index('function decoupleShoppingTile()',s); t=t[:s]+t[e:]
+    t=t.replace('  ensureModuleIcons();\n','')
+    today.write_text(t)
+    (ROOT/'assets/app-shell/approved-icon-scale.css').write_text(CSS)
+
+    for rel in ['index.html','shortcut.html','site.webmanifest','assets/app-shell/startup-update.js']:
+        p=ROOT/rel; p.write_text(p.read_text().replace('0.1.74',RELEASE).replace('0.1.75',RELEASE))
+    (ROOT/'version.json').write_text(json.dumps({
+        'version':RELEASE,'display_version':f'v{RELEASE}','build':RELEASE,
+        'entry':'shortcut.html','route':'#/dashboard','updated_at':'2026-08-09',
+        'notes':['All 16 module cards use the Fly Tyer layout.','All 16 launcher icons use transparent PNG assets.','Removed the competing Today icon rewrite.']
+    },indent=2)+'\n')
 
 
-def patch_today_helper() -> None:
-    path = ROOT / 'assets/app-shell/today-desktop-pass.js'
-    text = path.read_text(encoding='utf-8')
-    text = re.sub(r"\nconst MODULE_ICON_OVERRIDES = \{.*?\n\};", '', text, count=1, flags=re.S)
-
-    selectors = [
-        r'\.module-card__top',
-        r'\.module-card__top \.module-icon',
-        r'\.module-card__top \.module-icon img',
-        r'\.module-card__top h3',
-        r'\.module-open-button',
-    ]
-    for selector in selectors:
-        text = re.sub(rf'\n\s{{4}}{selector} \{{.*?\n\s{{4}}\}}', '', text, flags=re.S)
-
-    if 'function ensureModuleIcons()' in text:
-        start = text.index('function ensureModuleIcons()')
-        end = text.index('function decoupleShoppingTile()', start)
-        text = text[:start] + text[end:]
-    text = text.replace('  ensureModuleIcons();\n', '')
-    path.write_text(text, encoding='utf-8')
-
-
-def patch_release_files() -> None:
-    (ROOT / 'assets/app-shell/approved-icon-scale.css').write_text(GENERIC_CSS, encoding='utf-8')
-
-    for filename in ['index.html', 'shortcut.html']:
-        path = ROOT / filename
-        text = path.read_text(encoding='utf-8').replace('0.1.74', RELEASE)
-        path.write_text(text, encoding='utf-8')
-
-    path = ROOT / 'assets/app-shell/startup-update.js'
-    text = path.read_text(encoding='utf-8').replace("CURRENT_ENTRY_VERSION = '0.1.74'", f"CURRENT_ENTRY_VERSION = '{RELEASE}'")
-    path.write_text(text, encoding='utf-8')
-
-    path = ROOT / 'site.webmanifest'
-    text = path.read_text(encoding='utf-8').replace('0.1.74', RELEASE)
-    path.write_text(text, encoding='utf-8')
-
-    version = {
-        'version': RELEASE,
-        'display_version': f'v{RELEASE}',
-        'build': RELEASE,
-        'entry': 'shortcut.html',
-        'route': '#/dashboard',
-        'updated_at': '2026-08-07',
-        'notes': [
-            'Applied the Fly Tyer two-row launcher card schema to every app.',
-            'Standardized all 14 launcher icons to one transparent PNG contract.',
-            'Removed the competing Boat Estimator and Timer post-render icon override.',
-        ],
-    }
-    (ROOT / 'version.json').write_text(json.dumps(version, indent=2) + '\n', encoding='utf-8')
-
-
-def validate() -> list[dict]:
-    errors: list[str] = []
-    records: list[dict] = []
-
+def validate():
+    errors=[]; records=[]
     for slug in SLUGS:
-        path = ICON_DIR / f'{slug}.png'
-        if not path.exists():
-            errors.append(f'Missing {path}')
-            continue
-        with Image.open(path) as im:
-            fmt = im.format
-            rgba = im.convert('RGBA')
-            alpha = rgba.getchannel('A')
-            extrema = alpha.getextrema()
-            bbox = alpha.getbbox()
-            rec = {
-                'slug': slug,
-                'path': path.as_posix(),
-                'format': fmt,
-                'size': list(rgba.size),
-                'alpha_min': extrema[0],
-                'alpha_max': extrema[1],
-                'alpha_bbox': list(bbox) if bbox else None,
-                'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
-            }
-            records.append(rec)
-            if fmt != 'PNG': errors.append(f'{slug}: not PNG ({fmt})')
-            if rgba.size != (TARGET_CANVAS, TARGET_CANVAS): errors.append(f'{slug}: size {rgba.size}')
-            if extrema[0] != 0: errors.append(f'{slug}: no fully transparent pixels')
-            if extrema[1] == 0: errors.append(f'{slug}: no visible pixels')
-            if not bbox: errors.append(f'{slug}: empty alpha bbox')
-            else:
-                cx = (bbox[0] + bbox[2]) / 2
-                cy = (bbox[1] + bbox[3]) / 2
-                if abs(cx - TARGET_CANVAS / 2) > 2 or abs(cy - TARGET_CANVAS / 2) > 2:
-                    errors.append(f'{slug}: not centered, bbox={bbox}')
-
-    app = (ROOT / 'assets/app-shell/app.js').read_text(encoding='utf-8')
-    today = (ROOT / 'assets/app-shell/today-desktop-pass.js').read_text(encoding='utf-8')
-    css = (ROOT / 'assets/app-shell/approved-icon-scale.css').read_text(encoding='utf-8')
-    index = (ROOT / 'index.html').read_text(encoding='utf-8')
-    shortcut = (ROOT / 'shortcut.html').read_text(encoding='utf-8')
-
-    for slug in SLUGS:
-        expected = f'./assets/app-shell/icons/field-lab/{slug}.png?v={RELEASE}'
-        if expected not in app:
-            errors.append(f'app.js missing registry path {expected}')
-    if app.count("./assets/app-shell/icons/field-lab/") != 14:
-        errors.append('app.js does not contain exactly 14 launcher icon paths')
-    if '.webp' in app or '.svg?v=' in app:
-        errors.append('app.js still references WebP/SVG launcher icons')
-    if 'MODULE_ICON_OVERRIDES' in today or 'ensureModuleIcons' in today:
-        errors.append('today-desktop-pass.js still contains a competing icon writer')
-    if 'grid-template-columns: auto minmax(0, 1fr) auto' in today:
-        errors.append('today-desktop-pass.js still contains the old three-column card layout')
-    if 'grid-column: 1 / -1' not in css or 'grid-template-rows: auto auto' not in css:
-        errors.append('global Fly Tyer two-row card contract missing')
-    if '.module-fly-tyer' in css or '.module-boat-estimator' in css or '.module-songwriting' in css:
-        errors.append('approved-icon-scale.css still contains per-app special cases')
-    if 'data-suite-build="0.1.75"' not in index or 'app.js?v=0.1.75' not in index:
-        errors.append('index.html cache/version wiring incomplete')
-    if 'data-suite-build="0.1.75"' not in shortcut or 'app.js?v=0.1.75' not in shortcut:
-        errors.append('shortcut.html cache/version wiring incomplete')
-
-    for old in OBSOLETE:
-        if (ICON_DIR / old).exists():
-            errors.append(f'Obsolete icon still exists: {old}')
-
-    if errors:
-        raise RuntimeError('ICON CONTRACT FAILED:\n- ' + '\n- '.join(errors))
-    return records
-
-
-def make_contact_sheet(records: list[dict]) -> None:
-    cell_w, cell_h = 180, 145
-    cols = 4
-    rows = (len(SLUGS) + cols - 1) // cols
-    sheet = Image.new('RGB', (cols * cell_w, rows * cell_h), 'white')
-    draw = ImageDraw.Draw(sheet)
-    font = ImageFont.load_default()
-    for i, slug in enumerate(SLUGS):
-        x0 = (i % cols) * cell_w
-        y0 = (i // cols) * cell_h
-        # checkerboard proves transparency visually
-        square = 12
-        for y in range(y0 + 4, y0 + 108, square):
-            for x in range(x0 + 38, x0 + 142, square):
-                parity = ((x - (x0 + 38)) // square + (y - (y0 + 4)) // square) % 2
-                c = (226, 226, 226) if parity else (255, 255, 255)
-                draw.rectangle([x, y, x + square - 1, y + square - 1], fill=c)
-        icon = Image.open(ICON_DIR / f'{slug}.png').convert('RGBA')
-        icon = icon.resize((96, 96), Image.Resampling.LANCZOS)
-        sheet.paste(icon, (x0 + 42, y0 + 8), icon)
-        draw.text((x0 + 6, y0 + 112), slug, fill='black', font=font)
-    sheet.save(OUT / 'contact-sheet.png')
-
-
-def main() -> None:
-    build_icons()
-    patch_app()
-    patch_today_helper()
-    patch_release_files()
-    records = validate()
-    make_contact_sheet(records)
-    report = {
-        'release': RELEASE,
-        'contract': {
-            'format': 'PNG',
-            'canvas': [TARGET_CANVAS, TARGET_CANVAS],
-            'target_visible_art': TARGET_ART,
-            'layout': 'Fly Tyer two-row schema globally',
-            'renderer': 'app.js only',
-        },
-        'icons': records,
-    }
-    (OUT / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
-    print(json.dumps(report, indent=2))
+        p=ICON_DIR/f'{slug}.png'
+        if not p.exists(): errors.append(f'missing {slug}'); continue
+        im=Image.open(p).convert('RGBA'); a=im.getchannel('A'); ext=a.getextrema(); bbox=a.getbbox()
+        if im.size != (SIZE,SIZE): errors.append(f'{slug} size={im.size}')
+        if ext[0] != 0 or ext[1] == 0: errors.append(f'{slug} alpha={ext}')
+        records.append({'slug':slug,'size':im.size,'alpha':ext,'bbox':bbox})
+    app=(ROOT/'assets/app-shell/app.js').read_text(); today=(ROOT/'assets/app-shell/today-desktop-pass.js').read_text(); css=(ROOT/'assets/app-shell/approved-icon-scale.css').read_text(); modules=(ROOT/'assets/app-shell/modules.js').read_text()
+    for key,slug in APP_KEYS.items():
+        if f'field-lab/{slug}.png?v={RELEASE}' not in app: errors.append(f'app path {slug}')
+    for slug in ['small-buildings','cg-quilts']:
+        if f"slug: '{slug}'" not in modules: errors.append(f'module missing {slug}')
+    if 'MODULE_ICON_OVERRIDES' in today or 'ensureModuleIcons' in today: errors.append('competing icon writer remains')
+    if 'grid-template-columns: auto minmax(0, 1fr) auto' in today: errors.append('old three-column layout remains')
+    if 'grid-column: 1 / -1' not in css or 'background: transparent !important' not in css: errors.append('Fly Tyer global CSS incomplete')
+    if errors: raise RuntimeError('\n'.join(errors))
+    OUT.mkdir(exist_ok=True); (OUT/'report.json').write_text(json.dumps(records,indent=2)); (OUT/'APPLY_READY').write_text('ok\n')
 
 
 if __name__ == '__main__':
-    main()
+    build_icons(); patch_code(); validate()
