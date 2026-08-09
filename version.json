@@ -1,13 +1,13 @@
 {
-  "version": "0.1.74",
-  "display_version": "v0.1.74",
-  "build": "0.1.74",
+  "version": "0.1.76",
+  "display_version": "v0.1.76",
+  "build": "0.1.76",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-08-05",
+  "updated_at": "2026-08-09",
   "notes": [
-    "Made version.json the sole source for the visible version flag.",
-    "Removed the stale v0.1.55 badge writer from the Today helper.",
-    "Centered the Fly Tyer icon through its actual card grid placement."
+    "All 16 module cards use the Fly Tyer layout.",
+    "All 16 launcher icons use transparent PNG assets.",
+    "Removed the competing Today icon rewrite."
   ]
 }
