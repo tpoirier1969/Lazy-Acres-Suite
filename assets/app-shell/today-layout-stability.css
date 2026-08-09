@@ -3,6 +3,144 @@
   min-height: 154px !important;
 }
 
+/* Keep the Today cards in a predictable order regardless of which live sections are present. */
+.today-tile-timer { order: 1 !important; }
+.today-tile-scheduler { order: 2 !important; }
+.today-tile-weather { order: 3 !important; }
+.today-tile-shopping { order: 4 !important; }
+.today-tile-tv { order: 5 !important; }
+
+/* Shopping quick add must always stay inside its card. The label remains available to screen readers. */
+.today-tile-shopping .shopping-quick-add {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.today-tile-shopping .shopping-quick-add > .sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.today-tile-shopping .shopping-quick-add input {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.today-tile-shopping .shopping-quick-add button {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 72px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+
+/* At desktop widths like the reported window, use the full hero width for all four useful Today cards. */
+@media (min-width: 1180px) {
+  .dashboard .hero {
+    min-height: 0 !important;
+    padding: 22px clamp(24px, 2.6vw, 34px) 24px !important;
+    gap: 14px !important;
+  }
+
+  .dashboard .hero-intro {
+    gap: 6px !important;
+  }
+
+  .dashboard .hero-intro h1 {
+    font-size: clamp(2.55rem, 4.35vw, 4.35rem) !important;
+    line-height: 0.96 !important;
+  }
+
+  .dashboard .today-surface {
+    grid-template-columns:
+      minmax(170px, 0.85fr)
+      minmax(180px, 0.9fr)
+      minmax(300px, 1.55fr)
+      minmax(250px, 1.2fr) !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    min-height: 0 !important;
+  }
+
+  .dashboard .today-tile-timer,
+  .dashboard .today-tile-scheduler,
+  .dashboard .today-tile-weather,
+  .dashboard .today-tile-shopping {
+    grid-column: auto !important;
+    min-width: 0 !important;
+    min-height: 154px !important;
+    padding: 14px !important;
+  }
+
+  .dashboard .today-tile-tv {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* A four-card row gives Weather less horizontal room than the old three-card layout.
+     Stack its radar under the text instead of forcing a too-wide nested grid. */
+  .dashboard .today-tile-weather {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto auto !important;
+    row-gap: 4px !important;
+    align-content: start !important;
+    align-items: start !important;
+  }
+
+  .dashboard .today-tile-weather .today-tile-heading,
+  .dashboard .today-tile-weather > p,
+  .dashboard .today-tile-weather > ul,
+  .dashboard .today-tile-weather .weather-radar-panel {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  .dashboard .today-tile-weather .weather-radar-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 4px !important;
+  }
+
+  .dashboard .weather-radar-frame {
+    height: 86px !important;
+  }
+}
+
+/* Medium desktop/tablet: use a compact two-by-two layout instead of forcing the wide row. */
+@media (min-width: 980px) and (max-width: 1179px) {
+  .today-surface {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    min-height: 0 !important;
+  }
+
+  .today-tile-timer,
+  .today-tile-scheduler,
+  .today-tile-weather,
+  .today-tile-shopping {
+    grid-column: auto !important;
+  }
+
+  .today-tile-tv {
+    grid-column: 1 / -1 !important;
+  }
+}
+
 @media (max-width: 979px) {
   .today-surface {
     min-height: 268px !important;
