@@ -1,4 +1,4 @@
-name: Temporary launcher icon contract audit
+name: Temporary launcher icon contract deploy
 
 on:
   pull_request:
@@ -9,46 +9,62 @@ permissions:
   contents: write
 
 jobs:
-  icon-contract:
+  build-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out verification branch
+      - name: Check out deployment helper branch
         uses: actions/checkout@v4
         with:
           ref: fix/icon-contract-2026-08-07
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Preserve deployment script and switch to current main
+        run: |
+          cp .github/icon-contract.py /tmp/icon-contract.py
+          git fetch origin main
+          git checkout -B release/icon-contract-0.1.76 origin/main
 
       - name: Install image tooling
         run: |
           sudo apt-get update
-          sudo apt-get install -y webp
-          python -m pip install --disable-pip-version-check pillow cairosvg
+          sudo apt-get install -y librsvg2-bin
+          python -m pip install --disable-pip-version-check pillow opencv-python-headless numpy
 
-      - name: Run icon contract pipeline
-        run: python .github/icon-contract.py
-
-      - name: Upload verification evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: launcher-icon-contract
-          path: icon-contract-output/
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Commit generated release when requested
+      - name: Build and validate 0.1.76
         run: |
-          if [ ! -f icon-contract-output/APPLY_READY ]; then
-            echo "Audit-only run."
-            exit 0
-          fi
+          python /tmp/icon-contract.py
+          node --check assets/app-shell/app.js
+          node --check assets/app-shell/today-desktop-pass.js
+          node --check assets/app-shell/startup-update.js
+          git diff --check
+          test -f icon-contract-output/APPLY_READY
+
+      - name: Verify release scope
+        run: |
+          git status --short
+          grep -q '"version": "0.1.76"' version.json
+          grep -q "small-buildings.png?v=0.1.76" assets/app-shell/app.js
+          grep -q "cg-quilts.png?v=0.1.76" assets/app-shell/app.js
+          ! grep -q 'MODULE_ICON_OVERRIDES' assets/app-shell/today-desktop-pass.js
+          ! grep -q 'grid-template-columns: auto minmax(0, 1fr) auto' assets/app-shell/today-desktop-pass.js
+
+      - name: Commit verified release branch
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/app-shell/app.js assets/app-shell/approved-icon-scale.css assets/app-shell/icons/field-lab index.html shortcut.html site.webmanifest version.json
+          git add assets/app-shell/app.js \
+                  assets/app-shell/approved-icon-scale.css \
+                  assets/app-shell/today-desktop-pass.js \
+                  assets/app-shell/startup-update.js \
+                  assets/app-shell/icons/field-lab \
+                  index.html shortcut.html site.webmanifest version.json
           git add -u assets/app-shell/icons/field-lab
-          git commit -m "Standardize launcher icons on transparent PNG contract"
-          git push origin HEAD:fix/icon-contract-2026-08-07
+          git commit -m "Fix all launcher icons and card layout in 0.1.76"
+          git push --force origin HEAD:release/icon-contract-0.1.76
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-icon-contract-0.1.76
+          path: icon-contract-output/
+          retention-days: 7
