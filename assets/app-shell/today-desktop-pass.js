@@ -6,10 +6,6 @@ const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json'
 const RAINVIEWER_OPEN_URL = 'https://www.rainviewer.com/map.html';
 const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const LEAFLET_JS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-const MODULE_ICON_OVERRIDES = {
-  'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.svg?v=0.1.55',
-  timer: './assets/app-shell/icons/field-lab/timer.svg?v=0.1.55',
-};
 let attempts = 0;
 let shoppingQuickAddBound = false;
 let leafletPromise = null;
@@ -34,56 +30,10 @@ function installStyles() {
     .module-card__body > p {
       display: none !important;
     }
-    .module-card__top {
-      display: grid !important;
-      grid-template-columns: auto minmax(0, 1fr) auto !important;
-      align-items: center !important;
-      gap: 10px !important;
-      width: 100% !important;
-    }
-    .module-card__top .module-icon {
-      inline-size: clamp(86px, 24vw, 142px) !important;
-      block-size: clamp(86px, 24vw, 142px) !important;
-      min-inline-size: clamp(86px, 24vw, 142px) !important;
-      min-block-size: clamp(86px, 24vw, 142px) !important;
-    }
-    .module-card__top .module-icon img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: contain !important;
-    }
-    .module-card__top h3 {
-      margin: 0 !important;
-      min-width: 0 !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      white-space: nowrap !important;
-      line-height: 1.08 !important;
-    }
-    .module-open-button {
-      width: auto !important;
-      min-width: 0 !important;
-      padding: 0.48rem 0.68rem !important;
-      white-space: nowrap !important;
-      justify-self: end !important;
-    }
     @media (max-width: 430px) {
       .hero-intro h1 {
         font-size: clamp(1rem, 5.25vw, 1.6rem) !important;
         letter-spacing: -0.055em !important;
-      }
-      .module-card__top {
-        gap: 8px !important;
-      }
-      .module-card__top .module-icon {
-        inline-size: clamp(78px, 23vw, 118px) !important;
-        block-size: clamp(78px, 23vw, 118px) !important;
-        min-inline-size: clamp(78px, 23vw, 118px) !important;
-        min-block-size: clamp(78px, 23vw, 118px) !important;
-      }
-      .module-open-button {
-        padding: 0.42rem 0.58rem !important;
-        font-size: 0.78rem !important;
       }
     }
     .today-tile-shopping ul { display: none !important; }
@@ -196,31 +146,6 @@ function renderShoppingQuickAdd() {
       <button type="submit">Add</button>
     </form>
     <div class="shopping-quick-add-status" data-shopping-quick-add-status aria-live="polite"></div>`;
-}
-
-function ensureModuleIcons() {
-  document.querySelectorAll('[data-module-card][data-module-slug]').forEach((card) => {
-    const slug = card.dataset.moduleSlug;
-    const src = MODULE_ICON_OVERRIDES[slug];
-    if (!src) return;
-    let icon = card.querySelector('.module-icon');
-    if (!icon) {
-      icon = document.createElement('span');
-      icon.className = 'module-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      card.querySelector('.module-card__top')?.prepend(icon);
-    }
-    icon.classList.remove('module-icon-missing');
-    let image = icon.querySelector('img');
-    if (!image) {
-      image = document.createElement('img');
-      image.alt = '';
-      image.loading = 'eager';
-      image.decoding = 'async';
-      icon.replaceChildren(image);
-    }
-    if (!image.getAttribute('src')?.includes(src)) image.src = src;
-  });
 }
 
 function decoupleShoppingTile() {
@@ -356,7 +281,6 @@ function bindShoppingQuickAdd() {
 
 function boot() {
   installStyles();
-  ensureModuleIcons();
   decoupleShoppingTile();
   openSuiteLaunchLinksInNewPages();
   ensureShoppingQuickAdd();

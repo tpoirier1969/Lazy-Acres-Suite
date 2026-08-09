@@ -1,42 +1,64 @@
-/* The approved PNG/WebP artwork includes generous transparent margins.
-   Scale only these two images so the visible artwork fills the standard icon box. */
-.module-boat-estimator .module-icon,
-.module-songwriting .module-icon {
-  overflow: visible !important;
-}
-
-.module-boat-estimator .module-icon img[src*="boat-estimator-approved-20260803"],
-.module-songwriting .module-icon img[src*="songwriting-approved-20260803"] {
-  transform-origin: 50% 50% !important;
-  will-change: transform;
-}
-
-.module-boat-estimator .module-icon img[src*="boat-estimator-approved-20260803"] {
-  transform: scale(1.64) !important;
-}
-
-.module-songwriting .module-icon img[src*="songwriting-approved-20260803"] {
-  transform: scale(1.70) !important;
-}
-
-.module-fly-tyer .module-card__top {
+/* Launcher contract: every module follows the Fly Tyer card schema. */
+.module-card__top {
+  display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
-  grid-template-rows: auto auto !important;
+  grid-template-rows: minmax(118px, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
 }
-
-.module-fly-tyer .module-icon {
+.module-card__top .module-icon {
   grid-column: 1 / -1 !important;
   grid-row: 1 !important;
   justify-self: center !important;
-  margin-inline: auto !important;
+  align-self: center !important;
+  width: 132px !important;
+  height: 114px !important;
+  min-width: 132px !important;
+  min-height: 114px !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
-
-.module-fly-tyer .module-card__top h3 {
+.module-card__top .module-icon img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+.module-card__top h3 {
   grid-column: 1 !important;
   grid-row: 2 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  line-height: 1.08 !important;
 }
-
-.module-fly-tyer .module-open-button {
+.module-open-button {
   grid-column: 2 !important;
   grid-row: 2 !important;
+  justify-self: end !important;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0.48rem 0.68rem !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 760px) {
+  .module-card__top { grid-template-rows: minmax(82px, 1fr) auto !important; gap: 8px !important; }
+  .module-card__top .module-icon { width: 92px !important; height: 80px !important; min-width: 92px !important; min-height: 80px !important; }
+  .module-card__top h3 { font-size: clamp(0.78rem, 3.8vw, 0.98rem) !important; }
+  .module-open-button { padding: 0.42rem 0.58rem !important; font-size: 0.78rem !important; }
 }
