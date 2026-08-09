@@ -1,13 +1,13 @@
 {
-  "version": "0.1.76",
-  "display_version": "v0.1.76",
-  "build": "0.1.76",
+  "version": "0.1.77",
+  "display_version": "v0.1.77",
+  "build": "0.1.77",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-09",
   "notes": [
-    "All 16 module cards use the Fly Tyer layout.",
-    "All 16 launcher icons use transparent PNG assets.",
-    "Removed the competing Today icon rewrite."
+    "Wide desktop Today view now places Timer Projects, Calendar, Weather, and Shopping on one row.",
+    "Shopping quick-add input and Add button are constrained inside the Shopping card.",
+    "Wide dashboard hero spacing is reduced to use the available window space more efficiently."
   ]
 }
