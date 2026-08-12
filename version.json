@@ -1,13 +1,13 @@
 {
-  "version": "0.1.77",
-  "display_version": "v0.1.77",
-  "build": "0.1.77",
+  "version": "0.1.78",
+  "display_version": "v0.1.78",
+  "build": "0.1.78",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-08-09",
+  "updated_at": "2026-08-12",
   "notes": [
-    "Wide desktop Today view now places Timer Projects, Calendar, Weather, and Shopping on one row.",
-    "Shopping quick-add input and Add button are constrained inside the Shopping card.",
-    "Wide dashboard hero spacing is reduced to use the available window space more efficiently."
+    "Fly Tyer now opens https://flytying.tpoirier.workers.dev/.",
+    "The landing page checks version.json every minute and reloads when a newer deployed version is available.",
+    "A slower GitHub main-revision check also catches source changes while the landing page remains open."
   ]
 }
