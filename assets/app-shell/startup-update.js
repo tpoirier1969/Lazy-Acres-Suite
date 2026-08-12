@@ -1,7 +1,5 @@
-const CURRENT_ENTRY_VERSION = '0.1.78';
-const MINIMUM_CHECK_GAP_MS = 15_000;
-const PERIODIC_CHECK_MS = 60_000;
-const SOURCE_REVISION_CHECK_MS = 5 * 60_000;
+const CURRENT_ENTRY_VERSION = '0.1.79';
+const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60_000;
 const SOURCE_REVISION_URL = 'https://api.github.com/repos/tpoirier1969/Lazy-Acres-Suite/commits/main';
 const SOURCE_REVISION_STORAGE_KEY = 'lazy-acres-suite-main-revision';
 
@@ -80,7 +78,7 @@ function reloadLatestLandingPage() {
 
 async function checkForShortcutUpdate({ force = false } = {}) {
   const now = Date.now();
-  if (!force && now - lastCheckAt < MINIMUM_CHECK_GAP_MS) return false;
+  if (!force && now - lastCheckAt < UPDATE_CHECK_INTERVAL_MS) return false;
   if (activeCheck) return activeCheck;
 
   lastCheckAt = now;
@@ -120,7 +118,7 @@ async function checkForShortcutUpdate({ force = false } = {}) {
 
 async function checkForSourceRevision({ force = false } = {}) {
   const now = Date.now();
-  if (!force && now - lastSourceRevisionCheckAt < SOURCE_REVISION_CHECK_MS) return false;
+  if (!force && now - lastSourceRevisionCheckAt < UPDATE_CHECK_INTERVAL_MS) return false;
   if (activeSourceRevisionCheck) return activeSourceRevisionCheck;
 
   lastSourceRevisionCheckAt = now;
@@ -158,18 +156,17 @@ async function checkForSourceRevision({ force = false } = {}) {
   return activeSourceRevisionCheck;
 }
 
-async function checkForUpdates({ forceVersion = false, forceSourceRevision = false } = {}) {
-  const versionReloadStarted = await checkForShortcutUpdate({ force: forceVersion });
+async function checkForUpdates({ force = false } = {}) {
+  const versionReloadStarted = await checkForShortcutUpdate({ force });
   if (versionReloadStarted) return;
-  await checkForSourceRevision({ force: forceSourceRevision });
+  await checkForSourceRevision({ force });
 }
 
-window.addEventListener('pageshow', () => checkForUpdates({ forceVersion: true }));
+window.addEventListener('pageshow', () => checkForUpdates());
 window.addEventListener('focus', () => checkForUpdates());
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) checkForUpdates();
 });
-window.setInterval(() => checkForUpdates({ forceVersion: true }), PERIODIC_CHECK_MS);
-window.setInterval(() => checkForUpdates({ forceSourceRevision: true }), SOURCE_REVISION_CHECK_MS);
+window.setInterval(() => checkForUpdates({ force: true }), UPDATE_CHECK_INTERVAL_MS);
 
-checkForUpdates({ forceVersion: true, forceSourceRevision: true });
+checkForUpdates({ force: true });

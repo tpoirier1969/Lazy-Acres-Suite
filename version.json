@@ -1,13 +1,13 @@
 {
-  "version": "0.1.78",
-  "display_version": "v0.1.78",
-  "build": "0.1.78",
+  "version": "0.1.79",
+  "display_version": "v0.1.79",
+  "build": "0.1.79",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-08-12",
   "notes": [
-    "Fly Tyer now opens https://flytying.tpoirier.workers.dev/.",
-    "The landing page checks version.json every minute and reloads when a newer deployed version is available.",
-    "A slower GitHub main-revision check also catches source changes while the landing page remains open."
+    "Fly Tyer opens https://flytying.tpoirier.workers.dev/.",
+    "The landing page checks for updates immediately when it loads.",
+    "While left open, version and GitHub main-revision checks are throttled to once every 24 hours."
   ]
 }
