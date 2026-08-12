@@ -146,7 +146,7 @@ export const moduleRegistry = [
     accentDark: '#f5c56b',
     status: 'legacy-link',
     group: 'commercial-candidate',
-    legacyUrl: 'https://flytying-app.tpoirier.workers.dev/',
+    legacyUrl: 'https://flytying.tpoirier.workers.dev/',
     legacyLabel: 'Open',
   },
   {
