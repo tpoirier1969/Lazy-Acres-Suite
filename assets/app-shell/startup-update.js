@@ -1,9 +1,20 @@
-const CURRENT_ENTRY_VERSION = '0.1.77';
+const CURRENT_ENTRY_VERSION = '0.1.78';
 const MINIMUM_CHECK_GAP_MS = 15_000;
-const PERIODIC_CHECK_MS = 5 * 60_000;
+const PERIODIC_CHECK_MS = 60_000;
+const SOURCE_REVISION_CHECK_MS = 5 * 60_000;
+const SOURCE_REVISION_URL = 'https://api.github.com/repos/tpoirier1969/Lazy-Acres-Suite/commits/main';
+const SOURCE_REVISION_STORAGE_KEY = 'lazy-acres-suite-main-revision';
 
 let lastCheckAt = 0;
+let lastSourceRevisionCheckAt = 0;
 let activeCheck = null;
+let activeSourceRevisionCheck = null;
+let observedSourceRevision = readStoredSourceRevision();
+let latestReloadInfo = {
+  version: CURRENT_ENTRY_VERSION,
+  entry: 'shortcut.html',
+  route: '#/dashboard',
+};
 
 function parseVersion(value = '') {
   return String(value || '')
@@ -32,6 +43,23 @@ function getEmbeddedVersion() {
   return document.documentElement.dataset.suiteBuild || CURRENT_ENTRY_VERSION;
 }
 
+function readStoredSourceRevision() {
+  try {
+    return sessionStorage.getItem(SOURCE_REVISION_STORAGE_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+function storeSourceRevision(revision) {
+  observedSourceRevision = revision;
+  try {
+    sessionStorage.setItem(SOURCE_REVISION_STORAGE_KEY, revision);
+  } catch {
+    // The in-memory copy still lets an open page detect later revisions.
+  }
+}
+
 function versionedUrl(version, entry = 'shortcut.html', route = '#/dashboard') {
   const url = new URL(entry || 'shortcut.html', window.location.href);
   url.searchParams.set('v', version);
@@ -40,9 +68,19 @@ function versionedUrl(version, entry = 'shortcut.html', route = '#/dashboard') {
   return url.toString();
 }
 
+function reloadLatestLandingPage() {
+  window.location.replace(
+    versionedUrl(
+      latestReloadInfo.version || getEmbeddedVersion(),
+      latestReloadInfo.entry || 'shortcut.html',
+      latestReloadInfo.route || window.location.hash || '#/dashboard',
+    ),
+  );
+}
+
 async function checkForShortcutUpdate({ force = false } = {}) {
   const now = Date.now();
-  if (!force && now - lastCheckAt < MINIMUM_CHECK_GAP_MS) return;
+  if (!force && now - lastCheckAt < MINIMUM_CHECK_GAP_MS) return false;
   if (activeCheck) return activeCheck;
 
   lastCheckAt = now;
@@ -53,22 +91,25 @@ async function checkForShortcutUpdate({ force = false } = {}) {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
       });
-      if (!response.ok) return;
+      if (!response.ok) return false;
 
       const info = await response.json();
       const latestVersion = String(info?.version || info?.build || '').trim();
       const embeddedVersion = getEmbeddedVersion();
-      if (!latestVersion || !isNewerVersion(latestVersion, embeddedVersion)) return;
 
-      window.location.replace(
-        versionedUrl(
-          latestVersion,
-          info.entry || 'shortcut.html',
-          info.route || window.location.hash || '#/dashboard',
-        ),
-      );
+      latestReloadInfo = {
+        version: latestVersion || embeddedVersion,
+        entry: info?.entry || 'shortcut.html',
+        route: info?.route || window.location.hash || '#/dashboard',
+      };
+
+      if (!latestVersion || !isNewerVersion(latestVersion, embeddedVersion)) return false;
+
+      reloadLatestLandingPage();
+      return true;
     } catch (error) {
       console.warn('Shortcut update check failed.', error);
+      return false;
     } finally {
       activeCheck = null;
     }
@@ -77,11 +118,61 @@ async function checkForShortcutUpdate({ force = false } = {}) {
   return activeCheck;
 }
 
-window.addEventListener('pageshow', () => checkForShortcutUpdate({ force: true }));
-window.addEventListener('focus', () => checkForShortcutUpdate());
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) checkForShortcutUpdate();
-});
-window.setInterval(() => checkForShortcutUpdate({ force: true }), PERIODIC_CHECK_MS);
+async function checkForSourceRevision({ force = false } = {}) {
+  const now = Date.now();
+  if (!force && now - lastSourceRevisionCheckAt < SOURCE_REVISION_CHECK_MS) return false;
+  if (activeSourceRevisionCheck) return activeSourceRevisionCheck;
 
-checkForShortcutUpdate({ force: true });
+  lastSourceRevisionCheckAt = now;
+  activeSourceRevisionCheck = (async () => {
+    try {
+      const response = await fetch(`${SOURCE_REVISION_URL}?ts=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      });
+      if (!response.ok) return false;
+
+      const info = await response.json();
+      const latestRevision = String(info?.sha || '').trim();
+      if (!latestRevision) return false;
+
+      const previousRevision = observedSourceRevision || readStoredSourceRevision();
+      if (!previousRevision) {
+        storeSourceRevision(latestRevision);
+        return false;
+      }
+      if (latestRevision === previousRevision) return false;
+
+      // Store the new revision before replacing the page so this cannot reload-loop.
+      storeSourceRevision(latestRevision);
+      reloadLatestLandingPage();
+      return true;
+    } catch (error) {
+      console.warn('Landing page source revision check failed.', error);
+      return false;
+    } finally {
+      activeSourceRevisionCheck = null;
+    }
+  })();
+
+  return activeSourceRevisionCheck;
+}
+
+async function checkForUpdates({ forceVersion = false, forceSourceRevision = false } = {}) {
+  const versionReloadStarted = await checkForShortcutUpdate({ force: forceVersion });
+  if (versionReloadStarted) return;
+  await checkForSourceRevision({ force: forceSourceRevision });
+}
+
+window.addEventListener('pageshow', () => checkForUpdates({ forceVersion: true }));
+window.addEventListener('focus', () => checkForUpdates());
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) checkForUpdates();
+});
+window.setInterval(() => checkForUpdates({ forceVersion: true }), PERIODIC_CHECK_MS);
+window.setInterval(() => checkForUpdates({ forceSourceRevision: true }), SOURCE_REVISION_CHECK_MS);
+
+checkForUpdates({ forceVersion: true, forceSourceRevision: true });
