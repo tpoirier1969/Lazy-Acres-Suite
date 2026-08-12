@@ -128,10 +128,7 @@ async function checkForSourceRevision({ force = false } = {}) {
     try {
       const response = await fetch(`${SOURCE_REVISION_URL}?ts=${Date.now()}`, {
         cache: 'no-store',
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
+        headers: { Accept: 'application/vnd.github+json' },
       });
       if (!response.ok) return false;
 
