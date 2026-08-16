@@ -1,4 +1,4 @@
-const CURRENT_ENTRY_VERSION = '0.1.79';
+const CURRENT_ENTRY_VERSION = '0.1.80';
 const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60_000;
 const SOURCE_REVISION_URL = 'https://api.github.com/repos/tpoirier1969/Lazy-Acres-Suite/commits/main';
 const SOURCE_REVISION_STORAGE_KEY = 'lazy-acres-suite-main-revision';

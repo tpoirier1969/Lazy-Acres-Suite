@@ -110,8 +110,10 @@ export const moduleRegistry = [
     accentDark: '#a3e635',
     status: 'legacy-link',
     group: 'commercial-candidate',
-    legacyUrl: 'https://tpoirier1969.github.io/up-foraging-guide/',
+    legacyUrl: 'https://tpoirier1969.github.io/up-foraging-guide/fixed-site/',
     legacyLabel: 'Open',
+    versionManifestUrl: 'https://tpoirier1969.github.io/up-foraging-guide/fixed-site/version.json',
+    versionParam: 'v',
   },
   {
     slug: 'camping',

@@ -1,13 +1,13 @@
 {
-  "version": "0.1.79",
-  "display_version": "v0.1.79",
-  "build": "0.1.79",
+  "version": "0.1.80",
+  "display_version": "v0.1.80",
+  "build": "0.1.80",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-08-12",
+  "updated_at": "2026-08-16",
   "notes": [
-    "Fly Tyer opens https://flytying.tpoirier.workers.dev/.",
-    "The landing page checks for updates immediately when it loads.",
-    "While left open, version and GitHub main-revision checks are throttled to once every 24 hours."
+    "UP Foraging Guide now opens from its active fixed-site app path.",
+    "Version-aware modules resolve cache_bust or version from a no-store manifest request and launch with a stable revision query parameter.",
+    "Modules without version-manifest metadata keep their existing launch behavior."
   ]
 }

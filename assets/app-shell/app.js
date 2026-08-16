@@ -2,7 +2,7 @@ import { authService } from './auth.js?v=0.1.18';
 import { entitlementService } from './entitlements.js?v=0.1.18';
 import { getDashboardSnapshot } from './dashboard-data-live-timer.js?v=0.1.49';
 import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.78';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.80';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
@@ -220,6 +220,41 @@ function getModuleLaunchUrl(slug) {
   return appModule?.legacyUrl || routeToHash(slug);
 }
 
+function getModuleLaunchDataAttrs(slug) {
+  const appModule = getModuleBySlug(slug);
+  return appModule?.legacyUrl && appModule?.versionManifestUrl
+    ? ` data-module-launch="${escapeHtml(slug)}"`
+    : '';
+}
+
+async function resolveModuleLaunchUrl(slug) {
+  const appModule = getModuleBySlug(slug);
+  const fallbackUrl = appModule?.legacyUrl || routeToHash(slug);
+  if (!appModule?.legacyUrl || !appModule.versionManifestUrl) return fallbackUrl;
+
+  try {
+    const manifestUrl = new URL(appModule.versionManifestUrl, window.location.href);
+    manifestUrl.searchParams.set('ts', String(Date.now()));
+    const response = await fetch(manifestUrl, {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) throw new Error(`Version manifest request failed: ${response.status}`);
+
+    const manifest = await response.json();
+    const revision = String(manifest?.cache_bust || manifest?.version || '').trim();
+    if (!revision) throw new Error('Version manifest did not contain cache_bust or version.');
+
+    const launchUrl = new URL(appModule.legacyUrl, window.location.href);
+    launchUrl.searchParams.set(appModule.versionParam || 'v', revision);
+    return launchUrl.toString();
+  } catch (error) {
+    console.warn(`Version-aware launch failed for ${slug}; using fallback URL.`, error);
+    return fallbackUrl;
+  }
+}
+
 function getExternalLinkAttrs(url) {
   return /^https?:\/\//i.test(url) ? ' target="_blank" rel="noopener noreferrer"' : '';
 }
@@ -312,7 +347,7 @@ function renderShell(content) {
 
 function renderLegacyLink(appModule, className) {
   return appModule.legacyUrl
-    ? `<a class="${className}" href="${escapeHtml(appModule.legacyUrl)}"${getExternalLinkAttrs(appModule.legacyUrl)}>${escapeHtml(appModule.legacyLabel || 'Open')}</a>`
+    ? `<a class="${className}" href="${escapeHtml(appModule.legacyUrl)}"${getExternalLinkAttrs(appModule.legacyUrl)}${getModuleLaunchDataAttrs(appModule.slug)}>${escapeHtml(appModule.legacyLabel || 'Open')}</a>`
     : `<button class="${className}" type="button" disabled>${escapeHtml(appModule.legacyLabel || 'Open')}</button>`;
 }
 
@@ -364,7 +399,7 @@ function renderTodayItem(section, item) {
   const slug = section.id === 'recent' ? inferRecentItemRoute(text) : '';
   if (!slug) return `<li>${escapeHtml(text)}</li>`;
   const url = getModuleLaunchUrl(slug);
-  return `<li><a class="today-item-link" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)}>${escapeHtml(text)}</a></li>`;
+  return `<li><a class="today-item-link" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)}${getModuleLaunchDataAttrs(slug)}>${escapeHtml(text)}</a></li>`;
 }
 
 function renderTodayTileContent(section) {
@@ -382,7 +417,7 @@ function renderTodayTiles(snapshot = dashboardSnapshot) {
     const content = renderTodayTileContent(section);
     if (!slug) return `<article class="${classes}">${content}</article>`;
     const url = getModuleLaunchUrl(slug);
-    return `<a class="${classes}" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)} aria-label="Open ${escapeHtml(section.title)}">${content}</a>`;
+    return `<a class="${classes}" href="${escapeHtml(url)}"${getExternalLinkAttrs(url)}${getModuleLaunchDataAttrs(slug)} aria-label="Open ${escapeHtml(section.title)}">${content}</a>`;
   }).join('');
 }
 
@@ -454,10 +489,36 @@ function bindLayoutButtons() {
 }
 
 function openAppInNewPage(slug) {
-  const url = getModuleLaunchUrl(slug);
-  if (!url) return;
-  const opened = window.open(url, '_blank', 'noopener,noreferrer');
-  if (!opened) window.location.href = url;
+  const appModule = getModuleBySlug(slug);
+  const fallbackUrl = getModuleLaunchUrl(slug);
+  if (!fallbackUrl) return;
+
+  if (!appModule?.versionManifestUrl) {
+    const opened = window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) window.location.href = fallbackUrl;
+    return;
+  }
+
+  const opened = window.open('about:blank', '_blank');
+  if (opened) opened.opener = null;
+
+  resolveModuleLaunchUrl(slug).then((url) => {
+    if (opened && !opened.closed) {
+      opened.location.replace(url);
+      return;
+    }
+    window.location.href = url;
+  });
+}
+
+function bindVersionAwareLaunchLinks() {
+  appRoot.querySelectorAll('[data-module-launch]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      openAppInNewPage(link.dataset.moduleLaunch);
+    });
+  });
 }
 
 function bindPreferenceSelects() {
@@ -478,6 +539,7 @@ function bindShellControls() {
   bindThemeButtons();
   bindProfileButtons();
   bindLayoutButtons();
+  bindVersionAwareLaunchLinks();
   bindPreferenceSelects();
 }
 
