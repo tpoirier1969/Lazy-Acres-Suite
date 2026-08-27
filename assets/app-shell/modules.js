@@ -196,7 +196,7 @@ export const moduleRegistry = [
     accentDark: '#e9a9d1',
     status: 'legacy-link',
     group: 'commercial-candidate',
-    legacyUrl: 'https://cg-quilts.tpoirier.workers.dev/',
+    legacyUrl: 'https://country-garden-quilts.tpoirier.workers.dev/',
     legacyLabel: 'Open',
   },
   {
