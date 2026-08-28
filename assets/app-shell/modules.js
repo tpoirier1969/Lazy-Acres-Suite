@@ -26,7 +26,7 @@ export const moduleRegistry = [
     accentDark: '#6ee7a3',
     status: 'legacy-link',
     group: 'household',
-    legacyUrl: 'https://tpoirier1969.github.io/Shopping_list/',
+    legacyUrl: 'https://tpoirier1969.github.io/Shopping_list/?v=1.8.2',
     legacyLabel: 'Open',
   },
   {
