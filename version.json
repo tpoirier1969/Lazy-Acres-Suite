@@ -1,14 +1,13 @@
 {
-  "version": "0.1.81",
-  "display_version": "v0.1.81",
-  "build": "0.1.81",
+  "version": "0.1.82",
+  "display_version": "v0.1.82",
+  "build": "0.1.82",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-10-06",
   "notes": [
-    "Added MusicVerse as a household module served from Cloudflare.",
-    "MusicVerse launches with version-aware cache busting from its version manifest.",
-    "UP Foraging Guide now opens from its active fixed-site app path.",
-    "Version-aware modules resolve cache_bust or version from a no-store manifest request and launch with a stable revision query parameter."
+    "Fixed a reload loop caused by the shortcut landing shell remaining on an older Suite version.",
+    "Synchronized the browser and installed-app landing paths with the current Suite release.",
+    "The update checker now suppresses repeated reloads when the requested current version is already present in the URL."
   ]
 }
