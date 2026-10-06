@@ -1,4 +1,4 @@
-const CURRENT_ENTRY_VERSION = '0.1.80';
+const CURRENT_ENTRY_VERSION = '0.1.82';
 const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60_000;
 const SOURCE_REVISION_URL = 'https://api.github.com/repos/tpoirier1969/Lazy-Acres-Suite/commits/main';
 const SOURCE_REVISION_STORAGE_KEY = 'lazy-acres-suite-main-revision';
@@ -102,6 +102,12 @@ async function checkForShortcutUpdate({ force = false } = {}) {
       };
 
       if (!latestVersion || !isNewerVersion(latestVersion, embeddedVersion)) return false;
+
+      const requestedVersion = new URL(window.location.href).searchParams.get('v') || '';
+      if (requestedVersion === latestVersion) {
+        console.warn(`Landing page still reports ${embeddedVersion} after ${latestVersion} was requested; suppressing a reload loop.`);
+        return false;
+      }
 
       reloadLatestLandingPage();
       return true;
