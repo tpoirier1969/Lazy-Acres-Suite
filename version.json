@@ -1,13 +1,14 @@
 {
-  "version": "0.1.80",
-  "display_version": "v0.1.80",
-  "build": "0.1.80",
+  "version": "0.1.81",
+  "display_version": "v0.1.81",
+  "build": "0.1.81",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-08-16",
+  "updated_at": "2026-10-06",
   "notes": [
+    "Added MusicVerse as a household module served from Cloudflare.",
+    "MusicVerse launches with version-aware cache busting from its version manifest.",
     "UP Foraging Guide now opens from its active fixed-site app path.",
-    "Version-aware modules resolve cache_bust or version from a no-store manifest request and launch with a stable revision query parameter.",
-    "Modules without version-manifest metadata keep their existing launch behavior."
+    "Version-aware modules resolve cache_bust or version from a no-store manifest request and launch with a stable revision query parameter."
   ]
 }
