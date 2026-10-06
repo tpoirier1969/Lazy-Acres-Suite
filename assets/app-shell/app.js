@@ -2,7 +2,7 @@ import { authService } from './auth.js?v=0.1.18';
 import { entitlementService } from './entitlements.js?v=0.1.18';
 import { getDashboardSnapshot } from './dashboard-data-live-timer.js?v=0.1.49';
 import { FIELD_LAB_HERO_IMAGE } from './hero-image.js?v=0.1.18';
-import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.80';
+import { getModuleBySlug, moduleRegistry } from './modules.js?v=0.1.81';
 import { bindHashRouter, navigateTo, routeToHash } from './router.js?v=0.1.18';
 
 const LIVE_BASE_URL = 'https://tpoirier1969.github.io/Lazy-Acres-Suite/';
@@ -36,6 +36,7 @@ const MODULE_ICON_URLS = {
   genealogy: './assets/app-shell/icons/field-lab/genealogy.png?v=0.1.76',
   'church-music': './assets/app-shell/icons/field-lab/church-music.png?v=0.1.76',
   songwriting: './assets/app-shell/icons/field-lab/songwriting.png?v=0.1.76',
+  musicverse: './assets/app-shell/icons/field-lab/musicverse.svg?v=0.1.81',
   'fly-tyer': './assets/app-shell/icons/field-lab/fly-tyer.png?v=0.1.76',
   'boat-estimator': './assets/app-shell/icons/field-lab/boat-estimator.png?v=0.1.76',
   'small-buildings': './assets/app-shell/icons/field-lab/small-buildings.png?v=0.1.76',
