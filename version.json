@@ -1,13 +1,13 @@
 {
-  "version": "0.1.82",
-  "display_version": "v0.1.82",
-  "build": "0.1.82",
+  "version": "0.1.83",
+  "display_version": "v0.1.83",
+  "build": "0.1.83",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-10-06",
+  "updated_at": "2026-10-07",
   "notes": [
-    "Fixed a reload loop caused by the shortcut landing shell remaining on an older Suite version.",
-    "Synchronized the browser and installed-app landing paths with the current Suite release.",
-    "The update checker now suppresses repeated reloads when the requested current version is already present in the URL."
+    "Stopped the Timer shortcut decorator from continuously removing and recreating its DOM after every mutation.",
+    "Eliminated the self-triggered render loop that could make the dashboard flicker, jump, and appear to never finish drawing.",
+    "Bumped the Timer card script cache key so browsers and installed shortcuts receive the stabilized renderer."
   ]
 }

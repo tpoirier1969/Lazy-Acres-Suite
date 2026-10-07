@@ -220,15 +220,32 @@ function renderControls() {
   if (!card) return;
   const body = card.querySelector('.module-card__body') || card;
   const projects = activeTimerProjects();
-  body.querySelector('[data-timer-card-quick]')?.remove();
-  if (!projects.length) return;
+  const existing = body.querySelector('[data-timer-card-quick]');
+
+  if (!projects.length) {
+    existing?.remove();
+    return;
+  }
+
   const rows = projects.map((project) => {
     const time = project.running ? durationShort(project.runningSeconds) : durationLong(project.totalSeconds);
     const meta = [project.running ? `Running ${time}` : `Total ${time}`, project.typeName, project.profile !== 'tod' ? profileLabel(project.profile) : ''].filter(Boolean).join(' · ');
     return `<div class='timer-card-quick-row'><div><div class='timer-card-quick-name'>${html(project.name)}</div><div class='timer-card-quick-meta'>${html(meta)}</div></div><button class='timer-card-quick-button${project.running ? ' is-running' : ''}' type='button' data-timer-quick-toggle data-profile='${html(project.profile)}' data-project='${html(project.id)}' data-running='${project.running ? '1' : '0'}'>${project.running ? 'Stop' : 'Start'}</button></div>`;
   }).join('');
-  body.insertAdjacentHTML('beforeend', `<div class='timer-card-quick' data-timer-card-quick><strong>Timer shortcuts</strong>${rows}</div>`);
-  body.querySelectorAll('[data-timer-quick-toggle]').forEach((button) => {
+  const nextHtml = `<div class='timer-card-quick' data-timer-card-quick><strong>Timer shortcuts</strong>${rows}</div>`;
+
+  if (existing?.__timerRenderedHtml === nextHtml) return;
+
+  const template = document.createElement('template');
+  template.innerHTML = nextHtml.trim();
+  const next = template.content.firstElementChild;
+  if (!next) return;
+
+  next.__timerRenderedHtml = nextHtml;
+  existing?.replaceWith(next);
+  if (!existing) body.appendChild(next);
+
+  next.querySelectorAll('[data-timer-quick-toggle]').forEach((button) => {
     button.addEventListener('click', () => toggleProject(button.dataset.profile, button.dataset.project, button.dataset.running === '1'));
   });
 }
