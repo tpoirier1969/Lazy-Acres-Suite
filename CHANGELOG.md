@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.83 - Stabilize dashboard rendering
+
+- Made the Timer shortcut decorator idempotent instead of removing and recreating its controls on every DOM mutation.
+- Stopped the self-triggered MutationObserver/render loop that could make the dashboard flicker, jump, and appear to never finish drawing.
+- Bumped the Timer shortcut cache key and synchronized the browser, shortcut, manifest, and entry versions.
+
 ## 0.1.8 - Reference-aligned icon assets and hero layout
 
 - Moved the hero Today cards into a right-side 2-by-2 grid beside the welcome text to avoid the poster/bulletin-board feel.
