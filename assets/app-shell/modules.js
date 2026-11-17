@@ -42,6 +42,18 @@ export const moduleRegistry = [
     legacyLabel: 'Open',
   },
   {
+    slug: 'vacation',
+    title: 'Lazy Acres Vacation Planner',
+    shortTitle: 'Vacation Planner',
+    description: 'Shared trips, places and ideas, day-by-day itinerary, map discovery, and driving routes.',
+    accentLight: '#287c79',
+    accentDark: '#e8ba6e',
+    status: 'legacy-link',
+    group: 'household',
+    legacyUrl: 'https://tpoirier1969.github.io/Vacation-Planner/',
+    legacyLabel: 'Open',
+  },
+  {
     slug: 'recipes',
     title: 'Recipe Tracker',
     shortTitle: 'Recipes',
