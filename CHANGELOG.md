@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.84 - Vacation Planner launcher
+
+- Added **Lazy Acres Vacation Planner** to the household module grid and direct hash route `/#/vacation`.
+- Reused the actual Vacation Planner roadside-sign artwork from its existing public deployment; no generic placeholder icon.
+- Updated the module registry import, page and shortcut cache versions, web manifest, and in-app update version.
+- Left existing app links, order customization, Today widgets, and auth behavior unchanged.
+
+
 ## 0.1.83 - Stabilize dashboard rendering
 
 - Made the Timer shortcut decorator idempotent instead of removing and recreating its controls on every DOM mutation.
