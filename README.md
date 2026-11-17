@@ -43,6 +43,10 @@ During testing, Tod and Donna can see and open every module without logging in. 
 - `assets/app-shell/auth.js`
 - `assets/app-shell/entitlements.js`
 
+## Vacation Planner
+
+The household dashboard includes **Vacation Planner**, which opens the separate shared planning app at `https://tpoirier1969.github.io/Vacation-Planner/`. The dashboard uses the app's own sign artwork and does not duplicate its trip data, Supabase credentials, or authentication. The module is declared in `assets/app-shell/modules.js`.
+
 ## Legacy app links
 
 Legacy app pages are not copied into this repo. Current apps are linked externally from `assets/app-shell/modules.js`.
