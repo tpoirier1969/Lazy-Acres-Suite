@@ -1,13 +1,12 @@
 {
-  "version": "0.1.83",
-  "display_version": "v0.1.83",
-  "build": "0.1.83",
+  "version": "0.1.84",
+  "display_version": "v0.1.84",
+  "build": "0.1.84",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-10-07",
+  "updated_at": "2026-11-17",
   "notes": [
-    "Stopped the Timer shortcut decorator from continuously removing and recreating its DOM after every mutation.",
-    "Eliminated the self-triggered render loop that could make the dashboard flicker, jump, and appear to never finish drawing.",
-    "Bumped the Timer card script cache key so browsers and installed shortcuts receive the stabilized renderer."
+    "Added Vacation Planner to the household landing-page modules, with its real sign artwork and direct launch.",
+    "Preserved existing module links, layouts, Today cards, and installed shortcut update behavior."
   ]
 }
