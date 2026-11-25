@@ -1,11 +1,12 @@
 {
-  "version": "0.1.85",
-  "display_version": "v0.1.85",
-  "build": "0.1.85",
+  "version": "0.1.86",
+  "display_version": "v0.1.86",
+  "build": "0.1.86",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-11-25",
   "notes": [
-    "Compact tappable module tiles with full-width wrapping titles; preserve arrangement controls and version-aware launch."
+    "Installed selected Songwriting, MusicVerse, Foraging, Small Buildings, and Boat Estimator artwork.",
+    "Calendar shows all events returned (up to 100) and card height adjusts to event count."
   ]
 }

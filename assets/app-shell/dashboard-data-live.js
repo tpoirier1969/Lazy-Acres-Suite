@@ -198,15 +198,15 @@ async function readScheduler(requirement) {
     .eq('event_date', today)
     .neq('status', 'cancelled')
     .order('start_time', { ascending: true })
-    .limit(8);
+    .limit(100);
   if (error) throw error;
   const events = data || [];
   if (!events.length) return connectedSection(requirement, 'No calendar events today.', []);
   return connectedSection(
     requirement,
     `${events.length} calendar item${events.length === 1 ? '' : 's'} today.`,
-    events.slice(0, 4).map((event) => ({ time: formatEventTime(event), title: formatEventTitle(event) })),
-    { limit: 4 },
+    events.map((event) => ({ time: formatEventTime(event), title: formatEventTitle(event) })),
+    { limit: 100 },
   );
 }
 

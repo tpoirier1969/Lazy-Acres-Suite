@@ -1,6 +1,6 @@
 /* Reserve the final Today-card footprint before live data arrives. */
 .today-surface {
-  min-height: 154px !important;
+  min-height: 0 !important;
 }
 
 /* Keep the Today cards in a predictable order regardless of which live sections are present. */
@@ -143,12 +143,19 @@
 
 @media (max-width: 979px) {
   .today-surface {
-    min-height: 268px !important;
+    min-height: 0 !important;
   }
 }
 
 @media (max-width: 760px) {
   .today-surface {
-    min-height: 372px !important;
+    min-height: 0 !important;
+    align-items: start !important;
+    grid-auto-rows: max-content !important;
+  }
+  .today-tile-scheduler {
+    height: max-content !important;
+    min-height: 0 !important;
+    align-self: start !important;
   }
 }
