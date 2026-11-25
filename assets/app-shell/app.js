@@ -366,7 +366,7 @@ function renderAppCard(appModule, index = 0, modules = moduleRegistry) {
   const reorderClass = moduleReorderMode ? ' module-card-reorder' : '';
   return `
     <article class="module-card module-${escapeHtml(appModule.slug)}${reorderClass}" style="--module-accent: ${escapeHtml(accent)};" data-module-card data-module-slug="${escapeHtml(appModule.slug)}" draggable="${moduleReorderMode ? 'true' : 'false'}">
-      <div class="module-card__top">${renderModuleIcon(appModule.slug)}<h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3>${renderLegacyLink(appModule, 'button button-primary button-compact module-open-button')}</div>
+      ${appModule.legacyUrl && !moduleReorderMode ? `<a class="module-card__top module-launch-tile" href="${escapeHtml(appModule.legacyUrl)}"${getExternalLinkAttrs(appModule.legacyUrl)}${getModuleLaunchDataAttrs(appModule.slug)}>${renderModuleIcon(appModule.slug)}<h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3></a>` : `<div class="module-card__top">${renderModuleIcon(appModule.slug)}<h3>${escapeHtml(appModule.shortTitle || appModule.title)}</h3>${appModule.legacyUrl ? '' : '<span class="module-availability">Not live</span>'}</div>`}
       ${renderReorderActions(appModule, index, modules.length)}
     </article>`;
 }
