@@ -1,12 +1,11 @@
 {
-  "version": "0.1.88",
-  "display_version": "v0.1.88",
-  "build": "0.1.88",
+  "version": "0.1.89",
+  "display_version": "v0.1.89",
+  "build": "0.1.89",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-11-25",
   "notes": [
-    "Content-driven dashboard height; remove stored height reservation.",
-    "Shopping quick add supports manual category selection from shared categories."
+    "Restore radar initialization after dashboard redraws and retry failed radar requests."
   ]
 }

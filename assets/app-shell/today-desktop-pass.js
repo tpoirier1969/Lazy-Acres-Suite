@@ -1,12 +1,12 @@
 import { addShoppingItem, getShoppingCategories, getDefaultShoppingCategories } from './dashboard-data-live.js?v=0.1.88';
 
 const STYLE_ID = 'lazy-acres-today-pass-style';
-const MAX_ATTEMPTS = 60;
+
 const RAINVIEWER_API_URL = 'https://api.rainviewer.com/public/weather-maps.json';
 const RAINVIEWER_OPEN_URL = 'https://www.rainviewer.com/map.html';
 const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const LEAFLET_JS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-let attempts = 0;
+
 let shoppingQuickAddBound = false;
 let leafletPromise = null;
 let rainviewerPromise = null;
@@ -135,7 +135,7 @@ async function getRainviewerFrame() {
         return { host: data.host, path: latest.path, generated: data.generated || latest.time };
       });
   }
-  return rainviewerPromise;
+  try { return await rainviewerPromise; } catch (error) { rainviewerPromise = null; throw error; }
 }
 
 function populateShoppingCategories(select, categories) {
@@ -196,7 +196,17 @@ function scheduleRainviewerMap(mapElement, panel) {
 
 function ensureWeatherRadar() {
   const tile = document.querySelector('.today-tile-weather');
-  if (!tile || tile.querySelector('[data-weather-radar]')) return;
+  if (!tile) return;
+  const existing = tile.querySelector('[data-weather-radar]');
+  if (existing) {
+    const frame = existing.querySelector('[data-weather-radar-map]');
+    if (frame?.dataset.mapReady === 'failed' && Date.now() - Number(frame.dataset.failedAt || 0) > 30000) {
+      existing.classList.remove('weather-radar-unavailable');
+      delete frame.dataset.mapReady;
+      scheduleRainviewerMap(frame, existing);
+    }
+    return;
+  }
 
   const panel = document.createElement('div');
   panel.className = 'weather-radar-panel';
@@ -247,6 +257,7 @@ async function initializeRainviewerMap(mapElement, panel) {
   } catch (error) {
     console.warn('RainViewer radar unavailable.', error);
     mapElement.dataset.mapReady = 'failed';
+    mapElement.dataset.failedAt = String(Date.now());
     panel?.classList.add('weather-radar-unavailable');
   }
 }
@@ -294,11 +305,11 @@ function boot() {
   installStyles();
   decoupleShoppingTile();
   openSuiteLaunchLinksInNewPages();
-  ensureShoppingQuickAdd();
-  bindShoppingQuickAdd();
   ensureWeatherRadar();
-  attempts += 1;
-  if (attempts < MAX_ATTEMPTS) window.setTimeout(boot, 250);
+  try { ensureShoppingQuickAdd(); bindShoppingQuickAdd(); } catch (error) { console.warn('Shopping quick add initialization failed.', error); }
 }
 
 boot();
+const dashboardObserver = new MutationObserver(() => { ensureWeatherRadar(); });
+dashboardObserver.observe(document.getElementById('app'), {childList:true,subtree:true});
+window.setInterval(ensureWeatherRadar, 30000);
