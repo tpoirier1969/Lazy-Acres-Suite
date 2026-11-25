@@ -1,7 +1,10 @@
-/* Reserve the final Today-card footprint before live data arrives. */
+/* Let Today cards determine the dashboard height. */
 .today-surface {
   min-height: 0 !important;
+  grid-auto-rows: auto;
+  align-items: start !important;
 }
+.today-surface .today-tile { min-height: 0 !important; }
 
 /* Keep the Today cards in a predictable order regardless of which live sections are present. */
 .today-tile-timer { order: 1 !important; }
@@ -73,7 +76,7 @@
       minmax(180px, 0.9fr)
       minmax(300px, 1.55fr)
       minmax(250px, 1.2fr) !important;
-    align-items: stretch !important;
+    align-items: start !important;
     gap: 12px !important;
     min-height: 0 !important;
   }
@@ -84,7 +87,7 @@
   .dashboard .today-tile-shopping {
     grid-column: auto !important;
     min-width: 0 !important;
-    min-height: 154px !important;
+    min-height: 0 !important;
     padding: 14px !important;
   }
 

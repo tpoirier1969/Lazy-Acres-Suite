@@ -9,7 +9,8 @@
 .hero {
   display: grid !important;
   grid-template-columns: 1fr !important;
-  grid-template-rows: minmax(0, auto) minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  min-height: 0 !important;
   align-items: stretch !important;
   gap: clamp(16px, 2.4vw, 26px) !important;
 }
@@ -86,13 +87,13 @@
   .today-tile-weather {
     grid-column: 2 !important;
     order: 2 !important;
-    min-height: 154px !important;
+    min-height: 0 !important;
   }
 
   .today-tile-shopping {
     grid-column: 3 !important;
     order: 3 !important;
-    min-height: 154px !important;
+    min-height: 0 !important;
   }
 
   .today-tile-tv {
@@ -121,7 +122,7 @@
 
 .today-tile-scheduler,
 .today-tile-shopping {
-  min-height: 126px !important;
+  min-height: 0 !important;
 }
 
 @media (min-width: 980px) {
@@ -347,7 +348,7 @@
     column-gap: 9px !important;
     row-gap: 2px !important;
     align-items: start !important;
-    min-height: 104px !important;
+    min-height: 0 !important;
   }
 
   .today-tile-weather .today-tile-heading,

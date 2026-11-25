@@ -1,4 +1,4 @@
-import { addShoppingItem } from './dashboard-data-live.js?v=0.1.52';
+import { addShoppingItem, getShoppingCategories, getDefaultShoppingCategories } from './dashboard-data-live.js?v=0.1.88';
 
 const STYLE_ID = 'lazy-acres-today-pass-style';
 const MAX_ATTEMPTS = 60;
@@ -45,7 +45,7 @@ function installStyles() {
       margin: 5px 0 !important;
       width: 100% !important;
     }
-    .shopping-quick-add input {
+    .shopping-quick-add input, .shopping-quick-add select {
       flex: 1 1 auto !important;
       min-width: 0 !important;
       border: 1px solid rgb(80 92 72 / 0.22);
@@ -138,12 +138,19 @@ async function getRainviewerFrame() {
   return rainviewerPromise;
 }
 
+function populateShoppingCategories(select, categories) {
+  const selected = select.value;
+  select.replaceChildren(new Option('Automatic category', ''), ...categories.map(category => new Option(category, category)));
+  select.value = selected;
+}
+
 function renderShoppingQuickAdd() {
   return `
     <form class="shopping-quick-add" data-shopping-quick-add>
       <label class="sr-only" for="shoppingQuickAddInput">Add item to shopping list</label>
       <input id="shoppingQuickAddInput" name="item" type="text" autocomplete="off" placeholder="Add item…" aria-label="Add item to shopping list">
       <button type="submit">Add</button>
+      <select name="category" aria-label="Shopping category" style="grid-column:1 / -1; width:100%; min-width:0"><option value="">Automatic category</option></select>
     </form>
     <div class="shopping-quick-add-status" data-shopping-quick-add-status aria-live="polite"></div>`;
 }
@@ -171,6 +178,9 @@ function ensureShoppingQuickAdd() {
   const tile = document.querySelector('.today-tile-shopping');
   if (!tile || tile.querySelector('[data-shopping-quick-add]')) return;
   tile.insertAdjacentHTML('beforeend', renderShoppingQuickAdd());
+  const select = tile.querySelector('select[name="category"]');
+  populateShoppingCategories(select, getDefaultShoppingCategories());
+  getShoppingCategories().then(categories => populateShoppingCategories(select, categories)).catch(error => console.warn('Shopping categories unavailable; using defaults.', error));
 }
 
 function scheduleRainviewerMap(mapElement, panel) {
@@ -261,9 +271,10 @@ function bindShoppingQuickAdd() {
     if (button) button.disabled = true;
     if (status) status.textContent = 'Adding…';
     try {
-      await addShoppingItem(value);
+      const saved = await addShoppingItem(value, form.querySelector('select[name="category"]')?.value);
+      form.querySelector('select[name="category"]').value = '';
       if (input) input.value = '';
-      if (status) status.textContent = `Added ${value}.`;
+      if (status) status.textContent = `Added ${value} · ${saved.category}.`;
     } catch (error) {
       console.warn('Shopping quick add failed.', error);
       if (status) status.textContent = error?.message || 'Could not add item.';

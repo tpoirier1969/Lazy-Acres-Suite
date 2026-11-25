@@ -1,12 +1,12 @@
 {
-  "version": "0.1.87",
-  "display_version": "v0.1.87",
-  "build": "0.1.87",
+  "version": "0.1.88",
+  "display_version": "v0.1.88",
+  "build": "0.1.88",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-11-25",
   "notes": [
-    "Remove redundant mobile app shortcut dropdown; preserve theme, profile and arrangement controls.",
-    "Display installed build version without a network request."
+    "Content-driven dashboard height; remove stored height reservation.",
+    "Shopping quick add supports manual category selection from shared categories."
   ]
 }

@@ -1,4 +1,4 @@
-import { getDashboardSnapshot as getBaseDashboardSnapshot, addShoppingItem } from './dashboard-data-live.js?v=0.1.86';
+import { getDashboardSnapshot as getBaseDashboardSnapshot, addShoppingItem } from './dashboard-data-live.js?v=0.1.88';
 
 export { addShoppingItem };
 

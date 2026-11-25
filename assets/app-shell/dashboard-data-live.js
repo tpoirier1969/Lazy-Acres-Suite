@@ -312,12 +312,62 @@ async function guessShoppingCategory(client, itemName, storeName = 'shopping') {
   return getLearnedShoppingCategory(rules, normalized, storeName) || guessBuiltInShoppingCategory(normalized) || 'Other';
 }
 
-export async function addShoppingItem(itemName) {
+const SHOPPING_CATEGORIES = [
+    'Fruit',
+    'Vegetables',
+    'Frozen',
+    'Condiments',
+    'Gluten Free',
+    'Canned',
+    'Ethnic',
+    'Dried',
+    'Spices',
+    'Baking supplies',
+    'Snacks',
+    'Baked goods',
+    'Coffee/Tea',
+    'Juice/Pop',
+    'Dairy',
+    'Eggs',
+    'Cheese',
+    'Meat',
+    'Alcohol',
+    'Paper Goods',
+    'Cleaning Supplies',
+    'Pet Supplies',
+    'Clothes',
+    'Sporting Goods',
+    'Household',
+    'Gardening',
+    'Holiday',
+    'Health and Beauty',
+    'Candy',
+    'Plumbing',
+    'Flooring',
+    'Paint',
+    'Fasteners',
+    'Tools',
+    'Windows/Doors',
+    'Lumber',
+    'Shelving',
+    'Auto',
+    'Other',
+  ];
+
+export async function getShoppingCategories() {
+  const client = await getSupabaseClient();
+  const {data,error} = await client.schema(SHOPPING_SCHEMA).from('categories').select('category_name,sort_order').eq('household_id',SHOPPING_HOUSEHOLD_ID).order('sort_order');
+  if (error) throw error;
+  return [...new Set([...SHOPPING_CATEGORIES,...(data || []).map(row=>row.category_name).filter(Boolean)])];
+}
+export function getDefaultShoppingCategories() { return [...SHOPPING_CATEGORIES]; }
+
+export async function addShoppingItem(itemName, selectedCategory = '') {
   const cleanName = String(itemName || '').trim();
   if (!cleanName) throw new Error('Enter an item first.');
   const now = new Date().toISOString();
   const client = await getSupabaseClient();
-  const category = await guessShoppingCategory(client, cleanName, 'shopping');
+  const category = String(selectedCategory || '').trim() || await guessShoppingCategory(client, cleanName, 'shopping');
   const payload = {
     id: makeShoppingId(),
     household_id: SHOPPING_HOUSEHOLD_ID,
