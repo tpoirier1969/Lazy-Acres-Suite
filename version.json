@@ -1,12 +1,11 @@
 {
-  "version": "0.1.84",
-  "display_version": "v0.1.84",
-  "build": "0.1.84",
+  "version": "0.1.85",
+  "display_version": "v0.1.85",
+  "build": "0.1.85",
   "entry": "shortcut.html",
   "route": "#/dashboard",
-  "updated_at": "2026-11-17",
+  "updated_at": "2026-11-25",
   "notes": [
-    "Added Vacation Planner to the household landing-page modules, with its real sign artwork and direct launch.",
-    "Preserved existing module links, layouts, Today cards, and installed shortcut update behavior."
+    "Compact tappable module tiles with full-width wrapping titles; preserve arrangement controls and version-aware launch."
   ]
 }
