@@ -1,12 +1,12 @@
 {
-  "version": "0.1.86",
-  "display_version": "v0.1.86",
-  "build": "0.1.86",
+  "version": "0.1.87",
+  "display_version": "v0.1.87",
+  "build": "0.1.87",
   "entry": "shortcut.html",
   "route": "#/dashboard",
   "updated_at": "2026-11-25",
   "notes": [
-    "Installed selected Songwriting, MusicVerse, Foraging, Small Buildings, and Boat Estimator artwork.",
-    "Calendar shows all events returned (up to 100) and card height adjusts to event count."
+    "Remove redundant mobile app shortcut dropdown; preserve theme, profile and arrangement controls.",
+    "Display installed build version without a network request."
   ]
 }

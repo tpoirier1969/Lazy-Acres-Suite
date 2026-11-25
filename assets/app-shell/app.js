@@ -53,29 +53,10 @@ let moduleReorderMode = false;
 let activeResolvedTheme = null;
 let dashboardSnapshot = getFallbackDashboardSnapshot();
 let dashboardSnapshotRequestId = 0;
-let appVersion = 'Version unavailable';
+let appVersion = document.documentElement.dataset.suiteBuild ? `v${document.documentElement.dataset.suiteBuild.replace(/^v/i, '')}` : 'Version unavailable';
 
 function escapeHtml(value) {
   return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
-}
-
-async function loadAppVersion() {
-  try {
-    const response = await fetch(`./version.json?ts=${Date.now()}`, {
-      cache: 'no-store',
-      credentials: 'same-origin',
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) throw new Error(`Version request failed: ${response.status}`);
-
-    const info = await response.json();
-    const rawVersion = String(info?.display_version || info?.version || info?.build || '').trim();
-    if (!rawVersion) throw new Error('Version response did not contain a version.');
-
-    appVersion = rawVersion.startsWith('v') ? rawVersion : `v${rawVersion}`;
-  } catch (error) {
-    console.warn('Version flag unavailable.', error);
-  }
 }
 
 function getFallbackDashboardSnapshot() {
@@ -284,36 +265,6 @@ function renderLayoutControl() {
   return `<button class="layout-change${moduleReorderMode ? ' layout-change-active' : ''}" type="button" data-layout-toggle>${moduleReorderMode ? 'Done' : 'Arrange'}</button>`;
 }
 
-function renderAppLaunchOptions() {
-  return getOrderedModules()
-    .map((appModule) => `<option value="open:${escapeHtml(appModule.slug)}">Open ${escapeHtml(appModule.shortTitle || appModule.title)}</option>`)
-    .join('');
-}
-
-function renderMobilePreferences() {
-  const profileLabel = activeUserProfile ? USER_PROFILE_LABELS[activeUserProfile] : 'Choose user';
-  return `
-    <select class="mobile-preferences" data-mobile-preferences aria-label="Theme, user, layout, and app shortcuts">
-      <option value="">${escapeHtml(getThemeLabel())} · ${escapeHtml(profileLabel)}</option>
-      <optgroup label="Open app">
-        ${renderAppLaunchOptions()}
-      </optgroup>
-      <optgroup label="Theme">
-        <option value="theme:auto">Auto theme</option>
-        <option value="theme:field">Field theme</option>
-        <option value="theme:aurora">Aurora theme</option>
-      </optgroup>
-      <optgroup label="User">
-        <option value="profile:tod">Tod</option>
-        <option value="profile:donna">Donna</option>
-        <option value="profile:guest">Guest</option>
-      </optgroup>
-      <optgroup label="Layout">
-        <option value="layout:toggle">${moduleReorderMode ? 'Finish arranging modules' : 'Arrange modules'}</option>
-      </optgroup>
-    </select>`;
-}
-
 function renderProfilePrompt() {
   if (activeUserProfile) return '';
   return `
@@ -340,7 +291,7 @@ function renderShell(content) {
           <img class="brand-icon" src="${APP_ICON_URL}" alt="" aria-hidden="true" />
           <span><strong>Lazy Acres Suite</strong><small>Home base</small></span>
         </a>
-        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderLayoutControl()}${renderMobilePreferences()}<span class="version-flag" aria-label="App version">${escapeHtml(appVersion)}</span></div>
+        <div class="header-actions">${renderThemeControl()}${renderProfileControl()}${renderLayoutControl()}<span class="version-flag" aria-label="App version">${escapeHtml(appVersion)}</span></div>
       </header>
       ${content}
     </div>
@@ -523,26 +474,12 @@ function bindVersionAwareLaunchLinks() {
   });
 }
 
-function bindPreferenceSelects() {
-  appRoot.querySelectorAll('[data-mobile-preferences]').forEach((select) => {
-    select.addEventListener('change', () => {
-      const [kind, value] = String(select.value || '').split(':');
-      select.value = '';
-      if (kind === 'theme') setThemeMode(value);
-      if (kind === 'profile') setUserProfile(value);
-      if (kind === 'layout') setModuleReorderMode(!moduleReorderMode);
-      if (kind === 'open') openAppInNewPage(value);
-    });
-  });
-}
-
 function bindShellControls() {
   bindRouteButtons();
   bindThemeButtons();
   bindProfileButtons();
   bindLayoutButtons();
   bindVersionAwareLaunchLinks();
-  bindPreferenceSelects();
 }
 
 function showRenderError(error) {
@@ -581,7 +518,6 @@ async function renderRoute(route) {
 if (!appRoot) throw new Error('Missing app shell root element.');
 
 async function boot() {
-  await loadAppVersion();
   applyTheme();
   bindHashRouter((route) => renderRoute(route).catch(showRenderError));
 }
